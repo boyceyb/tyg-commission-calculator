@@ -358,19 +358,27 @@
             const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
             const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
 
+            console.log('Calculating for:', { billings, currentLevel, isFirstYear }); // Debug log
+
             const gbpBillings = currency === 'USD' ? billings / exchangeRate : billings;
             const { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold } = calculateCommissionWithPromotions(gbpBillings, currentLevel, isFirstYear);
             const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
             const totalEarnings = totalCommission + baseSalary + teamBonus;
 
+            console.log('Results:', { totalCommission, finalLevel, promotions }); // Debug log
+
             // Update breakdown
             const breakdownItems = document.getElementById('breakdownItems');
-            breakdownItems.innerHTML = breakdown.map(item => 
-                `<div class="breakdown-item">
-                    <span class="breakdown-left">${formatCurrency(item.billings, 'GBP')} @ ${item.level} (${(item.rate * 100).toFixed(1)}%)</span>
-                    <span class="breakdown-right">${formatCurrency(item.commission, 'GBP')}</span>
-                </div>`
-            ).join('');
+            if (breakdown && breakdown.length > 0) {
+                breakdownItems.innerHTML = breakdown.map(item => 
+                    `<div class="breakdown-item">
+                        <span class="breakdown-left">${formatCurrency(item.billings, 'GBP')} @ ${item.level} (${(item.rate * 100).toFixed(1)}%)</span>
+                        <span class="breakdown-right">${formatCurrency(item.commission, 'GBP')}</span>
+                    </div>`
+                ).join('');
+            } else {
+                breakdownItems.innerHTML = '<div class="breakdown-item"><span class="breakdown-left">No commission breakdown available</span></div>';
+            }
 
             // Update earnings
             document.getElementById('commissionValue').textContent = formatCurrency(totalCommission, 'GBP');
