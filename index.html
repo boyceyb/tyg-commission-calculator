@@ -15,10 +15,7 @@
             color: #2d3748;
         }
         
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }
+        .container { max-width: 1200px; margin: 0 auto; }
         
         .header { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -30,25 +27,10 @@
             text-align: center;
         }
         
-        .header h1 { 
-            font-size: 32px; 
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
+        .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .header p { font-size: 18px; opacity: 0.9; }
         
-        .header p { 
-            font-size: 18px; 
-            opacity: 0.9;
-            font-weight: 300;
-        }
-        
-        .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 32px;
-            margin-bottom: 32px;
-        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
         
         .card { 
             background: white;
@@ -56,7 +38,6 @@
             padding: 32px;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
         }
         
         .card h3 { 
@@ -69,59 +50,76 @@
             gap: 12px;
         }
         
-        .input-group { 
-            margin-bottom: 24px; 
-        }
+        .input-group { margin-bottom: 24px; }
         
         .input-group label { 
             display: block; 
-            font-size: 15px; 
+            font-size: 12px; 
             font-weight: 600; 
             color: #4a5568;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: 12px;
         }
         
-        .input-group input, 
-        .input-group select { 
+        .input-group input, .input-group select { 
             width: 100%; 
             padding: 16px 20px; 
             border: 2px solid #e2e8f0; 
             border-radius: 12px; 
             font-size: 16px;
             font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             background: #f9fafb;
         }
         
-        .input-group input:focus, 
-        .input-group select:focus { 
+        .input-group input:focus, .input-group select:focus { 
             outline: none; 
             border-color: #667eea; 
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
             background: white;
-            transform: translateY(-1px);
         }
         
-        .input-group input::placeholder {
-            color: #a0aec0;
-            font-weight: 400;
+        /* Toggle Switch */
+        .toggle-container { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 16px; 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            border: 2px solid #e2e8f0; 
+            margin-bottom: 24px; 
         }
         
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-            margin: 32px 0;
+        .toggle { 
+            position: relative; 
+            width: 52px; 
+            height: 28px; 
+            background: #cbd5e1; 
+            border-radius: 14px; 
+            cursor: pointer; 
+            transition: background 0.3s ease; 
         }
         
-        .result-section {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
+        .toggle.active { background: #10b981; }
+        
+        .toggle-thumb { 
+            position: absolute; 
+            top: 2px; 
+            left: 2px; 
+            width: 24px; 
+            height: 24px; 
+            background: white; 
+            border-radius: 12px; 
+            transition: transform 0.3s ease; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
+        
+        .toggle.active .toggle-thumb { transform: translateX(24px); }
+        
+        /* Results Styling */
+        .result-section { background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
         
         .result-item { 
             display: flex; 
@@ -136,22 +134,16 @@
             border-bottom: none; 
             font-weight: 700; 
             font-size: 20px;
-            padding-top: 20px;
-            margin-top: 8px;
             border-top: 2px solid #667eea;
             color: #667eea;
+            margin-top: 8px;
+            padding-top: 20px;
         }
         
-        .result-label {
-            color: #64748b;
-            font-weight: 500;
-        }
+        .result-label { color: #64748b; font-weight: 500; }
+        .result-value { font-weight: 700; color: #1a202c; }
         
-        .result-value {
-            font-weight: 700;
-            color: #1a202c;
-        }
-        
+        /* Commission Breakdown */
         .breakdown { 
             background: white;
             padding: 20px; 
@@ -162,38 +154,119 @@
         
         .breakdown h4 {
             color: #1a202c;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: 14px;
         }
         
         .breakdown-item { 
             display: flex; 
             justify-content: space-between; 
-            align-items: center;
             margin-bottom: 12px; 
             font-size: 15px;
             padding: 8px 0;
         }
         
-        .breakdown-item:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
+        .breakdown-desc { color: #64748b; font-weight: 500; }
+        .breakdown-amount { color: #1a202c; font-weight: 700; }
+        
+        /* Status Boxes */
+        .status { 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
         }
         
-        .breakdown-desc {
-            color: #64748b;
-            font-weight: 500;
+        .status.success { 
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); 
+            border: 2px solid #bbf7d0; 
         }
         
-        .breakdown-amount {
-            color: #1a202c;
-            font-weight: 700;
+        .status.error { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); 
+            border: 2px solid #fecaca; 
         }
         
+        .status-title { 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            font-size: 16px; 
+        }
+        
+        .status.success .status-title { color: #166534; }
+        .status.error .status-title { color: #dc2626; }
+        .status-text { font-size: 14px; color: #64748b; }
+        
+        /* Progress Bars */
+        .progress-container { margin-bottom: 20px; }
+        
+        .progress-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 12px; 
+        }
+        
+        .progress-label { 
+            font-size: 16px; 
+            font-weight: 600; 
+            color: #2c3e50; 
+        }
+        
+        .progress-type { 
+            font-size: 12px; 
+            color: #64748b; 
+            background: #f1f5f9; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+        }
+        
+        .progress-bar { 
+            width: 100%; 
+            height: 16px; 
+            background: #e8edf3; 
+            border-radius: 8px; 
+            overflow: hidden; 
+        }
+        
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); 
+            transition: width 0.3s ease; 
+        }
+        
+        .progress-stats { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 14px; 
+            color: #64748b; 
+            margin-top: 8px; 
+        }
+        
+        .progress-remaining { 
+            font-size: 14px; 
+            color: #64748b; 
+            margin-top: 12px; 
+        }
+        
+        /* Promotion Badge */
+        .promotion-badge { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
+            color: #166534; 
+            padding: 16px 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            border: 2px solid #bbf7d0; 
+        }
+        
+        .promotion-badge h4 { 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+        }
+        
+        /* Reset Button */
         .reset-btn { 
             background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
             color: white; 
@@ -205,7 +278,7 @@
             cursor: pointer; 
             width: 100%; 
             margin-top: 24px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -215,61 +288,10 @@
             box-shadow: 0 8px 24px rgba(113, 128, 150, 0.4);
         }
         
-        .reset-btn:active {
-            transform: translateY(0);
-        }
-        
-        .hidden { 
-            display: none; 
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        
-        .status-active { background: #48bb78; }
-        .status-inactive { background: #cbd5e0; }
+        .hidden { display: none; }
         
         @media (max-width: 768px) {
-            .grid { 
-                grid-template-columns: 1fr; 
-                gap: 24px;
-            }
-            
-            .header {
-                padding: 24px;
-            }
-            
-            .header h1 {
-                font-size: 28px;
-            }
-            
-            .card {
-                padding: 24px;
-            }
-        }
-        
-        /* Loading animation */
-        .calculating {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        
-        /* Smooth transitions */
-        .result-item, .breakdown-item {
-            transition: all 0.2s ease;
-        }
-        
-        .result-item:hover, .breakdown-item:hover {
-            background: rgba(102, 126, 234, 0.02);
-            border-radius: 8px;
-            margin: 0 -8px;
-            padding-left: 8px;
-            padding-right: 8px;
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -290,9 +312,20 @@
                     <input type="number" id="billings" placeholder="Enter your annual billings...">
                 </div>
                 
-                <div class="section-divider"></div>
+                <div class="input-group">
+                    <label>Currency</label>
+                    <select id="currency">
+                        <option value="GBP">GBP (£)</option>
+                        <option value="USD">USD ($)</option>
+                    </select>
+                </div>
                 
-                <h3>⚙️ Position Details</h3>
+                <div class="input-group hidden" id="exchangeGroup">
+                    <label>USD/GBP Exchange Rate</label>
+                    <input type="number" id="exchangeRate" value="1.27" step="0.01" placeholder="Exchange rate">
+                </div>
+                
+                <h3 style="margin-top: 32px;">⚙️ Position Details</h3>
                 
                 <div class="input-group">
                     <label>Current Level</label>
@@ -304,14 +337,30 @@
                     </select>
                 </div>
                 
+                <div class="toggle-container" id="toggleContainer">
+                    <div>
+                        <div style="font-size: 16px; font-weight: 600;">First Year Employee</div>
+                        <div style="font-size: 14px; color: #64748b;">Enables fast-track promotion eligibility</div>
+                    </div>
+                    <div class="toggle active" id="firstYearToggle">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                
                 <div class="input-group">
                     <label>Base Salary (£)</label>
                     <input type="number" id="baseSalary" placeholder="Enter your base salary...">
                 </div>
                 
-                <button class="reset-btn" onclick="resetAll()">
-                    🔄 Reset Calculator
-                </button>
+                <div id="teamSection" class="hidden">
+                    <div class="input-group">
+                        <label>Team Annual Billings (£)</label>
+                        <input type="number" id="teamBillings" placeholder="Enter team billings...">
+                        <small style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;">10% commission on team billings for Principal Consultants</small>
+                    </div>
+                </div>
+                
+                <button class="reset-btn" onclick="resetAll()">🔄 Reset Calculator</button>
             </div>
 
             <!-- Results Panel -->
@@ -325,85 +374,94 @@
                 
                 <div class="result-section">
                     <div class="result-item">
-                        <span class="result-label">
-                            <span class="status-indicator status-active"></span>
-                            Commission Earnings
-                        </span>
+                        <span class="result-label">Commission Earnings</span>
                         <span class="result-value" id="commissionValue">£0</span>
                     </div>
                     
                     <div class="result-item">
-                        <span class="result-label">
-                            <span class="status-indicator status-active"></span>
-                            Base Salary
-                        </span>
+                        <span class="result-label">Base Salary</span>
                         <span class="result-value" id="salaryValue">£0</span>
                     </div>
                     
+                    <div class="result-item hidden" id="teamBonusRow">
+                        <span class="result-label">Team Bonus</span>
+                        <span class="result-value" id="teamBonusValue">£0</span>
+                    </div>
+                    
                     <div class="result-item">
-                        <span class="result-label">
-                            <span class="status-indicator status-active"></span>
-                            Total Annual Compensation
-                        </span>
+                        <span class="result-label">Total Annual Compensation</span>
                         <span class="result-value" id="totalValue">£0</span>
                     </div>
+                </div>
+                
+                <div id="thresholdStatus" class="status hidden">
+                    <div class="status-title" id="statusTitle">Threshold Status</div>
+                    <div class="status-text" id="statusText">Enter billings to see threshold status</div>
+                </div>
+                
+                <div id="promotionProgress" class="hidden">
+                    <h3 style="margin-bottom: 20px;">📈 Promotion Progress</h3>
+                    <div id="promotionContent"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Commission calculation engine
-        function calculateCommission(billings, level) {
-            const thresholds = {
-                'Consultant': 35000,
-                'Consultant II': 40000,
-                'Senior Consultant': 40000,
-                'Principal Consultant': 40000
-            };
+        // Commission thresholds and rates
+        const thresholds = {
+            consultant: 35000,
+            consultantii: 40000,
+            seniorconsultant: 40000,
+            principalconsultant: 40000
+        };
 
-            const threshold = thresholds[level];
-            const commissionable = Math.max(0, billings - threshold);
+        const promotionThresholds = {
+            fastTrack: { consultantII: 100000, senior: 140000, principal: 180000 },
+            standard: { senior: 160000, principal: 200000 }
+        };
+
+        // Professional currency formatting
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-GB', {
+                style: 'currency',
+                currency: 'GBP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(Math.round(amount || 0));
+        }
+
+        // Commission calculation with promotions
+        function calculateCommissionWithPromotions(gbpBillings, startingLevel, firstYear) {
+            const levelKey = startingLevel.toLowerCase().replace(/\s+/g, '');
+            const yearlyThreshold = thresholds[levelKey];
+            const commissionableBillings = Math.max(0, gbpBillings - yearlyThreshold);
             
-            if (level === 'Consultant') {
-                return {
-                    total: commissionable * 0.20,
-                    breakdown: commissionable > 0 ? [{ desc: 'Consultant Rate (20%)', amount: commissionable * 0.20 }] : []
-                };
-            } 
-            
-            if (level === 'Consultant II') {
-                return {
-                    total: commissionable * 0.225,
-                    breakdown: commissionable > 0 ? [{ desc: 'Consultant II Rate (22.5%)', amount: commissionable * 0.225 }] : []
-                };
-            } 
-            
-            if (level === 'Senior Consultant') {
-                if (commissionable <= 60000) {
-                    const commission = commissionable * 0.25;
-                    return {
-                        total: commission,
-                        breakdown: commission > 0 ? [{ desc: 'Senior Rate (25%)', amount: commission }] : []
-                    };
+            let totalCommission = 0;
+            let finalLevel = startingLevel;
+            let promotions = [];
+            let breakdown = [];
+
+            // Simplified calculation - single level for now
+            if (startingLevel === 'Consultant') {
+                totalCommission = commissionableBillings * 0.20;
+                breakdown.push({ desc: 'Consultant Rate (20%)', amount: totalCommission });
+            } else if (startingLevel === 'Consultant II') {
+                totalCommission = commissionableBillings * 0.225;
+                breakdown.push({ desc: 'Consultant II Rate (22.5%)', amount: totalCommission });
+            } else if (startingLevel === 'Senior Consultant') {
+                if (commissionableBillings <= 60000) {
+                    totalCommission = commissionableBillings * 0.25;
+                    breakdown.push({ desc: 'Senior Rate (25%)', amount: totalCommission });
                 } else {
                     const first = 60000 * 0.25;
-                    const second = (commissionable - 60000) * 0.30;
-                    return {
-                        total: first + second,
-                        breakdown: [
-                            { desc: '£40k-£100k Range (25%)', amount: first },
-                            { desc: '£100k+ Range (30%)', amount: second }
-                        ]
-                    };
+                    const second = (commissionableBillings - 60000) * 0.30;
+                    totalCommission = first + second;
+                    breakdown.push({ desc: '£40k-£100k Range (25%)', amount: first });
+                    breakdown.push({ desc: '£100k+ Range (30%)', amount: second });
                 }
-            } 
-            
-            if (level === 'Principal Consultant') {
-                let total = 0;
-                let breakdown = [];
-                let remaining = commissionable;
-
+            } else if (startingLevel === 'Principal Consultant') {
+                let remaining = commissionableBillings;
                 const brackets = [
                     { max: 60000, rate: 0.25, desc: '£40k-£100k Range (25%)' },
                     { max: 100000, rate: 0.30, desc: '£100k-£200k Range (30%)' },
@@ -416,93 +474,223 @@
                     if (remaining <= 0) break;
                     const amount = Math.min(remaining, bracket.max);
                     const commission = amount * bracket.rate;
-                    
                     if (commission > 0) {
-                        total += commission;
+                        totalCommission += commission;
                         breakdown.push({ desc: bracket.desc, amount: commission });
                     }
                     remaining -= amount;
                 }
-
-                return { total, breakdown };
             }
 
-            return { total: 0, breakdown: [] };
+            return { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold };
         }
 
-        // Professional currency formatting
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-GB', {
-                style: 'currency',
-                currency: 'GBP',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-            }).format(Math.round(amount || 0));
+        function updatePromotionProgress(gbpBillings, finalLevel, currentLevel, isFirstYear, promotions) {
+            const content = document.getElementById('promotionContent');
+            
+            if (promotions.length > 0) {
+                content.innerHTML = `
+                    <div class="promotion-badge">
+                        <h4>🎉 Promoted: ${promotions.join(' → ')}</h4>
+                        <p style="font-size: 12px; margin-top: 4px;">Commission calculated at new level</p>
+                    </div>
+                `;
+            } else {
+                // Show next target
+                let nextTarget = null;
+                if (finalLevel === 'Consultant' && isFirstYear) {
+                    nextTarget = { level: 'Consultant II', threshold: promotionThresholds.fastTrack.consultantII, type: 'fast-track' };
+                } else if (finalLevel === 'Consultant II' && isFirstYear) {
+                    nextTarget = { level: 'Senior Consultant', threshold: promotionThresholds.fastTrack.senior, type: 'fast-track' };
+                } else if (finalLevel === 'Senior Consultant' && isFirstYear && currentLevel === 'Consultant') {
+                    nextTarget = { level: 'Principal Consultant', threshold: promotionThresholds.fastTrack.principal, type: 'fast-track' };
+                } else if ((finalLevel === 'Consultant' || finalLevel === 'Consultant II') && !isFirstYear) {
+                    nextTarget = { level: 'Senior Consultant', threshold: promotionThresholds.standard.senior, type: 'standard' };
+                } else if (finalLevel === 'Senior Consultant' && (!isFirstYear || currentLevel !== 'Consultant')) {
+                    nextTarget = { level: 'Principal Consultant', threshold: promotionThresholds.standard.principal, type: 'standard' };
+                }
+
+                if (nextTarget) {
+                    const progress = Math.min((gbpBillings / nextTarget.threshold) * 100, 100);
+                    const remaining = Math.max(0, nextTarget.threshold - gbpBillings);
+                    
+                    content.innerHTML = `
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">Next: ${nextTarget.level}</span>
+                                <span class="progress-type">${nextTarget.type === 'fast-track' ? '🚀 Fast-track' : '📈 Standard'}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="progress-stats">
+                                <span>${progress.toFixed(1)}% complete</span>
+                                <span>${formatCurrency(nextTarget.threshold)} needed</span>
+                            </div>
+                            <div class="progress-remaining">
+                                <strong>Remaining:</strong> ${formatCurrency(remaining)}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #64748b;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">🏆</div>
+                            <p style="font-weight: 600;">At highest available level</p>
+                            <p style="font-size: 12px;">No further promotions in this path</p>
+                        </div>
+                    `;
+                }
+            }
         }
 
         // Main calculation update function
         function updateCalculation() {
             const billings = parseFloat(document.getElementById('billings').value) || 0;
-            const level = document.getElementById('currentLevel').value;
+            const currency = document.getElementById('currency').value;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1.27;
+            const currentLevel = document.getElementById('currentLevel').value;
+            const isFirstYear = document.getElementById('firstYearToggle').classList.contains('active') && currentLevel === 'Consultant';
             const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
 
-            // Add calculating state
-            document.querySelector('.card:last-child').classList.add('calculating');
-            
-            setTimeout(() => {
-                if (billings > 0) {
-                    const result = calculateCommission(billings, level);
-                    const commission = result.total;
-                    const total = commission + baseSalary;
+            if (billings > 0) {
+                const gbpBillings = currency === 'USD' ? billings / exchangeRate : billings;
+                const result = calculateCommissionWithPromotions(gbpBillings, currentLevel, isFirstYear);
+                const { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold } = result;
+                const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
+                const total = totalCommission + baseSalary + teamBonus;
 
-                    // Update main values
-                    document.getElementById('commissionValue').textContent = formatCurrency(commission);
-                    document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
-                    document.getElementById('totalValue').textContent = formatCurrency(total);
+                // Update main values
+                document.getElementById('commissionValue').textContent = formatCurrency(totalCommission);
+                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
+                document.getElementById('teamBonusValue').textContent = formatCurrency(teamBonus);
+                document.getElementById('totalValue').textContent = formatCurrency(total);
 
-                    // Update breakdown
-                    const breakdownEl = document.getElementById('breakdown');
-                    const breakdownItems = document.getElementById('breakdownItems');
-                    
-                    if (result.breakdown.length > 0) {
-                        breakdownItems.innerHTML = result.breakdown.map(item => 
-                            `<div class="breakdown-item">
-                                <span class="breakdown-desc">${item.desc}</span>
-                                <span class="breakdown-amount">${formatCurrency(item.amount)}</span>
-                            </div>`
-                        ).join('');
-                        breakdownEl.classList.remove('hidden');
-                    } else {
-                        breakdownEl.classList.add('hidden');
-                    }
+                // Show/hide team bonus
+                if (teamBonus > 0) {
+                    document.getElementById('teamBonusRow').classList.remove('hidden');
                 } else {
-                    // Clear all values
-                    document.getElementById('commissionValue').textContent = '£0';
-                    document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
-                    document.getElementById('totalValue').textContent = formatCurrency(baseSalary);
-                    document.getElementById('breakdown').classList.add('hidden');
+                    document.getElementById('teamBonusRow').classList.add('hidden');
                 }
+
+                // Update breakdown
+                const breakdownEl = document.getElementById('breakdown');
+                const breakdownItems = document.getElementById('breakdownItems');
                 
-                // Remove calculating state
-                document.querySelector('.card:last-child').classList.remove('calculating');
-            }, 100);
+                if (breakdown.length > 0) {
+                    breakdownItems.innerHTML = breakdown.map(item => 
+                        `<div class="breakdown-item">
+                            <span class="breakdown-desc">${item.desc}</span>
+                            <span class="breakdown-amount">${formatCurrency(item.amount)}</span>
+                        </div>`
+                    ).join('');
+                    breakdownEl.classList.remove('hidden');
+                } else {
+                    breakdownEl.classList.add('hidden');
+                }
+
+                // Update threshold status
+                const meetsThreshold = gbpBillings >= yearlyThreshold;
+                const statusEl = document.getElementById('thresholdStatus');
+                const statusTitle = document.getElementById('statusTitle');
+                const statusText = document.getElementById('statusText');
+                
+                statusEl.className = `status ${meetsThreshold ? 'success' : 'error'}`;
+                statusTitle.textContent = meetsThreshold ? '✅ Threshold Met' : '❌ Threshold Not Met';
+                statusText.textContent = `Required: ${formatCurrency(yearlyThreshold)} | Current: ${formatCurrency(gbpBillings)} | ${meetsThreshold ? 'Surplus' : 'Shortfall'}: ${formatCurrency(Math.abs(gbpBillings - yearlyThreshold))}`;
+
+                // Update promotion progress
+                updatePromotionProgress(gbpBillings, finalLevel, currentLevel, isFirstYear, promotions);
+
+                // Show all sections
+                document.getElementById('thresholdStatus').classList.remove('hidden');
+                document.getElementById('promotionProgress').classList.remove('hidden');
+            } else {
+                // Clear all values
+                document.getElementById('commissionValue').textContent = '£0';
+                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
+                document.getElementById('teamBonusValue').textContent = '£0';
+                document.getElementById('totalValue').textContent = formatCurrency(baseSalary);
+                document.getElementById('breakdown').classList.add('hidden');
+                document.getElementById('thresholdStatus').classList.add('hidden');
+                document.getElementById('promotionProgress').classList.add('hidden');
+                document.getElementById('teamBonusRow').classList.add('hidden');
+            }
+        }
+
+        function handleLevelChange() {
+            const currentLevel = document.getElementById('currentLevel').value;
+            const toggleContainer = document.getElementById('toggleContainer');
+            const teamSection = document.getElementById('teamSection');
+            
+            // Show/hide first year toggle (only for Consultant)
+            if (currentLevel === 'Consultant') {
+                toggleContainer.style.display = 'flex';
+            } else {
+                toggleContainer.style.display = 'none';
+                document.getElementById('firstYearToggle').classList.remove('active');
+            }
+            
+            // Show/hide team section (only for Principal Consultant)
+            if (currentLevel === 'Principal Consultant') {
+                teamSection.classList.remove('hidden');
+            } else {
+                teamSection.classList.add('hidden');
+            }
+            
+            updateCalculation();
+        }
+
+        function toggleFirstYear() {
+            const toggle = document.getElementById('firstYearToggle');
+            const currentLevel = document.getElementById('currentLevel').value;
+            
+            if (currentLevel === 'Consultant') {
+                toggle.classList.toggle('active');
+                updateCalculation();
+            }
+        }
+
+        function handleCurrencyChange() {
+            const currency = document.getElementById('currency').value;
+            const exchangeGroup = document.getElementById('exchangeGroup');
+            
+            if (currency === 'USD') {
+                exchangeGroup.classList.remove('hidden');
+            } else {
+                exchangeGroup.classList.add('hidden');
+            }
+            
+            updateCalculation();
         }
 
         // Reset function
         function resetAll() {
             document.getElementById('billings').value = '';
+            document.getElementById('currency').value = 'GBP';
+            document.getElementById('exchangeRate').value = '1.27';
             document.getElementById('currentLevel').value = 'Consultant';
             document.getElementById('baseSalary').value = '';
+            document.getElementById('teamBillings').value = '';
+            document.getElementById('firstYearToggle').classList.add('active');
+            
+            handleLevelChange();
             updateCalculation();
         }
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('billings').addEventListener('input', updateCalculation);
-            document.getElementById('currentLevel').addEventListener('change', updateCalculation);
+            document.getElementById('currency').addEventListener('change', handleCurrencyChange);
+            document.getElementById('exchangeRate').addEventListener('input', updateCalculation);
+            document.getElementById('currentLevel').addEventListener('change', handleLevelChange);
             document.getElementById('baseSalary').addEventListener('input', updateCalculation);
+            document.getElementById('teamBillings').addEventListener('input', updateCalculation);
+            document.getElementById('firstYearToggle').addEventListener('click', toggleFirstYear);
             
-            // Initial calculation
+            // Initial setup
+            handleLevelChange();
             updateCalculation();
         });
     </script>
