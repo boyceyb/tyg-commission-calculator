@@ -17,7 +17,7 @@
         .title h1 { font-size: 24px; font-weight: bold; color: #1e293b; }
         .title p { font-size: 14px; color: #64748b; margin-top: 4px; }
         .icon { background: #1e293b; padding: 12px; border-radius: 8px; color: white; font-size: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
         .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 16px; border: 1px solid #e2e8f0; }
         .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
         .input-group { margin-bottom: 12px; }
@@ -64,6 +64,9 @@
         .promotion-badge h4 { font-weight: 600; margin-bottom: 4px; }
         .chart-container { height: 300px; position: relative; }
         .hidden { display: none; }
+        .reset-btn { background: linear-gradient(135deg, #64748b 0%, #475569 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; width: 100%; }
+        .reset-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3); }
+        .reset-btn:active { transform: translateY(0); }
 
         @media (max-width: 768px) {
             .grid { grid-template-columns: 1fr; }
@@ -245,6 +248,30 @@
             return { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold };
         }
 
+        // Reset function
+        function resetCalculator() {
+            // Clear all input fields
+            document.getElementById('billings').value = '';
+            document.getElementById('currency').value = 'GBP';
+            document.getElementById('exchangeRate').value = '1.27';
+            document.getElementById('currentLevel').value = 'Consultant';
+            document.getElementById('baseSalary').value = '';
+            document.getElementById('teamBillings').value = '';
+            
+            // Reset toggle to active (first year)
+            document.getElementById('firstYearToggle').classList.add('active');
+            
+            // Hide all results
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('thresholdStatus').classList.add('hidden');
+            document.getElementById('promotionProgress').classList.add('hidden');
+            
+            // Reset visibility based on level
+            handleLevelChange();
+            
+            console.log('✅ Calculator reset');
+        }
+
         // Event handler functions - defined globally
         function handleInputChange() {
             console.log('💡 Input changed, updating results...');
@@ -320,11 +347,11 @@
                     ).join('');
                 }
 
-                // Update earnings
-                document.getElementById('commissionValue').textContent = formatCurrency(totalCommission, 'GBP');
-                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary, 'GBP');
-                document.getElementById('teamBonusValue').textContent = formatCurrency(teamBonus, 'GBP');
-                document.getElementById('totalValue').textContent = formatCurrency(totalEarnings, 'GBP');
+                // Update earnings with null checks
+                document.getElementById('commissionValue').textContent = formatCurrency(totalCommission || 0, 'GBP');
+                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary || 0, 'GBP');
+                document.getElementById('teamBonusValue').textContent = formatCurrency(teamBonus || 0, 'GBP');
+                document.getElementById('totalValue').textContent = formatCurrency(totalEarnings || 0, 'GBP');
 
                 // Show/hide team bonus
                 if (teamBonus > 0) {
@@ -350,9 +377,6 @@
                 document.getElementById('results').classList.remove('hidden');
                 document.getElementById('thresholdStatus').classList.remove('hidden');
                 document.getElementById('promotionProgress').classList.remove('hidden');
-
-                // Update chart
-                updateChart();
                 
             } catch (error) {
                 console.error('Calculation error:', error);
@@ -419,88 +443,7 @@
         }
 
         function updateChart() {
-            const ctx = document.getElementById('earningsChart').getContext('2d');
-            
-            if (chart) {
-                chart.destroy();
-            }
-
-            const currentLevel = document.getElementById('currentLevel').value;
-            const isFirstYear = document.getElementById('firstYearToggle').classList.contains('active') && currentLevel === 'Consultant';
-            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
-            const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
-            
-            const data = [];
-            for (let billings = 50000; billings <= 400000; billings += 25000) {
-                const { totalCommission, finalLevel } = calculateCommissionWithPromotions(billings, currentLevel, isFirstYear);
-                const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
-                const totalEarnings = totalCommission + baseSalary + teamBonus;
-                data.push({
-                    x: billings / 1000,
-                    y: totalEarnings / 1000
-                });
-            }
-
-            if (data.length === 0) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.fillStyle = '#64748b';
-                ctx.font = '14px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Enter billings to see projection', ctx.canvas.width/2, ctx.canvas.height/2);
-                return;
-            }
-
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        label: 'Total Earnings',
-                        data: data,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                            title: {
-                                display: true,
-                                text: 'Billings (£k)'
-                            },
-                            grid: {
-                                color: '#e2e8f0'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Total Earnings (£k)'
-                            },
-                            grid: {
-                                color: '#e2e8f0'
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
+            // Chart functionality removed for cleaner interface
         }
 
         // Initialize when page loads
@@ -547,7 +490,7 @@
                         <p>Calculate your earnings and track promotion progress</p>
                     </div>
                 </div>
-                <div class="icon">🧮</div>
+                <div class="icon">🔢</div>
             </div>
         </div>
 
@@ -556,21 +499,25 @@
             <div class="card">
                 <h3>💷 Billings</h3>
                 <div class="input-group">
-                    <input type="number" id="billings" placeholder="Annual billings...">
+                    <label>Annual Billings</label>
+                    <input type="number" id="billings" placeholder="Enter annual billings...">
                 </div>
                 <div class="input-group">
+                    <label>Currency</label>
                     <select id="currency">
                         <option value="GBP">GBP (£)</option>
                         <option value="USD">USD ($)</option>
                     </select>
                 </div>
                 <div class="input-group hidden" id="exchangeGroup">
+                    <label>USD/GBP Exchange Rate</label>
                     <input type="number" id="exchangeRate" value="1.27" step="0.01" placeholder="Exchange rate">
                 </div>
                 
                 <!-- Role & Settings -->
-                <h3 style="margin-top: 20px;">🏆 Role & Settings</h3>
+                <h3 style="margin-top: 24px;">⚙️ Role & Settings</h3>
                 <div class="input-group">
+                    <label>Current Level</label>
                     <select id="currentLevel">
                         <option value="Consultant">Consultant</option>
                         <option value="Consultant II">Consultant II</option>
@@ -580,25 +527,30 @@
                 </div>
                 <div class="toggle-container" id="toggleContainer">
                     <div>
-                        <div style="font-size: 14px; font-weight: 500;" id="toggleLabel">First Year?</div>
-                        <div style="font-size: 12px; color: #64748b;" id="toggleDesc">Enables fast-track promotions</div>
+                        <div style="font-size: 16px; font-weight: 600;" id="toggleLabel">First Year Employee</div>
+                        <div style="font-size: 14px; color: #64748b;" id="toggleDesc">Enables fast-track promotion eligibility</div>
                     </div>
                     <div class="toggle active" id="firstYearToggle">
                         <div class="toggle-thumb"></div>
                     </div>
                 </div>
                 <div class="input-group">
-                    <input type="number" id="baseSalary" placeholder="Base salary (£)">
+                    <label>Base Salary (£)</label>
+                    <input type="number" id="baseSalary" placeholder="Enter base salary...">
                 </div>
                 
                 <!-- Team Billings -->
                 <div id="teamSection" class="hidden">
-                    <h3 style="margin-top: 20px;">👥 Team Billings</h3>
+                    <h3 style="margin-top: 24px;">👥 Team Management</h3>
                     <div class="input-group">
-                        <input type="number" id="teamBillings" placeholder="Team annual billings (£)">
-                        <small style="font-size: 12px; color: #64748b;">10% commission on team billings</small>
+                        <label>Team Annual Billings (£)</label>
+                        <input type="number" id="teamBillings" placeholder="Enter team billings...">
+                        <small style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;">10% commission on team billings for Principal Consultants</small>
                     </div>
                 </div>
+                
+                <!-- Reset Button -->
+                <button class="reset-btn" onclick="resetCalculator()">🔄 Clear All Fields</button>
             </div>
 
             <!-- Results Column -->
@@ -634,18 +586,13 @@
                 </div>
                 
                 <div id="promotionProgress" class="hidden">
-                    <h3 style="margin-top: 20px;">📈 Promotion Progress</h3>
+                    <h3 style="margin-top: 24px;">📈 Promotion Progress</h3>
                     <div id="promotionContent"></div>
                 </div>
             </div>
 
-            <!-- Chart Column -->
-            <div class="card">
-                <h3>📈 Earnings Projection</h3>
-                <div class="chart-container">
-                    <canvas id="earningsChart"></canvas>
-                </div>
-            </div>
+                        <!-- Chart Column -->
+            
         </div>
     </div>
 
