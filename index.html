@@ -64,7 +64,7 @@
         .promotion-badge h4 { font-weight: 600; margin-bottom: 4px; }
         .chart-container { height: 300px; position: relative; }
         .hidden { display: none; }
-        .debug { background: #fef3c7; padding: 8px; border-radius: 4px; margin: 8px 0; font-size: 12px; }
+
         @media (max-width: 768px) {
             .grid { grid-template-columns: 1fr; }
         }
@@ -85,8 +85,21 @@
         const commissionRates = {
             consultant: { flat: 0.20 },
             consultantii: { flat: 0.225 },
-            seniorconsultant: { flat: 0.25 },
-            principalconsultant: { flat: 0.30 }
+            seniorconsultant: { 
+                brackets: [
+                    { min: 40000, max: 100000, rate: 0.25 },
+                    { min: 100000, max: 200000, rate: 0.30 }
+                ]
+            },
+            principalconsultant: { 
+                brackets: [
+                    { min: 40000, max: 100000, rate: 0.25 },
+                    { min: 100000, max: 200000, rate: 0.30 },
+                    { min: 200000, max: 300000, rate: 0.35 },
+                    { min: 300000, max: 400000, rate: 0.40 },
+                    { min: 400000, max: Infinity, rate: 0.50 }
+                ]
+            }
         };
 
         const promotionThresholds = {
@@ -96,7 +109,7 @@
 
         let chart = null;
 
-        // Debug function
+        // Debug function (optional - won't show if element doesn't exist)
         function updateDebug(message) {
             const debugEl = document.getElementById('debugInfo');
             if (debugEl) {
@@ -276,13 +289,11 @@
         function updateResults() {
             try {
                 const billings = parseFloat(document.getElementById('billings').value);
-                updateDebug(`Input billings: ${billings}`);
                 
                 if (!billings || billings <= 0) {
                     document.getElementById('results').classList.add('hidden');
                     document.getElementById('thresholdStatus').classList.add('hidden');
                     document.getElementById('promotionProgress').classList.add('hidden');
-                    updateDebug("No valid billings entered");
                     return;
                 }
 
@@ -297,8 +308,6 @@
                 const { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold } = calculateCommissionWithPromotions(gbpBillings, currentLevel, isFirstYear);
                 const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
                 const totalEarnings = totalCommission + baseSalary + teamBonus;
-
-                updateDebug(`Calculated: Commission £${totalCommission.toFixed(0)}, Total £${totalEarnings.toFixed(0)}`);
 
                 // Update breakdown
                 const breakdownItems = document.getElementById('breakdownItems');
@@ -346,7 +355,6 @@
                 updateChart();
                 
             } catch (error) {
-                updateDebug(`Error: ${error.message}`);
                 console.error('Calculation error:', error);
             }
         }
@@ -543,11 +551,6 @@
             </div>
         </div>
 
-        <!-- Debug info -->
-        <div id="debugInfo" class="debug">
-            Debug: Loading...
-        </div>
-
         <div class="grid">
             <!-- Input Column 1: Billings -->
             <div class="card">
@@ -686,11 +689,10 @@
                 
                 // Initial setup
                 handleLevelChange();
-                updateDebug("Calculator ready! Enter billings to start...");
+                console.log("✅ Calculator initialized successfully");
                 
             } catch (error) {
                 console.error('❌ Initialization error:', error);
-                updateDebug(`Error: ${error.message}`);
             }
         });
     </script>
