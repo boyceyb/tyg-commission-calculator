@@ -53,7 +53,7 @@
         .status.error .status-title { color: #dc2626; }
         .status-text { font-size: 14px; color: #64748b; }
         .progress-container { margin-bottom: 16px; }
-        .progress-header { display: flex; justify-content: between; align-items: center; margin-bottom: 8px; }
+        .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .progress-label { font-size: 14px; font-weight: 500; color: #374151; }
         .progress-type { font-size: 12px; color: #64748b; }
         .progress-bar { width: 100%; height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden; }
@@ -184,6 +184,8 @@
     </div>
 
     <script>
+        console.log("TYG Calculator script starting...");
+
         // State variables
         let state = {
             billings: '',
@@ -366,14 +368,14 @@
             const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
             const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
 
-            console.log('Calculating for:', { billings, currentLevel, isFirstYear }); // Debug log
+            console.log('Calculating with:', { billings, currentLevel, isFirstYear, baseSalary, teamBillings });
 
             const gbpBillings = currency === 'USD' ? billings / exchangeRate : billings;
             const { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold } = calculateCommissionWithPromotions(gbpBillings, currentLevel, isFirstYear);
             const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
             const totalEarnings = totalCommission + baseSalary + teamBonus;
 
-            console.log('Results:', { totalCommission, finalLevel, promotions }); // Debug log
+            console.log('Results:', { totalCommission, finalLevel, promotions });
 
             // Update breakdown
             const breakdownItems = document.getElementById('breakdownItems');
@@ -493,27 +495,3 @@
                 const { totalCommission, finalLevel } = calculateCommissionWithPromotions(billings, currentLevel, isFirstYear);
                 const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
                 const totalEarnings = totalCommission + baseSalary + teamBonus;
-                data.push({
-                    x: billings / 1000,
-                    y: totalEarnings / 1000
-                });
-            }
-            return data;
-        }
-
-        let chart = null;
-        function updateChart(data) {
-            const ctx = document.getElementById('earningsChart').getContext('2d');
-            
-            if (chart) {
-                chart.destroy();
-            }
-            
-            if (data.length === 0) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.fillStyle = '#64748b';
-                ctx.font = '14px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Enter billings to see projection', ctx.canvas.width/2, ctx.canvas.height/2);
-                return;
-            }
