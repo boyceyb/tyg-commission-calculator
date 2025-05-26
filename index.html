@@ -227,9 +227,13 @@
         }
 
         function calculateCommissionWithPromotions(gbpBillings, startingLevel, firstYear) {
+            console.log('Calculating commission for:', { gbpBillings, startingLevel, firstYear });
+            
             const levelKey = startingLevel.toLowerCase().replace(/\s+/g, '');
             const yearlyThreshold = thresholds[levelKey];
             const commissionableBillings = Math.max(0, gbpBillings - yearlyThreshold);
+            
+            console.log('Threshold and commissionable:', { yearlyThreshold, commissionableBillings });
             
             let totalCommission = 0;
             let finalLevel = startingLevel;
@@ -237,6 +241,7 @@
             let breakdown = [];
 
             if (startingLevel === 'Consultant' && firstYear) {
+                console.log('Fast-track path for Consultant');
                 if (gbpBillings >= promotionThresholds.fastTrack.consultantII) {
                     const consultantPortion = Math.min(commissionableBillings, promotionThresholds.fastTrack.consultantII - yearlyThreshold);
                     const consultantCommission = consultantPortion * 0.20;
@@ -285,6 +290,7 @@
                     breakdown.push({ level: 'Consultant', billings: gbpBillings, commission: totalCommission, rate: 0.20 });
                 }
             } else {
+                console.log('Standard promotion path');
                 // Standard promotions or no fast-track
                 if ((startingLevel === 'Consultant' || startingLevel === 'Consultant II') && gbpBillings >= promotionThresholds.standard.senior) {
                     const startingRate = startingLevel === 'Consultant' ? 0.20 : 0.225;
@@ -332,12 +338,14 @@
                         breakdown.push({ level: 'Principal Consultant', billings: remaining, commission: principalCommission, rate: 0.30 });
                     }
                 } else {
-                    const rate = commissionRates[levelKey].flat;
+                    console.log('No promotion, using flat rate');
+                    const rate = commissionRates[levelKey] ? commissionRates[levelKey].flat : 0.20;
                     totalCommission = commissionableBillings * rate;
                     breakdown.push({ level: startingLevel, billings: gbpBillings, commission: totalCommission, rate });
                 }
             }
 
+            console.log('Final calculation result:', { totalCommission, finalLevel, promotions, breakdown });
             return { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold };
         }
 
