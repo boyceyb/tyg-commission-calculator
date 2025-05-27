@@ -419,12 +419,6 @@
                 </div>
                 
                 <button class="reset-btn" id="resetButton">🔄 Clear All Fields</button>
-                <button class="save-btn" id="saveButton">🔖 Save Calculation</button>
-                
-                <div id="savedCalculations" class="saved-section hidden">
-                    <h4>📋 Saved Calculations</h4>
-                    <div id="savedList"></div>
-                </div>
             </div>
             <div class="card">
                 <h3>📊 Your Earnings</h3>
@@ -1189,13 +1183,11 @@ Generated on: ${new Date().toLocaleDateString()}`;
 
             // Button listeners
             document.getElementById('resetButton').addEventListener('click', resetForm);
-            document.getElementById('saveButton').addEventListener('click', saveCalculation);
             document.getElementById('exportButton').addEventListener('click', exportResults);
 
             // Initial setup
             updateCurrencySection();
             updateTeamSection();
-            displaySavedCalculations();
             updateCalculation();
         });
     </script>
