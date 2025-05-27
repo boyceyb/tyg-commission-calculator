@@ -568,43 +568,190 @@
             let finalLevel = level;
             let promotions = [];
 
-            // Check for promotions and calculate accordingly
             if (level === 'Consultant' && isFirstYear) {
-                // Fast-track promotions
-                if (billings >= PROMOTION_THRESHOLDS.fastTrack.principal) {
-                    promotions = ['Consultant II', 'Senior Consultant', 'Principal Consultant'];
-                    finalLevel = 'Principal Consultant';
-                } else if (billings >= PROMOTION_THRESHOLDS.fastTrack.senior) {
-                    promotions = ['Consultant II', 'Senior Consultant'];
-                    finalLevel = 'Senior Consultant';
-                } else if (billings >= PROMOTION_THRESHOLDS.fastTrack.consultantII) {
-                    promotions = ['Consultant II'];
-                    finalLevel = 'Consultant II';
+                // Fast-track progression
+                let remaining = commissionableBillings;
+                
+                // Tier 1: Consultant (20%) from threshold to £100k
+                const consultantCap = PROMOTION_THRESHOLDS.fastTrack.consultantII - threshold; // £65k
+                const consultantPortion = Math.min(remaining, consultantCap);
+                if (consultantPortion > 0) {
+                    const consultantCommission = consultantPortion * 0.20;
+                    totalCommission += consultantCommission;
+                    breakdown.push({
+                        level: 'Consultant (20%)',
+                        billings: consultantPortion,
+                        commission: consultantCommission
+                    });
+                    remaining -= consultantPortion;
+                    
+                    if (billings >= PROMOTION_THRESHOLDS.fastTrack.consultantII) {
+                        finalLevel = 'Consultant II';
+                        promotions.push('Consultant II');
+                    }
                 }
+                
+                // Tier 2: Consultant II (22.5%) from £100k to £140k
+                if (remaining > 0 && billings >= PROMOTION_THRESHOLDS.fastTrack.consultantII) {
+                    const consultantIICap = PROMOTION_THRESHOLDS.fastTrack.senior - PROMOTION_THRESHOLDS.fastTrack.consultantII; // £40k
+                    const consultantIIPortion = Math.min(remaining, consultantIICap);
+                    if (consultantIIPortion > 0) {
+                        const consultantIICommission = consultantIIPortion * 0.225;
+                        totalCommission += consultantIICommission;
+                        breakdown.push({
+                            level: 'Consultant II (22.5%)',
+                            billings: consultantIIPortion,
+                            commission: consultantIICommission
+                        });
+                        remaining -= consultantIIPortion;
+                        
+                        if (billings >= PROMOTION_THRESHOLDS.fastTrack.senior) {
+                            finalLevel = 'Senior Consultant';
+                            promotions.push('Senior Consultant');
+                        }
+                    }
+                }
+                
+                // Tier 3: Senior (25%) from £140k to £180k
+                if (remaining > 0 && billings >= PROMOTION_THRESHOLDS.fastTrack.senior) {
+                    const seniorCap = PROMOTION_THRESHOLDS.fastTrack.principal - PROMOTION_THRESHOLDS.fastTrack.senior; // £40k
+                    const seniorPortion = Math.min(remaining, seniorCap);
+                    if (seniorPortion > 0) {
+                        const seniorCommission = seniorPortion * 0.25;
+                        totalCommission += seniorCommission;
+                        breakdown.push({
+                            level: 'Senior Consultant (25%)',
+                            billings: seniorPortion,
+                            commission: seniorCommission
+                        });
+                        remaining -= seniorPortion;
+                        
+                        if (billings >= PROMOTION_THRESHOLDS.fastTrack.principal) {
+                            finalLevel = 'Principal Consultant';
+                            promotions.push('Principal Consultant');
+                        }
+                    }
+                }
+                
+                // Tier 4+: Principal tiers from £180k+
+                if (remaining > 0 && billings >= PROMOTION_THRESHOLDS.fastTrack.principal) {
+                    totalCommission += calculatePrincipalTiers(remaining, breakdown);
+                }
+                
+            } else if ((level === 'Consultant' || level === 'Consultant II') && !isFirstYear) {
+                // Standard progression for Consultant/Consultant II
+                let remaining = commissionableBillings;
+                const startingRate = level === 'Consultant' ? 0.20 : 0.225;
+                
+                // Tier 1: Starting level rate up to Senior promotion
+                const seniorCap = PROMOTION_THRESHOLDS.standard.senior - threshold;
+                const startingPortion = Math.min(remaining, seniorCap);
+                if (startingPortion > 0) {
+                    const startingCommission = startingPortion * startingRate;
+                    totalCommission += startingCommission;
+                    breakdown.push({
+                        level: `${level} (${(startingRate * 100).toFixed(1)}%)`,
+                        billings: startingPortion,
+                        commission: startingCommission
+                    });
+                    remaining -= startingPortion;
+                    
+                    if (billings >= PROMOTION_THRESHOLDS.standard.senior) {
+                        finalLevel = 'Senior Consultant';
+                        promotions.push('Senior Consultant');
+                    }
+                }
+                
+                // Tier 2: Senior rate from £160k to £200k
+                if (remaining > 0 && billings >= PROMOTION_THRESHOLDS.standard.senior) {
+                    const seniorCap = PROMOTION_THRESHOLDS.standard.principal - PROMOTION_THRESHOLDS.standard.senior; // £40k
+                    const seniorPortion = Math.min(remaining, seniorCap);
+                    if (seniorPortion > 0) {
+                        const seniorCommission = seniorPortion * 0.25;
+                        totalCommission += seniorCommission;
+                        breakdown.push({
+                            level: 'Senior Consultant (25%)',
+                            billings: seniorPortion,
+                            commission: seniorCommission
+                        });
+                        remaining -= seniorPortion;
+                        
+                        if (billings >= PROMOTION_THRESHOLDS.standard.principal) {
+                            finalLevel = 'Principal Consultant';
+                            promotions.push('Principal Consultant');
+                        }
+                    }
+                }
+                
+                // Tier 3+: Principal tiers from £200k+
+                if (remaining > 0 && billings >= PROMOTION_THRESHOLDS.standard.principal) {
+                    totalCommission += calculatePrincipalTiers(remaining, breakdown);
+                }
+                
+            } else if (level === 'Senior Consultant') {
+                // Senior Consultant progression
+                let remaining = commissionableBillings;
+                
+                // Tier 1: Senior rate up to Principal promotion
+                const principalCap = PROMOTION_THRESHOLDS.standard.principal - threshold; // £160k
+                const seniorPortion = Math.min(remaining, principalCap);
+                if (seniorPortion > 0) {
+                    // Senior has internal tiers: 25% up to £60k, then 30%
+                    let seniorRemaining = seniorPortion;
+                    
+                    // Senior Tier 1: 25% for first £60k
+                    const seniorTier1 = Math.min(seniorRemaining, 60000);
+                    if (seniorTier1 > 0) {
+                        const seniorTier1Commission = seniorTier1 * 0.25;
+                        totalCommission += seniorTier1Commission;
+                        breakdown.push({
+                            level: 'Senior Consultant (25%)',
+                            billings: seniorTier1,
+                            commission: seniorTier1Commission
+                        });
+                        seniorRemaining -= seniorTier1;
+                    }
+                    
+                    // Senior Tier 2: 30% for remainder up to promotion
+                    if (seniorRemaining > 0) {
+                        const seniorTier2Commission = seniorRemaining * 0.30;
+                        totalCommission += seniorTier2Commission;
+                        breakdown.push({
+                            level: 'Senior Consultant (30%)',
+                            billings: seniorRemaining,
+                            commission: seniorTier2Commission
+                        });
+                    }
+                    
+                    remaining -= seniorPortion;
+                    
+                    if (billings >= PROMOTION_THRESHOLDS.standard.principal) {
+                        finalLevel = 'Principal Consultant';
+                        promotions.push('Principal Consultant');
+                    }
+                }
+                
+                // Tier 2+: Principal tiers from £200k+
+                if (remaining > 0 && billings >= PROMOTION_THRESHOLDS.standard.principal) {
+                    totalCommission += calculatePrincipalTiers(remaining, breakdown);
+                }
+                
+            } else if (level === 'Principal Consultant') {
+                // Principal - just use tier system
+                totalCommission = calculatePrincipalTiers(commissionableBillings, breakdown);
+                
             } else {
-                // Standard promotions
-                if ((level === 'Consultant' || level === 'Consultant II') && billings >= PROMOTION_THRESHOLDS.standard.principal) {
-                    promotions = level === 'Consultant' ? ['Senior Consultant', 'Principal Consultant'] : ['Senior Consultant', 'Principal Consultant'];
-                    finalLevel = 'Principal Consultant';
-                } else if ((level === 'Consultant' || level === 'Consultant II') && billings >= PROMOTION_THRESHOLDS.standard.senior) {
-                    promotions = ['Senior Consultant'];
-                    finalLevel = 'Senior Consultant';
-                } else if (level === 'Senior Consultant' && billings >= PROMOTION_THRESHOLDS.standard.principal) {
-                    promotions = ['Principal Consultant'];
-                    finalLevel = 'Principal Consultant';
+                // Fallback for any other cases
+                const rate = getCommissionRate(billings, level, isFirstYear);
+                totalCommission = commissionableBillings * rate;
+                
+                if (totalCommission > 0) {
+                    breakdown.push({
+                        level: `${level} (${(rate * 100).toFixed(1)}%)`,
+                        billings: commissionableBillings,
+                        commission: totalCommission
+                    });
                 }
-            }
-
-            // Calculate commission based on final level
-            const rate = getCommissionRate(billings, finalLevel, isFirstYear);
-            totalCommission = commissionableBillings * rate;
-            
-            if (totalCommission > 0) {
-                breakdown.push({
-                    level: `${finalLevel} (${(rate * 100).toFixed(1)}%)`,
-                    billings: commissionableBillings,
-                    commission: totalCommission
-                });
             }
 
             return {
