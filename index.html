@@ -6,41 +6,219 @@
     <title>TYG Commission Calculator</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8fafc; padding: 20px; color: #2d3748; }
+        body { 
+            font-family: 'Helvetica Neue', 'Arial', sans-serif; 
+            background: #fafafa; 
+            min-height: 100vh;
+            padding: 24px; 
+            color: #2c2c2c; 
+            line-height: 1.4;
+        }
         .container { max-width: 1200px; margin: 0 auto; }
-        .header { background: white; border-radius: 12px; padding: 24px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+        .header { 
+            background: white; 
+            padding: 32px 48px; 
+            margin-bottom: 32px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+            border-bottom: 3px solid #1e3a8a;
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
         .header-left { display: flex; align-items: center; }
-        .logo { font-weight: 900; font-size: 24px; letter-spacing: 2px; color: #1e293b; }
-        .logo .dash { color: #64748b; margin: 0 4px; }
-        .title { margin-left: 24px; }
-        .title h1 { font-size: 24px; font-weight: bold; color: #1e293b; margin: 0; }
-        .title p { font-size: 14px; color: #64748b; margin-top: 4px; }
-        .icon { background: #1e293b; padding: 12px; border-radius: 8px; color: white; font-size: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 24px; border: 1px solid #e2e8f0; }
-        .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 14px; font-weight: 500; color: #374151; margin-bottom: 8px; }
-        .input-group input, .input-group select { width: 100%; padding: 12px 16px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white; transition: border-color 0.2s ease; }
-        .input-group input:focus, .input-group select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-        .toggle-container { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .toggle { position: relative; width: 44px; height: 24px; background: #cbd5e1; border-radius: 12px; cursor: pointer; transition: background 0.3s; }
-        .toggle.active { background: #10b981; }
-        .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 10px; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .toggle.active .toggle-thumb { transform: translateX(20px); }
+        .logo { 
+            font-weight: 700; 
+            font-size: 24px; 
+            letter-spacing: -0.5px; 
+            color: #2c2c2c;
+        }
+        .logo .dash { 
+            color: #1e3a8a; 
+            margin: 0 2px; 
+            font-weight: 300;
+        }
+        .title { margin-left: 40px; }
+        .title h1 { 
+            font-size: 24px; 
+            font-weight: 600; 
+            color: #2c2c2c; 
+            margin: 0; 
+            letter-spacing: -0.3px;
+        }
+        .title p { 
+            font-size: 14px; 
+            color: #666; 
+            margin-top: 4px; 
+            font-weight: 400;
+        }
+        .icon { 
+            background: #2c2c2c; 
+            padding: 12px; 
+            color: white; 
+            font-size: 20px; 
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+        .card { 
+            background: white; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+            padding: 40px; 
+            border-left: 3px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+        .card:hover { 
+            border-left-color: #1e3a8a;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12); 
+        }
+        .card h3 { 
+            font-size: 16px; 
+            font-weight: 600; 
+            margin-bottom: 32px; 
+            color: #2c2c2c; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            letter-spacing: -0.2px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .input-group { margin-bottom: 24px; }
+        .input-group label { 
+            display: block; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: #666; 
+            margin-bottom: 8px; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .input-group input, .input-group select { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #e0e0e0; 
+            font-size: 15px; 
+            background: white; 
+            transition: all 0.2s ease; 
+            font-weight: 400;
+            color: #2c2c2c;
+        }
+        .input-group input:focus, .input-group select:focus { 
+            outline: none; 
+            border-color: #1e3a8a; 
+            background: #fafafa;
+        }
+        .input-group input:hover, .input-group select:hover { 
+            border-color: #ccc; 
+        }
+        .input-group small { 
+            font-size: 11px; 
+            color: #999; 
+            margin-top: 6px; 
+            display: block; 
+            font-weight: 400;
+        }
+        .dual-input { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
+        .toggle-container { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 20px; 
+            background: #f8f8f8; 
+            border: 2px solid #e0e0e0;
+            margin-bottom: 24px; 
+            transition: all 0.2s ease;
+        }
+        .toggle-container:hover { 
+            border-color: #ccc; 
+        }
+        .toggle { 
+            position: relative; 
+            width: 48px; 
+            height: 24px; 
+            background: #ddd; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: background 0.2s ease; 
+        }
+        .toggle.active { 
+            background: #1e3a8a; 
+        }
+        .toggle-thumb { 
+            position: absolute; 
+            top: 2px; 
+            left: 2px; 
+            width: 20px; 
+            height: 20px; 
+            background: white; 
+            border-radius: 10px; 
+            transition: transform 0.2s ease; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
+        }
+        .toggle.active .toggle-thumb { transform: translateX(24px); }
+        .compact-toggle > div:first-child { 
+            font-weight: 600; 
+            color: #2c2c2c; 
+            font-size: 14px; 
+            letter-spacing: -0.2px;
+        }
+        .compact-toggle > div:last-child { 
+            color: #666; 
+            margin-top: 2px; 
+            font-size: 12px; 
+            font-weight: 400;
+        }
         .breakdown { background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 16px; }
         .breakdown h4 { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px; }
-        .breakdown-item { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 8px; }
-        .breakdown-left { color: #64748b; }
-        .breakdown-right { font-weight: 500; color: #1e293b; }
-        .earnings-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 14px; }
-        .earnings-item:last-child { margin-bottom: 0; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 18px; font-weight: bold; }
-        .earnings-label { color: #64748b; }
-        .earnings-value { font-weight: bold; }
-        .earnings-value.commission { color: #7c3aed; }
-        .earnings-value.salary { color: #e11d48; }
-        .earnings-value.team { color: #d97706; }
-        .earnings-value.total { color: #1e293b; }
+        .breakdown-item { display: flex; justify-content: space-between; align-items: flex-start; font-size: 14px; margin-bottom: 12px; }
+        .breakdown-left { color: #64748b; flex: 1; }
+        .breakdown-right { font-weight: 500; color: #1e293b; margin-left: 16px; }
+        .earnings-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 16px; 
+            font-size: 15px; 
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .earnings-item:last-child { 
+            margin-bottom: 0; 
+            padding: 24px; 
+            margin: 24px -24px 0 -24px;
+            border: none;
+            background: #2c2c2c;
+            font-size: 20px; 
+            font-weight: 600; 
+            color: white;
+        }
+        .earnings-item:last-child .earnings-label { 
+            color: #ccc; 
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .earnings-item:last-child .earnings-value { 
+            font-size: 24px; 
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+        .earnings-label { 
+            color: #666; 
+            font-weight: 500;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .earnings-value { 
+            font-weight: 600; 
+            letter-spacing: -0.3px;
+            color: #2c2c2c;
+        }
+        .earnings-value.commission { color: #1e3a8a; }
+        .earnings-value.salary { color: #666; }
+        .earnings-value.team { color: #666; }
+        .earnings-value.total { color: white; }
         .status { padding: 16px; border-radius: 6px; margin-bottom: 16px; }
         .status.success { background: #f0fdf4; border: 1px solid #bbf7d0; }
         .status.error { background: #fef2f2; border: 1px solid #fecaca; }
@@ -60,15 +238,90 @@
         .progress-remaining { font-size: 12px; color: #64748b; margin-top: 8px; }
         .promotion-badge { background: #dcfce7; color: #166534; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; border: 1px solid #bbf7d0; }
         .promotion-badge h4 { font-weight: 600; margin-bottom: 4px; }
-        .next-deal-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-top: 20px; }
+        .next-deal-card { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
         .next-deal-card h4 { color: #0c4a6e; font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         .deal-result { background: white; border-radius: 6px; padding: 16px; border: 1px solid #bae6fd; }
         .deal-value { font-size: 18px; font-weight: bold; color: #0c4a6e; margin-bottom: 4px; }
         .deal-rate { font-size: 14px; color: #0369a1; }
+        .info-dropdown { 
+            background: white; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+            border-left: 3px solid #f0f0f0; 
+            margin-bottom: 32px; 
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .info-dropdown:hover { border-left-color: #1e3a8a; }
+        .info-toggle { 
+            padding: 20px 24px; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: #2c2c2c; 
+            transition: all 0.2s ease;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .info-toggle:hover { 
+            background: #fafafa; 
+        }
+        .info-toggle.active { 
+            background: #2c2c2c; 
+            color: white;
+            border-bottom-color: #2c2c2c;
+        }
+        .info-toggle .arrow { 
+            transition: transform 0.2s ease; 
+            color: #999; 
+            font-size: 12px;
+        }
+        .info-toggle.active .arrow { 
+            transform: rotate(180deg); 
+            color: white;
+        }
+        .info-dropdown .info-content { 
+            padding: 24px; 
+            background: #fafafa;
+        }
+        .info-dropdown .info-item { 
+            margin-bottom: 16px; 
+            padding: 16px;
+            background: white;
+            border-left: 3px solid #1e3a8a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .info-dropdown .info-item:last-child { margin-bottom: 0; }
+        .info-dropdown .info-item strong { 
+            color: #2c2c2c; 
+            font-weight: 600;
+        }
+        .info-dropdown .info-item { 
+            color: #666; 
+        }
         .reset-btn { background: #64748b; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 20px; width: 100%; }
         .reset-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3); }
+        .save-btn { background: #059669; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin-top: 12px; width: 100%; }
+        .save-btn:hover { background: #047857; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); }
+        .saved-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+        .saved-section h4 { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 12px; }
+        .saved-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 8px; font-size: 12px; }
+        .saved-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .saved-item-title { font-weight: 600; color: #1e293b; }
+        .saved-item-date { color: #64748b; font-size: 11px; }
+        .saved-item-details { color: #64748b; }
+        .saved-item-actions { margin-top: 8px; display: flex; gap: 8px; }
+        .load-btn, .delete-btn { background: none; border: 1px solid #d1d5db; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+        .load-btn { color: #3b82f6; border-color: #3b82f6; }
+        .load-btn:hover { background: #3b82f6; color: white; }
+        .delete-btn { color: #ef4444; border-color: #ef4444; }
+        .delete-btn:hover { background: #ef4444; color: white; }
+        .section-divider { border-top: 1px solid #e2e8f0; margin: 24px 0 16px 0; padding-top: 20px; }
         .hidden { display: none; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .header { flex-direction: column; text-align: center; gap: 16px; } .header-left { flex-direction: column; gap: 16px; } .title { margin-left: 0; } }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .header { flex-direction: column; text-align: center; gap: 16px; } .header-left { flex-direction: column; gap: 16px; } .title { margin-left: 0; } .dual-input { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -83,69 +336,107 @@
             </div>
             <div class="icon">🔢</div>
         </div>
+        
+        <div class="info-dropdown">
+            <div class="info-toggle" id="infoToggle">
+                <span>ℹ️ Commission Information</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="info-content hidden" id="infoContent">
+                <div class="info-item">
+                    <strong>Exchange Rates:</strong> USD invoices converted using rate on payment received date
+                </div>
+                <div class="info-item">
+                    <strong>Threshold & Commission:</strong> Calculated by invoice payment received date order
+                </div>
+                <div class="info-item">
+                    <strong>Promotions:</strong> Based on invoice sent date order
+                </div>
+            </div>
+        </div>
         <div class="grid">
             <div class="card">
-                <h3>💷 Current Year Billings</h3>
+                <h3>🎯 Your Seniority Level</h3>
                 <div class="input-group">
-                    <label>Annual Billings (Year to Date)</label>
-                    <input type="number" id="billings" placeholder="Current year billings...">
-                </div>
-                <div class="input-group">
-                    <label>Currency</label>
-                    <select id="currency">
-                        <option value="GBP">GBP (£)</option>
-                        <option value="USD">USD ($)</option>
-                    </select>
-                </div>
-                <div class="input-group hidden" id="exchangeGroup">
-                    <label>USD/GBP Exchange Rate</label>
-                    <input type="number" id="exchangeRate" value="1.27" step="0.01" placeholder="Exchange rate">
-                </div>
-                
-                <div class="next-deal-card">
-                    <h4>🎯 Next Deal Calculator</h4>
-                    <div class="input-group">
-                        <label>Next Deal Value</label>
-                        <input type="number" id="nextDealValue" placeholder="Deal value...">
-                        <small style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;">Calculate commission on your next specific deal</small>
-                    </div>
-                </div>
-                
-                <h3 style="margin-top: 24px;">⚙️ Role & Settings</h3>
-                <div class="input-group">
-                    <label>Starting Level</label>
+                    <label>Your Starting Level for This Year</label>
                     <select id="currentLevel">
                         <option value="Consultant">Consultant</option>
                         <option value="Consultant II">Consultant II</option>
                         <option value="Senior Consultant">Senior Consultant</option>
                         <option value="Principal Consultant">Principal Consultant</option>
                     </select>
+                    <small>This is your level at the start of your personal commission year (not calendar year)</small>
                 </div>
-                <div class="toggle-container" id="toggleContainer">
+                <div class="toggle-container compact-toggle" id="toggleContainer">
                     <div>
-                        <div style="font-size: 14px; font-weight: 500;">First Year?</div>
-                        <div style="font-size: 12px; color: #64748b;">Enables fast-track promotions</div>
+                        <div>First Year Fast-Track?</div>
+                        <div>Available in your first 12 months</div>
                     </div>
                     <div class="toggle active" id="firstYearToggle">
                         <div class="toggle-thumb"></div>
                     </div>
                 </div>
+                
+                <h3 style="margin-top: 24px;">💷 Your Billings</h3>
                 <div class="input-group">
-                    <label>Base Salary (£)</label>
-                    <input type="number" id="baseSalary" placeholder="Base salary (£)">
+                    <label>Annual Billings (Year to Date)</label>
+                    <div class="dual-input">
+                        <input type="number" id="billings" placeholder="Enter your current billings...">
+                        <select id="currency">
+                            <option value="GBP">GBP (£)</option>
+                            <option value="USD">USD ($)</option>
+                        </select>
+                    </div>
                 </div>
+                <div class="input-group hidden" id="exchangeGroup">
+                    <label>USD/GBP Exchange Rate</label>
+                    <input type="number" id="exchangeRate" value="0.75" step="0.01" placeholder="Exchange rate">
+                    <small>Rate used is from the date invoice payment is received. <strong>Check current rates:</strong> <a href="https://www.xe.com/currencyconverter/convert/?Amount=1&From=USD&To=GBP" target="_blank" style="color: #1e3a8a;">XE.com</a></small>
+                </div>
+                
+                <div class="input-group">
+                    <label>Base Salary (Optional)</label>
+                    <input type="number" id="baseSalary" placeholder="Add your base salary for total earnings...">
+                </div>
+                
                 <div id="teamSection" class="hidden">
-                    <h3 style="margin-top: 20px;">👥 Team Billings</h3>
                     <div class="input-group">
                         <label>Team Annual Billings (£)</label>
                         <input type="number" id="teamBillings" placeholder="Team annual billings (£)">
-                        <small style="font-size: 12px; color: #64748b;">10% commission on team billings</small>
+                        <small>10% commission on team billings</small>
                     </div>
                 </div>
+                
+                <div class="section-divider"></div>
+                
+                <div class="next-deal-card">
+                    <h4>🎯 Next Deal Calculator</h4>
+                    <div class="input-group">
+                        <label>Next Deal Value</label>
+                        <input type="number" id="nextDealValue" placeholder="Deal value...">
+                        <small>Calculate commission on your next specific deal</small>
+                    </div>
+                </div>
+                
                 <button class="reset-btn" id="resetButton">🔄 Clear All Fields</button>
+                <button class="save-btn" id="saveButton">🔖 Save Calculation</button>
+                
+                <div id="savedCalculations" class="saved-section hidden">
+                    <h4>📋 Saved Calculations</h4>
+                    <div id="savedList"></div>
+                </div>
             </div>
             <div class="card">
                 <h3>📊 Your Earnings</h3>
+                
+                <div id="emptyState" class="status info">
+                    <div class="status-title">💡 Commission Thresholds</div>
+                    <div class="status-text">
+                        <strong>Consultant:</strong> £35,000 minimum to earn commission<br>
+                        <strong>All other levels:</strong> £40,000 minimum to earn commission
+                    </div>
+                </div>
+                
                 <div id="breakdown" class="breakdown hidden">
                     <h4>Commission Breakdown:</h4>
                     <div id="breakdownItems"></div>
@@ -154,7 +445,7 @@
                     <span class="earnings-label">Commission</span>
                     <span class="earnings-value commission" id="commissionValue">£0</span>
                 </div>
-                <div class="earnings-item">
+                <div class="earnings-item hidden" id="salaryRow">
                     <span class="earnings-label">Base Salary</span>
                     <span class="earnings-value salary" id="salaryValue">£0</span>
                 </div>
@@ -167,14 +458,7 @@
                     <span class="earnings-value total" id="totalValue">£0</span>
                 </div>
                 
-                <div id="nextDealResult" class="status info hidden">
-                    <div class="status-title">🎯 Next Deal Commission</div>
-                    <div class="deal-result">
-                        <div class="deal-value" id="nextDealCommission">£0</div>
-                        <div class="deal-rate" id="nextDealRate">Commission rate: 0%</div>
-                        <div style="font-size: 12px; color: #64748b; margin-top: 8px;" id="nextDealExplanation"></div>
-                    </div>
-                </div>
+                <button class="export-btn" id="exportButton" style="margin-top: 16px; background: #3b82f6 !important; color: white !important; border: none !important; padding: 12px 20px !important; border-radius: 6px !important; font-size: 14px !important; font-weight: 600 !important; cursor: pointer !important; width: 100% !important; font-family: inherit !important;">📄 Export Results</button>
                 
                 <div id="thresholdStatus" class="status hidden">
                     <div class="status-title" id="statusTitle">Threshold Status</div>
@@ -184,366 +468,231 @@
                     <h3 style="margin-top: 20px;">📈 Promotion Progress</h3>
                     <div id="promotionContent"></div>
                 </div>
+                
+                <div id="nextDealResult" class="status info hidden">
+                    <div class="status-title">🎯 Next Deal Commission</div>
+                    <div class="deal-result">
+                        <div class="deal-value" id="nextDealCommission">£0</div>
+                        <div class="deal-rate" id="nextDealRate">Commission rate: 0%</div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 8px;" id="nextDealExplanation"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <script>
-        // Constants - Updated to match official policy
-        const thresholds = { 
-            consultant: 35000, 
-            consultantii: 40000, 
-            seniorconsultant: 40000, 
-            principalconsultant: 40000 
+        // Commission structure constants
+        const THRESHOLDS = {
+            consultant: 35000,
+            consultantii: 40000,
+            seniorconsultant: 40000,
+            principalconsultant: 40000
         };
         
-        const promotionThresholds = { 
-            fastTrack: { 
-                consultantII: 100000, 
-                senior: 140000, 
-                principal: 180000 
-            }, 
-            standard: { 
-                senior: 160000, 
-                principal: 200000 
-            } 
+        const PROMOTION_THRESHOLDS = {
+            fastTrack: {
+                consultantII: 100000,
+                senior: 140000,
+                principal: 180000
+            },
+            standard: {
+                senior: 160000,
+                principal: 200000
+            }
         };
 
-        // Utility functions
+        // Format currency
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-GB', { 
-                style: 'currency', 
-                currency: 'GBP', 
-                minimumFractionDigits: 0, 
-                maximumFractionDigits: 0 
+            return new Intl.NumberFormat('en-GB', {
+                style: 'currency',
+                currency: 'GBP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
             }).format(Math.round(amount || 0));
         }
 
-        function getCurrentCommissionRate(currentBillings, currentLevel, isFirstYear) {
-            const levelKey = currentLevel.toLowerCase().replace(/\s+/g, '');
-            const yearlyThreshold = thresholds[levelKey];
+        // Get commission rate for current position
+        function getCommissionRate(billings, level, isFirstYear) {
+            const levelKey = level.toLowerCase().replace(/\s+/g, '');
+            const threshold = THRESHOLDS[levelKey];
             
-            if (currentBillings < yearlyThreshold) {
-                return { rate: 0, explanation: `Must reach ${formatCurrency(yearlyThreshold)} threshold first` };
+            if (billings < threshold) return 0;
+            
+            const commissionableBillings = billings - threshold;
+            
+            if (level === 'Consultant') {
+                return isFirstYear ? getFirstYearRate(billings) : 0.20;
+            } else if (level === 'Consultant II') {
+                return 0.225;
+            } else if (level === 'Senior Consultant') {
+                return commissionableBillings <= 60000 ? 0.25 : 0.30;
+            } else if (level === 'Principal Consultant') {
+                return getPrincipalRate(commissionableBillings);
             }
+            return 0;
+        }
+
+        function getFirstYearRate(billings) {
+            if (billings >= PROMOTION_THRESHOLDS.fastTrack.principal) return 0.25; // Principal rate
+            if (billings >= PROMOTION_THRESHOLDS.fastTrack.senior) return 0.25; // Senior rate
+            if (billings >= PROMOTION_THRESHOLDS.fastTrack.consultantII) return 0.225; // Consultant II rate
+            return 0.20; // Consultant rate
+        }
+
+        function getPrincipalRate(billings) {
+            if (billings <= 60000) return 0.25;
+            if (billings <= 160000) return 0.30;
+            if (billings <= 260000) return 0.35;
+            if (billings <= 360000) return 0.40;
+            return 0.50;
+        }
+
+        // Calculate total commission with promotions
+        function calculateCommission(billings, level, isFirstYear) {
+            const levelKey = level.toLowerCase().replace(/\s+/g, '');
+            const threshold = THRESHOLDS[levelKey];
             
-            const commissionableBillings = currentBillings - yearlyThreshold;
-            
-            if (currentLevel === 'Consultant' && isFirstYear) {
-                if (currentBillings >= promotionThresholds.fastTrack.principal) {
-                    const principalBillings = commissionableBillings - (promotionThresholds.fastTrack.principal - yearlyThreshold);
-                    return getPrincipalTierRate(principalBillings);
-                } else if (currentBillings >= promotionThresholds.fastTrack.senior) {
-                    return { rate: 0.25, explanation: 'Senior Consultant level (fast-track)' };
-                } else if (currentBillings >= promotionThresholds.fastTrack.consultantII) {
-                    return { rate: 0.225, explanation: 'Consultant II level (fast-track)' };
-                } else {
-                    return { rate: 0.20, explanation: 'Consultant level' };
+            if (billings < threshold) {
+                return {
+                    commission: 0,
+                    breakdown: [],
+                    finalLevel: level,
+                    promotions: [],
+                    threshold: threshold
+                };
+            }
+
+            const commissionableBillings = billings - threshold;
+            let totalCommission = 0;
+            let breakdown = [];
+            let finalLevel = level;
+            let promotions = [];
+
+            // Check for promotions and calculate accordingly
+            if (level === 'Consultant' && isFirstYear) {
+                // Fast-track promotions
+                if (billings >= PROMOTION_THRESHOLDS.fastTrack.principal) {
+                    promotions = ['Consultant II', 'Senior Consultant', 'Principal Consultant'];
+                    finalLevel = 'Principal Consultant';
+                } else if (billings >= PROMOTION_THRESHOLDS.fastTrack.senior) {
+                    promotions = ['Consultant II', 'Senior Consultant'];
+                    finalLevel = 'Senior Consultant';
+                } else if (billings >= PROMOTION_THRESHOLDS.fastTrack.consultantII) {
+                    promotions = ['Consultant II'];
+                    finalLevel = 'Consultant II';
                 }
             } else {
-                if ((currentLevel === 'Consultant' || currentLevel === 'Consultant II') && currentBillings >= promotionThresholds.standard.principal) {
-                    const principalBillings = commissionableBillings - (promotionThresholds.standard.principal - yearlyThreshold);
-                    return getPrincipalTierRate(principalBillings);
-                } else if ((currentLevel === 'Consultant' || currentLevel === 'Consultant II') && currentBillings >= promotionThresholds.standard.senior) {
-                    return getSeniorTierRate(commissionableBillings - (promotionThresholds.standard.senior - yearlyThreshold));
-                } else if (currentLevel === 'Senior Consultant' && currentBillings >= promotionThresholds.standard.principal) {
-                    const principalBillings = commissionableBillings - (promotionThresholds.standard.principal - yearlyThreshold);
-                    return getPrincipalTierRate(principalBillings);
-                } else if (currentLevel === 'Senior Consultant') {
-                    return getSeniorTierRate(commissionableBillings);
-                } else if (currentLevel === 'Principal Consultant') {
-                    return getPrincipalTierRate(commissionableBillings);
-                } else if (currentLevel === 'Consultant II') {
-                    return { rate: 0.225, explanation: 'Consultant II level' };
-                } else if (currentLevel === 'Consultant') {
-                    return { rate: 0.20, explanation: 'Consultant level' };
+                // Standard promotions
+                if ((level === 'Consultant' || level === 'Consultant II') && billings >= PROMOTION_THRESHOLDS.standard.principal) {
+                    promotions = level === 'Consultant' ? ['Senior Consultant', 'Principal Consultant'] : ['Senior Consultant', 'Principal Consultant'];
+                    finalLevel = 'Principal Consultant';
+                } else if ((level === 'Consultant' || level === 'Consultant II') && billings >= PROMOTION_THRESHOLDS.standard.senior) {
+                    promotions = ['Senior Consultant'];
+                    finalLevel = 'Senior Consultant';
+                } else if (level === 'Senior Consultant' && billings >= PROMOTION_THRESHOLDS.standard.principal) {
+                    promotions = ['Principal Consultant'];
+                    finalLevel = 'Principal Consultant';
                 }
             }
+
+            // Calculate commission based on final level
+            const rate = getCommissionRate(billings, finalLevel, isFirstYear);
+            totalCommission = commissionableBillings * rate;
             
-            return { rate: 0, explanation: 'Unable to determine rate' };
+            if (totalCommission > 0) {
+                breakdown.push({
+                    level: `${finalLevel} (${(rate * 100).toFixed(1)}%)`,
+                    billings: commissionableBillings,
+                    commission: totalCommission
+                });
+            }
+
+            return {
+                commission: totalCommission,
+                breakdown: breakdown,
+                finalLevel: finalLevel,
+                promotions: promotions,
+                threshold: threshold
+            };
         }
 
-        function getSeniorTierRate(seniorBillings) {
-            // Policy: 25% on £40k-£100k, then 30% on £100k-£200k
-            if (seniorBillings < 60000) { // First £60k above £40k threshold = up to £100k total
-                return { rate: 0.25, explanation: 'Senior Consultant - first tier (25%)' };
-            } else {
-                return { rate: 0.30, explanation: 'Senior Consultant - second tier (30%)' };
-            }
-        }
-
-        function getPrincipalTierRate(principalBillings) {
-            // Policy: 25% on £40k-£100k, 30% on £100k-£200k, 35% on £200k-£300k, 40% on £300k-£400k, 50% on £400k+
-            if (principalBillings < 60000) { // £40k-£100k range
-                return { rate: 0.25, explanation: 'Principal Consultant - tier 1 (25%)' };
-            } else if (principalBillings < 160000) { // £100k-£200k range
-                return { rate: 0.30, explanation: 'Principal Consultant - tier 2 (30%)' };
-            } else if (principalBillings < 260000) { // £200k-£300k range
-                return { rate: 0.35, explanation: 'Principal Consultant - tier 3 (35%)' };
-            } else if (principalBillings < 360000) { // £300k-£400k range
-                return { rate: 0.40, explanation: 'Principal Consultant - tier 4 (40%)' };
-            } else { // £400k+ range
-                return { rate: 0.50, explanation: 'Principal Consultant - tier 5 (50%)' };
-            }
-        }
-
-        function calculatePrincipalTiers(billings, breakdown) {
-            let commission = 0;
-            let remaining = billings;
-            
-            // Based on policy: 25% (£40k-£100k), 30% (£100k-£200k), 35% (£200k-£300k), 40% (£300k-£400k), 50% (£400k+)
-            // Note: billings passed here is already above the £40k threshold
-            
-            // Tier 1: First £60k at 25% (represents £40k-£100k range)
-            if (remaining > 0) {
-                const tier1Amount = Math.min(remaining, 60000);
-                const tier1Commission = tier1Amount * 0.25;
-                commission += tier1Commission;
-                breakdown.push({ level: 'Principal Tier 1 (25%)', billings: tier1Amount, commission: tier1Commission });
-                remaining -= tier1Amount;
-            }
-            
-            // Tier 2: Next £100k at 30% (represents £100k-£200k range)
-            if (remaining > 0) {
-                const tier2Amount = Math.min(remaining, 100000);
-                const tier2Commission = tier2Amount * 0.30;
-                commission += tier2Commission;
-                breakdown.push({ level: 'Principal Tier 2 (30%)', billings: tier2Amount, commission: tier2Commission });
-                remaining -= tier2Amount;
-            }
-            
-            // Tier 3: Next £100k at 35% (represents £200k-£300k range)
-            if (remaining > 0) {
-                const tier3Amount = Math.min(remaining, 100000);
-                const tier3Commission = tier3Amount * 0.35;
-                commission += tier3Commission;
-                breakdown.push({ level: 'Principal Tier 3 (35%)', billings: tier3Amount, commission: tier3Commission });
-                remaining -= tier3Amount;
-            }
-            
-            // Tier 4: Next £100k at 40% (represents £300k-£400k range)
-            if (remaining > 0) {
-                const tier4Amount = Math.min(remaining, 100000);
-                const tier4Commission = tier4Amount * 0.40;
-                commission += tier4Commission;
-                breakdown.push({ level: 'Principal Tier 4 (40%)', billings: tier4Amount, commission: tier4Commission });
-                remaining -= tier4Amount;
-            }
-            
-            // Tier 5: Remaining at 50% (represents £400k+ range)
-            if (remaining > 0) {
-                const tier5Commission = remaining * 0.50;
-                commission += tier5Commission;
-                breakdown.push({ level: 'Principal Tier 5 (50%)', billings: remaining, commission: tier5Commission });
-            }
-            
-            return commission;
-        }
-
-        function calculateNextDealCommission() {
-            const nextDealValue = parseFloat(document.getElementById('nextDealValue').value) || 0;
+        // Update all calculations
+        function updateCalculation() {
             const billings = parseFloat(document.getElementById('billings').value) || 0;
             const currency = document.getElementById('currency').value;
-            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1.27;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0.75;
             const currentLevel = document.getElementById('currentLevel').value;
             const isFirstYear = document.getElementById('firstYearToggle').classList.contains('active') && currentLevel === 'Consultant';
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
 
-            if (nextDealValue > 0) {
-                const gbpBillings = currency === 'USD' ? billings / exchangeRate : billings;
-                const gbpDealValue = currency === 'USD' ? nextDealValue / exchangeRate : nextDealValue;
-                
-                // Calculate commission with the deal added (accounting for promotions)
-                const currentResult = calculateCommissionWithPromotions(gbpBillings, currentLevel, isFirstYear);
-                const newResult = calculateCommissionWithPromotions(gbpBillings + gbpDealValue, currentLevel, isFirstYear);
-                
-                const dealCommission = newResult.totalCommission - currentResult.totalCommission;
-                const effectiveRate = gbpDealValue > 0 ? (dealCommission / gbpDealValue) : 0;
-                
-                // Create detailed explanation
-                let explanation = '';
-                
-                // Check for level promotions
-                if (newResult.promotions.length > currentResult.promotions.length) {
-                    const newPromotions = newResult.promotions.slice(currentResult.promotions.length);
-                    explanation = `🎉 This deal promotes you to ${newPromotions.join(' → ')}! `;
-                }
-                
-                // Check for tier changes within Principal level
-                if (currentResult.finalLevel === 'Principal Consultant' && newResult.finalLevel === 'Principal Consultant') {
-                    const currentTiers = currentResult.breakdown.filter(b => b.level.includes('Principal')).length;
-                    const newTiers = newResult.breakdown.filter(b => b.level.includes('Principal')).length;
-                    
-                    if (newTiers > currentTiers) {
-                        explanation += `📈 Advances to higher Principal commission tier(s). `;
-                    }
-                }
-                
-                // Show breakdown for complex deals
-                const dealBreakdown = newResult.breakdown.slice(currentResult.breakdown.length);
-                if (dealBreakdown.length > 1) {
-                    explanation += `Commission split across ${dealBreakdown.length} tiers: `;
-                    dealBreakdown.forEach((tier, index) => {
-                        const rate = (tier.commission / tier.billings * 100).toFixed(1);
-                        explanation += `${formatCurrency(tier.billings)} at ${rate}%`;
-                        if (index < dealBreakdown.length - 1) explanation += ', ';
-                    });
-                } else if (dealBreakdown.length === 1) {
-                    const rate = (dealBreakdown[0].commission / dealBreakdown[0].billings * 100).toFixed(1);
-                    if (!explanation) {
-                        explanation = `Single tier: ${dealBreakdown[0].level}`;
-                    }
+            if (billings > 0) {
+                const gbpBillings = currency === 'USD' ? billings * exchangeRate : billings;
+                const result = calculateCommission(gbpBillings, currentLevel, isFirstYear);
+                const teamBonus = currentLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
+                const total = result.commission + baseSalary + teamBonus;
+
+                // Hide empty state
+                document.getElementById('emptyState').classList.add('hidden');
+
+                // Update earnings display
+                document.getElementById('commissionValue').textContent = formatCurrency(result.commission);
+                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
+                document.getElementById('teamBonusValue').textContent = formatCurrency(teamBonus);
+                document.getElementById('totalValue').textContent = formatCurrency(total);
+
+                // Show/hide rows
+                document.getElementById('salaryRow').classList.toggle('hidden', baseSalary === 0);
+                document.getElementById('teamBonusRow').classList.toggle('hidden', teamBonus === 0);
+
+                // Update breakdown
+                if (result.breakdown.length > 0) {
+                    document.getElementById('breakdownItems').innerHTML = result.breakdown.map(item =>
+                        `<div class="breakdown-item">
+                            <span class="breakdown-left">${formatCurrency(item.billings)} @ ${item.level}</span>
+                            <span class="breakdown-right">${formatCurrency(item.commission)}</span>
+                        </div>`
+                    ).join('');
+                    document.getElementById('breakdown').classList.remove('hidden');
                 } else {
-                    // Fallback to current rate explanation
-                    const { explanation: rateExplanation } = getCurrentCommissionRate(gbpBillings + gbpDealValue, newResult.finalLevel, isFirstYear);
-                    if (!explanation) {
-                        explanation = rateExplanation;
-                    }
+                    document.getElementById('breakdown').classList.add('hidden');
                 }
+
+                // Update threshold status
+                const meetsThreshold = gbpBillings >= result.threshold;
+                const statusEl = document.getElementById('thresholdStatus');
+                statusEl.className = `status ${meetsThreshold ? 'success' : 'error'}`;
+                document.getElementById('statusTitle').textContent = meetsThreshold ? '✅ Threshold Met' : '❌ Threshold Not Met';
+                document.getElementById('statusText').textContent = `Required: ${formatCurrency(result.threshold)} | Current: ${formatCurrency(gbpBillings)} | ${meetsThreshold ? 'Surplus' : 'Shortfall'}: ${formatCurrency(Math.abs(gbpBillings - result.threshold))}`;
                 
-                document.getElementById('nextDealCommission').textContent = formatCurrency(dealCommission);
-                document.getElementById('nextDealRate').textContent = `Effective rate: ${(effectiveRate * 100).toFixed(1)}%`;
-                document.getElementById('nextDealExplanation').textContent = explanation;
-                document.getElementById('nextDealResult').classList.remove('hidden');
+                document.getElementById('thresholdStatus').classList.remove('hidden');
+                
+                // Update promotion progress
+                updatePromotionProgress(gbpBillings, result.finalLevel, currentLevel, isFirstYear, result.promotions);
+                document.getElementById('promotionProgress').classList.remove('hidden');
             } else {
-                document.getElementById('nextDealResult').classList.add('hidden');
+                // Show empty state
+                document.getElementById('emptyState').classList.remove('hidden');
+                
+                // Reset display
+                document.getElementById('commissionValue').textContent = '£0';
+                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
+                document.getElementById('teamBonusValue').textContent = '£0';
+                document.getElementById('totalValue').textContent = formatCurrency(baseSalary);
+                
+                document.getElementById('salaryRow').classList.toggle('hidden', baseSalary === 0);
+                document.getElementById('teamBonusRow').classList.add('hidden');
+                document.getElementById('breakdown').classList.add('hidden');
+                document.getElementById('thresholdStatus').classList.add('hidden');
+                document.getElementById('promotionProgress').classList.add('hidden');
             }
+
+            // Calculate next deal
+            calculateNextDeal();
         }
 
-        function calculateCommissionWithPromotions(gbpBillings, startingLevel, firstYear) {
-            const levelKey = startingLevel.toLowerCase().replace(/\s+/g, '');
-            const yearlyThreshold = thresholds[levelKey];
-            const commissionableBillings = Math.max(0, gbpBillings - yearlyThreshold);
-            let totalCommission = 0, finalLevel = startingLevel, promotions = [], breakdown = [];
-
-            if (commissionableBillings <= 0) {
-                return { totalCommission: 0, finalLevel, promotions, breakdown, yearlyThreshold };
-            }
-
-            if (startingLevel === 'Consultant' && firstYear) {
-                // Fast track logic
-                let remaining = commissionableBillings;
-                if (gbpBillings >= promotionThresholds.fastTrack.consultantII) {
-                    const consultantPortion = Math.min(remaining, promotionThresholds.fastTrack.consultantII - yearlyThreshold);
-                    const consultantCommission = consultantPortion * 0.20;
-                    totalCommission += consultantCommission;
-                    breakdown.push({ level: 'Consultant (20%)', billings: consultantPortion, commission: consultantCommission });
-                    remaining -= consultantPortion;
-                    finalLevel = 'Consultant II';
-                    promotions.push('Consultant II');
-
-                    if (remaining > 0 && gbpBillings >= promotionThresholds.fastTrack.senior) {
-                        const consultantIIPortion = Math.min(remaining, promotionThresholds.fastTrack.senior - promotionThresholds.fastTrack.consultantII);
-                        const consultantIICommission = consultantIIPortion * 0.225;
-                        totalCommission += consultantIICommission;
-                        breakdown.push({ level: 'Consultant II (22.5%)', billings: consultantIIPortion, commission: consultantIICommission });
-                        remaining -= consultantIIPortion;
-                        finalLevel = 'Senior Consultant';
-                        promotions.push('Senior Consultant');
-
-                        if (remaining > 0 && gbpBillings >= promotionThresholds.fastTrack.principal) {
-                            const seniorPortion = Math.min(remaining, promotionThresholds.fastTrack.principal - promotionThresholds.fastTrack.senior);
-                            const seniorCommission = seniorPortion * 0.25;
-                            totalCommission += seniorCommission;
-                            breakdown.push({ level: 'Senior Consultant (25%)', billings: seniorPortion, commission: seniorCommission });
-                            remaining -= seniorPortion;
-                            finalLevel = 'Principal Consultant';
-                            promotions.push('Principal Consultant');
-                            
-                            if (remaining > 0) {
-                                totalCommission += calculatePrincipalTiers(remaining, breakdown);
-                            }
-                        } else if (remaining > 0) {
-                            const seniorCommission = remaining * 0.25;
-                            totalCommission += seniorCommission;
-                            breakdown.push({ level: 'Senior Consultant (25%)', billings: remaining, commission: seniorCommission });
-                        }
-                    } else if (remaining > 0) {
-                        const consultantIICommission = remaining * 0.225;
-                        totalCommission += consultantIICommission;
-                        breakdown.push({ level: 'Consultant II (22.5%)', billings: remaining, commission: consultantIICommission });
-                    }
-                } else {
-                    totalCommission = commissionableBillings * 0.20;
-                    breakdown.push({ level: 'Consultant (20%)', billings: commissionableBillings, commission: totalCommission });
-                }
-            } else {
-                // Standard progression or other levels
-                if ((startingLevel === 'Consultant' || startingLevel === 'Consultant II') && gbpBillings >= promotionThresholds.standard.senior) {
-                    let remaining = commissionableBillings;
-                    const startingRate = startingLevel === 'Consultant' ? 0.20 : 0.225;
-                    const startingPortion = Math.min(remaining, promotionThresholds.standard.senior - yearlyThreshold);
-                    const startingCommission = startingPortion * startingRate;
-                    totalCommission += startingCommission;
-                    breakdown.push({ level: `${startingLevel} (${(startingRate * 100).toFixed(1)}%)`, billings: startingPortion, commission: startingCommission });
-                    remaining -= startingPortion;
-                    finalLevel = 'Senior Consultant';
-                    promotions.push('Senior Consultant');
-
-                    if (remaining > 0 && gbpBillings >= promotionThresholds.standard.principal) {
-                        const seniorPortion = Math.min(remaining, promotionThresholds.standard.principal - promotionThresholds.standard.senior);
-                        const seniorCommission = seniorPortion * 0.25;
-                        totalCommission += seniorCommission;
-                        breakdown.push({ level: 'Senior Consultant (25%)', billings: seniorPortion, commission: seniorCommission });
-                        remaining -= seniorPortion;
-                        finalLevel = 'Principal Consultant';
-                        promotions.push('Principal Consultant');
-                        
-                        if (remaining > 0) {
-                            totalCommission += calculatePrincipalTiers(remaining, breakdown);
-                        }
-                    } else if (remaining > 0) {
-                        const seniorCommission = remaining * 0.25;
-                        totalCommission += seniorCommission;
-                        breakdown.push({ level: 'Senior Consultant (25%)', billings: remaining, commission: seniorCommission });
-                    }
-                } else if (startingLevel === 'Senior Consultant' && gbpBillings >= promotionThresholds.standard.principal) {
-                    let remaining = commissionableBillings;
-                    const seniorPortion = Math.min(remaining, promotionThresholds.standard.principal - yearlyThreshold);
-                    const seniorCommission = seniorPortion * 0.25;
-                    totalCommission += seniorCommission;
-                    breakdown.push({ level: 'Senior Consultant (25%)', billings: seniorPortion, commission: seniorCommission });
-                    remaining -= seniorPortion;
-                    finalLevel = 'Principal Consultant';
-                    promotions.push('Principal Consultant');
-                    
-                    if (remaining > 0) {
-                        totalCommission += calculatePrincipalTiers(remaining, breakdown);
-                    }
-                } else {
-                    // No promotions - calculate at current level
-                    if (startingLevel === 'Senior Consultant') {
-                        let commission = 0;
-                        // Policy: 25% on £40k-£100k, 30% on £100k-£200k
-                        if (commissionableBillings <= 60000) { // Up to £100k total billings
-                            commission = commissionableBillings * 0.25;
-                            breakdown.push({ level: 'Senior Consultant (25%)', billings: commissionableBillings, commission });
-                        } else {
-                            // First £60k at 25% (£40k-£100k range)
-                            const firstTier = 60000 * 0.25;
-                            commission += firstTier;
-                            breakdown.push({ level: 'Senior Consultant Tier 1 (25%)', billings: 60000, commission: firstTier });
-                            
-                            // Remainder at 30% (£100k-£200k range)
-                            const remainder = (commissionableBillings - 60000) * 0.30;
-                            commission += remainder;
-                            breakdown.push({ level: 'Senior Consultant Tier 2 (30%)', billings: commissionableBillings - 60000, commission: remainder });
-                        }
-                        totalCommission = commission;
-                    } else if (startingLevel === 'Principal Consultant') {
-                        totalCommission = calculatePrincipalTiers(commissionableBillings, breakdown);
-                    } else if (startingLevel === 'Consultant II') {
-                        totalCommission = commissionableBillings * 0.225;
-                        breakdown.push({ level: 'Consultant II (22.5%)', billings: commissionableBillings, commission: totalCommission });
-                    } else if (startingLevel === 'Consultant') {
-                        totalCommission = commissionableBillings * 0.20;
-                        breakdown.push({ level: 'Consultant (20%)', billings: commissionableBillings, commission: totalCommission });
-                    }
-                }
-            }
-
-            return { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold };
-        }
-
-        function updatePromotionProgress(gbpBillings, finalLevel, startingLevel, isFirstYear, promotions) {
+        // Update promotion progress
+        function updatePromotionProgress(billings, finalLevel, startingLevel, isFirstYear, promotions) {
             const content = document.getElementById('promotionContent');
             let html = '';
 
@@ -557,19 +706,19 @@
             // Show progress to next promotion
             const nextPromotion = getNextPromotion(finalLevel, isFirstYear);
             if (nextPromotion) {
-                const progress = (gbpBillings / nextPromotion.threshold) * 100;
-                const remaining = Math.max(0, nextPromotion.threshold - gbpBillings);
+                const progress = Math.min(100, (billings / nextPromotion.threshold) * 100);
+                const remaining = Math.max(0, nextPromotion.threshold - billings);
                 
                 html += '<div class="progress-container">';
                 html += '<div class="progress-header">';
                 html += `<span class="progress-label">Progress to ${nextPromotion.title}</span>`;
-                html += `<span class="progress-type">${Math.min(100, progress).toFixed(1)}%</span>`;
+                html += `<span class="progress-type">${progress.toFixed(1)}%</span>`;
                 html += '</div>';
                 html += '<div class="progress-bar">';
-                html += `<div class="progress-fill" style="width: ${Math.min(100, progress)}%"></div>`;
+                html += `<div class="progress-fill" style="width: ${progress}%"></div>`;
                 html += '</div>';
                 html += '<div class="progress-stats">';
-                html += `<span>Current: ${formatCurrency(gbpBillings)}</span>`;
+                html += `<span>Current: ${formatCurrency(billings)}</span>`;
                 html += `<span>Target: ${formatCurrency(nextPromotion.threshold)}</span>`;
                 html += '</div>';
                 if (remaining > 0) {
@@ -581,100 +730,72 @@
             content.innerHTML = html;
         }
 
+        // Get next promotion target
         function getNextPromotion(currentLevel, isFirstYear) {
             if (currentLevel === 'Consultant' && isFirstYear) {
-                return { title: 'Consultant II', threshold: promotionThresholds.fastTrack.consultantII };
+                return { title: 'Consultant II', threshold: PROMOTION_THRESHOLDS.fastTrack.consultantII };
             } else if (currentLevel === 'Consultant II' && isFirstYear) {
-                return { title: 'Senior Consultant', threshold: promotionThresholds.fastTrack.senior };
+                return { title: 'Senior Consultant', threshold: PROMOTION_THRESHOLDS.fastTrack.senior };
             } else if (currentLevel === 'Senior Consultant' && isFirstYear) {
-                return { title: 'Principal Consultant', threshold: promotionThresholds.fastTrack.principal };
+                return { title: 'Principal Consultant', threshold: PROMOTION_THRESHOLDS.fastTrack.principal };
             } else if (currentLevel === 'Consultant' || currentLevel === 'Consultant II') {
-                return { title: 'Senior Consultant', threshold: promotionThresholds.standard.senior };
+                return { title: 'Senior Consultant', threshold: PROMOTION_THRESHOLDS.standard.senior };
             } else if (currentLevel === 'Senior Consultant') {
-                return { title: 'Principal Consultant', threshold: promotionThresholds.standard.principal };
+                return { title: 'Principal Consultant', threshold: PROMOTION_THRESHOLDS.standard.principal };
             }
             return null;
         }
-
-        function updateCalculation() {
+        function calculateNextDeal() {
+            const nextDealValue = parseFloat(document.getElementById('nextDealValue').value) || 0;
             const billings = parseFloat(document.getElementById('billings').value) || 0;
             const currency = document.getElementById('currency').value;
-            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 1.27;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0.75;
             const currentLevel = document.getElementById('currentLevel').value;
             const isFirstYear = document.getElementById('firstYearToggle').classList.contains('active') && currentLevel === 'Consultant';
-            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
-            const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
 
-            // Calculate next deal commission
-            calculateNextDealCommission();
-
-            if (billings > 0) {
-                const gbpBillings = currency === 'USD' ? billings / exchangeRate : billings;
-                const result = calculateCommissionWithPromotions(gbpBillings, currentLevel, isFirstYear);
-                const { totalCommission, finalLevel, promotions, breakdown, yearlyThreshold } = result;
-                const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
-                const total = totalCommission + baseSalary + teamBonus;
-
-                // Update display
-                document.getElementById('commissionValue').textContent = formatCurrency(totalCommission);
-                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
-                document.getElementById('teamBonusValue').textContent = formatCurrency(teamBonus);
-                document.getElementById('totalValue').textContent = formatCurrency(total);
-
-                // Show/hide team bonus
-                document.getElementById('teamBonusRow').classList.toggle('hidden', teamBonus === 0);
-
-                // Update breakdown
-                const breakdownEl = document.getElementById('breakdown');
-                const breakdownItems = document.getElementById('breakdownItems');
-                if (breakdown.length > 0 && totalCommission > 0) {
-                    breakdownItems.innerHTML = breakdown.map(item => 
-                        `<div class="breakdown-item">
-                            <span class="breakdown-left">${formatCurrency(item.billings)} @ ${item.level}</span>
-                            <span class="breakdown-right">${formatCurrency(item.commission)}</span>
-                        </div>`
-                    ).join('');
-                    breakdownEl.classList.remove('hidden');
-                } else {
-                    breakdownEl.classList.add('hidden');
-                }
-
-                // Update threshold status
-                const meetsThreshold = gbpBillings >= yearlyThreshold;
-                const statusEl = document.getElementById('thresholdStatus');
-                const statusTitle = document.getElementById('statusTitle');
-                const statusText = document.getElementById('statusText');
-                statusEl.className = `status ${meetsThreshold ? 'success' : 'error'}`;
-                statusTitle.textContent = meetsThreshold ? '✅ Threshold Met' : '❌ Threshold Not Met';
-                statusText.textContent = `Required: ${formatCurrency(yearlyThreshold)} | Current: ${formatCurrency(gbpBillings)} | ${meetsThreshold ? 'Surplus' : 'Shortfall'}: ${formatCurrency(Math.abs(gbpBillings - yearlyThreshold))}`;
-
-                updatePromotionProgress(gbpBillings, finalLevel, currentLevel, isFirstYear, promotions);
-                document.getElementById('thresholdStatus').classList.remove('hidden');
-                document.getElementById('promotionProgress').classList.remove('hidden');
+            if (nextDealValue > 0) {
+                const gbpBillings = currency === 'USD' ? billings * exchangeRate : billings;
+                const gbpDealValue = currency === 'USD' ? nextDealValue * exchangeRate : nextDealValue;
+                
+                const currentResult = calculateCommission(gbpBillings, currentLevel, isFirstYear);
+                const newResult = calculateCommission(gbpBillings + gbpDealValue, currentLevel, isFirstYear);
+                
+                const dealCommission = newResult.commission - currentResult.commission;
+                const effectiveRate = gbpDealValue > 0 ? (dealCommission / gbpDealValue) : 0;
+                
+                document.getElementById('nextDealCommission').textContent = formatCurrency(dealCommission);
+                document.getElementById('nextDealRate').textContent = `Effective rate: ${(effectiveRate * 100).toFixed(1)}%`;
+                document.getElementById('nextDealExplanation').textContent = `Commission calculated at current rate`;
+                document.getElementById('nextDealResult').classList.remove('hidden');
             } else {
-                document.getElementById('commissionValue').textContent = '£0';
-                document.getElementById('salaryValue').textContent = formatCurrency(baseSalary);
-                document.getElementById('teamBonusValue').textContent = '£0';
-                document.getElementById('totalValue').textContent = formatCurrency(baseSalary);
-                document.getElementById('breakdown').classList.add('hidden');
-                document.getElementById('thresholdStatus').classList.add('hidden');
-                document.getElementById('promotionProgress').classList.add('hidden');
-                document.getElementById('teamBonusRow').classList.add('hidden');
+                document.getElementById('nextDealResult').classList.add('hidden');
             }
         }
 
+        // Update team section visibility
         function updateTeamSection() {
             const currentLevel = document.getElementById('currentLevel').value;
             const teamSection = document.getElementById('teamSection');
+            const toggleContainer = document.getElementById('toggleContainer');
             
+            // Show team section for Principal Consultant
             if (currentLevel === 'Principal Consultant') {
                 teamSection.classList.remove('hidden');
             } else {
                 teamSection.classList.add('hidden');
                 document.getElementById('teamBillings').value = '';
             }
+            
+            // Show fast-track toggle only for Consultant level
+            if (currentLevel === 'Consultant') {
+                toggleContainer.classList.remove('hidden');
+            } else {
+                toggleContainer.classList.add('hidden');
+                document.getElementById('firstYearToggle').classList.remove('active');
+            }
         }
 
+        // Update currency section visibility
         function updateCurrencySection() {
             const currency = document.getElementById('currency').value;
             const exchangeGroup = document.getElementById('exchangeGroup');
@@ -686,10 +807,198 @@
             }
         }
 
+        // Fetch live exchange rate
+        async function fetchLiveRate() {
+            const button = document.getElementById('fetchRateBtn');
+            const rateInput = document.getElementById('exchangeRate');
+            const statusEl = document.getElementById('rateStatus');
+            
+            try {
+                button.textContent = 'Loading...';
+                button.disabled = true;
+                statusEl.textContent = 'Fetching live rate...';
+                
+                // Using fixer.io API with CORS support
+                const response = await fetch('https://api.fixer.io/latest?base=USD&symbols=GBP');
+                
+                if (!response.ok) {
+                    // Fallback to exchangerate.host if fixer.io fails
+                    const fallbackResponse = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=GBP');
+                    const fallbackData = await fallbackResponse.json();
+                    
+                    if (fallbackData && fallbackData.rates && fallbackData.rates.GBP) {
+                        const rate = fallbackData.rates.GBP.toFixed(4);
+                        rateInput.value = rate;
+                        statusEl.textContent = `Live rate updated: ${new Date().toLocaleTimeString()}`;
+                        statusEl.style.color = '#1e3a8a';
+                        updateCalculation();
+                        return;
+                    }
+                    throw new Error('All APIs failed');
+                }
+                
+                const data = await response.json();
+                if (data && data.rates && data.rates.GBP) {
+                    const rate = data.rates.GBP.toFixed(4);
+                    rateInput.value = rate;
+                    statusEl.textContent = `Live rate updated: ${new Date().toLocaleTimeString()}`;
+                    statusEl.style.color = '#1e3a8a';
+                    updateCalculation();
+                } else {
+                    throw new Error('Rate not found');
+                }
+            } catch (error) {
+                console.error('Error fetching exchange rate:', error);
+                // Fallback: Set a reasonable current rate
+                rateInput.value = '0.79';
+                statusEl.textContent = 'Using estimated rate (APIs unavailable). Please verify current rate.';
+                statusEl.style.color = '#999';
+                updateCalculation();
+            } finally {
+                button.textContent = 'Live Rate';
+                button.disabled = false;
+            }
+        }
+        let savedCalculationsData = [];
+
+        // Save calculation
+        function saveCalculation() {
+            const billings = parseFloat(document.getElementById('billings').value) || 0;
+            const currentLevel = document.getElementById('currentLevel').value;
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const currency = document.getElementById('currency').value;
+            const isFirstYear = document.getElementById('firstYearToggle').classList.contains('active');
+            const teamBillings = parseFloat(document.getElementById('teamBillings').value) || 0;
+            
+            if (billings === 0) {
+                alert('Please enter your billings before saving');
+                return;
+            }
+            
+            const calculation = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                billings: billings,
+                currency: currency,
+                currentLevel: currentLevel,
+                baseSalary: baseSalary,
+                isFirstYear: isFirstYear,
+                teamBillings: teamBillings,
+                totalEarnings: document.getElementById('totalValue').textContent
+            };
+            
+            // Add to beginning of array
+            savedCalculationsData.unshift(calculation);
+            
+            // Keep only last 5 calculations
+            savedCalculationsData = savedCalculationsData.slice(0, 5);
+            
+            // Update display
+            displaySavedCalculations();
+            
+            // Show success message
+            alert('Calculation saved successfully!');
+        }
+
+        // Load calculation
+        function loadCalculation(id) {
+            const calculation = savedCalculationsData.find(calc => calc.id === id);
+            
+            if (calculation) {
+                document.getElementById('billings').value = calculation.billings;
+                document.getElementById('currency').value = calculation.currency;
+                document.getElementById('currentLevel').value = calculation.currentLevel;
+                document.getElementById('baseSalary').value = calculation.baseSalary || '';
+                document.getElementById('teamBillings').value = calculation.teamBillings || '';
+                
+                if (calculation.isFirstYear) {
+                    document.getElementById('firstYearToggle').classList.add('active');
+                } else {
+                    document.getElementById('firstYearToggle').classList.remove('active');
+                }
+                
+                // Update dependent sections
+                updateCurrencySection();
+                updateTeamSection();
+                updateCalculation();
+            }
+        }
+
+        // Delete calculation
+        function deleteCalculation(id) {
+            if (confirm('Are you sure you want to delete this saved calculation?')) {
+                savedCalculationsData = savedCalculationsData.filter(calc => calc.id !== id);
+                displaySavedCalculations();
+            }
+        }
+
+        // Display saved calculations
+        function displaySavedCalculations() {
+            const savedSection = document.getElementById('savedCalculations');
+            const savedList = document.getElementById('savedList');
+            
+            if (savedCalculationsData.length === 0) {
+                savedSection.classList.add('hidden');
+                return;
+            }
+            
+            savedSection.classList.remove('hidden');
+            
+            savedList.innerHTML = savedCalculationsData.map(calc => `
+                <div class="saved-item">
+                    <div class="saved-item-header">
+                        <div class="saved-item-title">${calc.currentLevel} - ${calc.currency} ${calc.billings.toLocaleString()}</div>
+                        <div class="saved-item-date">${calc.date}</div>
+                    </div>
+                    <div class="saved-item-details">
+                        Total Earnings: ${calc.totalEarnings}${calc.baseSalary ? ` (Salary: £${calc.baseSalary.toLocaleString()})` : ''}
+                    </div>
+                    <div class="saved-item-actions">
+                        <button class="load-btn" onclick="loadCalculation(${calc.id})">Load</button>
+                        <button class="delete-btn" onclick="deleteCalculation(${calc.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function exportResults() {
+            const billings = parseFloat(document.getElementById('billings').value) || 0;
+            const currentLevel = document.getElementById('currentLevel').value;
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const currency = document.getElementById('currency').value;
+            
+            if (billings === 0) {
+                alert('Please enter your billings before exporting');
+                return;
+            }
+            
+            const exportData = `TY-G Commission Calculator Results
+================================
+
+Personal Details:
+- Starting Level: ${currentLevel}
+- Annual Billings: ${currency} ${billings.toLocaleString()}
+- Base Salary: £${baseSalary.toLocaleString()}
+
+Total Earnings: ${document.getElementById('totalValue').textContent}
+
+Generated on: ${new Date().toLocaleDateString()}`;
+            
+            const blob = new Blob([exportData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TYG-Commission-Report-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Reset form
         function resetForm() {
             document.getElementById('billings').value = '';
             document.getElementById('currency').value = 'GBP';
-            document.getElementById('exchangeRate').value = '1.27';
+            document.getElementById('exchangeRate').value = '0.75';
             document.getElementById('nextDealValue').value = '';
             document.getElementById('currentLevel').value = 'Consultant';
             document.getElementById('baseSalary').value = '';
@@ -701,9 +1010,9 @@
             updateCalculation();
         }
 
-        // Event listeners
+        // Initialize event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            // Input event listeners
+            // Input listeners
             ['billings', 'nextDealValue', 'baseSalary', 'teamBillings', 'exchangeRate'].forEach(id => {
                 document.getElementById(id).addEventListener('input', updateCalculation);
             });
@@ -716,18 +1025,30 @@
                 });
             });
 
-            // Toggle event listener
+            // Toggle listener
             document.getElementById('firstYearToggle').addEventListener('click', function() {
                 this.classList.toggle('active');
                 updateCalculation();
             });
 
-            // Reset button
+            // Toggle info dropdown
+            document.getElementById('infoToggle').addEventListener('click', function() {
+                const content = document.getElementById('infoContent');
+                const toggle = document.getElementById('infoToggle');
+                
+                content.classList.toggle('hidden');
+                toggle.classList.toggle('active');
+            });
+
+            // Button listeners
             document.getElementById('resetButton').addEventListener('click', resetForm);
+            document.getElementById('saveButton').addEventListener('click', saveCalculation);
+            document.getElementById('exportButton').addEventListener('click', exportResults);
 
             // Initial setup
             updateCurrencySection();
             updateTeamSection();
+            displaySavedCalculations();
             updateCalculation();
         });
     </script>
