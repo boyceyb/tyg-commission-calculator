@@ -188,19 +188,19 @@
             background: #2c2c2c;
             font-size: 20px; 
             font-weight: 600; 
-            color: white;
+            color: white !important;
         }
         .earnings-item:last-child .earnings-label { 
-            color: #ccc; 
+            color: #ccc !important; 
             font-size: 12px;
             font-weight: 600;
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
         .earnings-item:last-child .earnings-value { 
-            font-size: 24px; 
-            font-weight: 700;
-            color: white !important;
+            font-size: 24px !important; 
+            font-weight: 700 !important;
+            color: #00ff00 !important;
             letter-spacing: -0.5px;
         }
         .earnings-label { 
@@ -447,9 +447,9 @@
                     <span class="earnings-label">Team Bonus</span>
                     <span class="earnings-value team" id="teamBonusValue">£0</span>
                 </div>
-                <div class="earnings-item">
-                    <span class="earnings-label">Total Earnings</span>
-                    <span class="earnings-value total" id="totalValue">£0</span>
+                <div class="earnings-item" style="margin-bottom: 0; padding: 16px; margin: 12px -12px 0 -12px; border: none; background: #64748b; font-size: 16px; font-weight: 500; color: white;">
+                    <span class="earnings-label" style="color: #e2e8f0; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">Total Earnings</span>
+                    <span class="earnings-value total" style="font-size: 18px; font-weight: 600; color: white;" id="totalValue">£0</span>
                 </div>
                 
                 <button class="export-btn" id="exportButton" style="margin-top: 16px; background: #3b82f6 !important; color: white !important; border: none !important; padding: 12px 20px !important; border-radius: 6px !important; font-size: 14px !important; font-weight: 600 !important; cursor: pointer !important; width: 100% !important; font-family: inherit !important;">📄 Export Results</button>
@@ -539,6 +539,59 @@
             if (billings <= 260000) return 0.35;
             if (billings <= 360000) return 0.40;
             return 0.50;
+        }
+
+        function calculatePrincipalTiers(billings, breakdown) {
+            let commission = 0;
+            let remaining = billings;
+            
+            // Based on policy: 25% (£40k-£100k), 30% (£100k-£200k), 35% (£200k-£300k), 40% (£300k-£400k), 50% (£400k+)
+            // Note: billings passed here is already above the £40k threshold
+            
+            // Tier 1: First £60k at 25% (represents £40k-£100k range)
+            if (remaining > 0) {
+                const tier1Amount = Math.min(remaining, 60000);
+                const tier1Commission = tier1Amount * 0.25;
+                commission += tier1Commission;
+                breakdown.push({ level: 'Principal Tier 1 (25%)', billings: tier1Amount, commission: tier1Commission });
+                remaining -= tier1Amount;
+            }
+            
+            // Tier 2: Next £100k at 30% (represents £100k-£200k range)
+            if (remaining > 0) {
+                const tier2Amount = Math.min(remaining, 100000);
+                const tier2Commission = tier2Amount * 0.30;
+                commission += tier2Commission;
+                breakdown.push({ level: 'Principal Tier 2 (30%)', billings: tier2Amount, commission: tier2Commission });
+                remaining -= tier2Amount;
+            }
+            
+            // Tier 3: Next £100k at 35% (represents £200k-£300k range)
+            if (remaining > 0) {
+                const tier3Amount = Math.min(remaining, 100000);
+                const tier3Commission = tier3Amount * 0.35;
+                commission += tier3Commission;
+                breakdown.push({ level: 'Principal Tier 3 (35%)', billings: tier3Amount, commission: tier3Commission });
+                remaining -= tier3Amount;
+            }
+            
+            // Tier 4: Next £100k at 40% (represents £300k-£400k range)
+            if (remaining > 0) {
+                const tier4Amount = Math.min(remaining, 100000);
+                const tier4Commission = tier4Amount * 0.40;
+                commission += tier4Commission;
+                breakdown.push({ level: 'Principal Tier 4 (40%)', billings: tier4Amount, commission: tier4Commission });
+                remaining -= tier4Amount;
+            }
+            
+            // Tier 5: Remaining at 50% (represents £400k+ range)
+            if (remaining > 0) {
+                const tier5Commission = remaining * 0.50;
+                commission += tier5Commission;
+                breakdown.push({ level: 'Principal Tier 5 (50%)', billings: remaining, commission: tier5Commission });
+            }
+            
+            return commission;
         }
 
         // Calculate total commission with promotions
@@ -732,7 +785,9 @@
                 
             } else if (level === 'Principal Consultant') {
                 // Principal - just use tier system
-                totalCommission = calculatePrincipalTiers(commissionableBillings, breakdown);
+                if (commissionableBillings > 0) {
+                    totalCommission = calculatePrincipalTiers(commissionableBillings, breakdown);
+                }
                 
             } else {
                 // Fallback for any other cases
