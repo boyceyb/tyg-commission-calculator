@@ -117,15 +117,6 @@
             transform: translateY(-1px);
         }
 
-        .input-group.valid input {
-            border-color: var(--success-green);
-            background: rgba(16, 185, 129, 0.02);
-        }
-
-        .input-group.valid label {
-            color: var(--success-green);
-        }
-
         .input-group.invalid input {
             border-color: var(--error-red);
             background: rgba(239, 68, 68, 0.02);
@@ -219,7 +210,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transform: translateX(0);
         }
@@ -338,10 +328,10 @@
         
         .breakdown { 
             background: #f8fafc; 
-            padding: 20px; 
+            padding: 16px; 
             border-radius: 8px; 
             border: 1px solid #e2e8f0; 
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             transition: all 0.3s ease;
         }
 
@@ -354,7 +344,7 @@
             font-size: 15px; 
             font-weight: 600; 
             color: #374151; 
-            margin-bottom: 16px; 
+            margin-bottom: 12px; 
         }
         
         .breakdown-item { 
@@ -362,8 +352,8 @@
             justify-content: space-between; 
             align-items: flex-start; 
             font-size: 14px; 
-            margin-bottom: 12px; 
-            padding: 8px 0;
+            margin-bottom: 8px; 
+            padding: 6px 0;
             border-bottom: 1px solid #f1f5f9;
             transition: all 0.2s ease;
         }
@@ -426,18 +416,34 @@
         }
 
         .breakdown-divider {
+            position: relative;
             height: 1px;
             background: #e2e8f0;
-            margin: 16px -8px;
+            margin: 12px -8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .breakdown-divider::after {
+            content: 'promoted';
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 500;
+            font-style: italic;
+            padding: 2px 8px;
+            border-radius: 2px;
+            border: 1px solid #e2e8f0;
         }
         
         .earnings-item { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin-bottom: 16px; 
+            margin-bottom: 8px; 
             font-size: 16px; 
-            padding: 16px 0;
+            padding: 12px 0;
             border-bottom: 1px solid var(--border-light);
             transition: all 0.2s ease;
         }
@@ -451,8 +457,8 @@
         
         .earnings-item:last-child { 
             margin-bottom: 0; 
-            padding: 24px; 
-            margin: 24px -24px 0 -24px;
+            padding: 20px; 
+            margin: 16px -20px 0 -20px;
             border: none;
             background: linear-gradient(135deg, var(--text-primary), #404040);
             border-radius: 8px;
@@ -692,8 +698,24 @@
         }
 
         .achievement-icon {
-            font-size: 20px;
-            color: var(--primary-blue);
+            width: 20px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .achievement-icon::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 3px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
 
         .achievement-text {
@@ -743,6 +765,7 @@
             font-size: 16px;
             font-weight: 600;
             color: var(--text-primary);
+            line-height: 1.4;
         }
 
         .promotion-progress-text {
@@ -887,8 +910,24 @@
         }
 
         .note-icon {
-            font-size: 14px;
-            color: var(--primary-blue);
+            width: 14px;
+            height: 14px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .note-icon::after {
+            content: 'i';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 9px;
+            font-weight: bold;
+            font-style: normal;
         }
 
 
@@ -1154,61 +1193,145 @@
         /* New Level Cards Styling */
         .levels-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
             margin: 20px;
+            padding-top: 16px;
         }
 
-        .level-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
+        .level-card.current-level {
+            border: 1px solid #3b82f6;
+            background: #fafbfc;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+            position: relative;
+            overflow: visible;
         }
 
-        .level-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        .level-card.current-level .level-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #3b82f6;
+            color: #1e293b;
         }
 
-        .level-card.consultant {
-            border-top: 4px solid #10b981;
+        .level-card.current-level .level-header h4 {
+            color: #1e293b;
+            font-weight: 600;
         }
 
-        .level-card.consultant:hover {
-            border-color: #10b981;
-        }
-
-        .level-card.consultant-ii {
-            border-top: 4px solid #3b82f6;
-        }
-
-        .level-card.consultant-ii:hover {
+        .level-card.current-level .level-badge {
+            background: #3b82f6;
+            color: white;
+            font-weight: 600;
             border-color: #3b82f6;
         }
 
+        .level-card.current-level::before {
+            content: 'CURRENT';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #3b82f6;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            z-index: 10;
+        }
+
+        .level-card.promoted-level {
+            border: 1px solid #16a34a;
+            background: #fafbfc;
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.12);
+            position: relative;
+            overflow: visible;
+        }
+
+        .level-card.promoted-level .level-header {
+            background: #f8fafc;
+            border-bottom: 1px solid #16a34a;
+            color: #1e293b;
+        }
+
+        .level-card.promoted-level .level-header h4 {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .level-card.promoted-level .level-badge {
+            background: #16a34a;
+            color: white;
+            font-weight: 600;
+            border-color: #16a34a;
+        }
+
+        .level-card.promoted-level::before {
+            content: 'PROMOTED';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #16a34a;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            z-index: 10;
+        }
+
+        .level-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .level-card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .level-card.consultant {
+            border-left: 3px solid #10b981;
+        }
+
+        .level-card.consultant:hover {
+            border-left-color: #059669;
+        }
+
+        .level-card.consultant-ii {
+            border-left: 3px solid #3b82f6;
+        }
+
+        .level-card.consultant-ii:hover {
+            border-left-color: #2563eb;
+        }
+
         .level-card.senior {
-            border-top: 4px solid #f59e0b;
+            border-left: 3px solid #f59e0b;
         }
 
         .level-card.senior:hover {
-            border-color: #f59e0b;
+            border-left-color: #d97706;
         }
 
         .level-card.principal {
-            border-top: 4px solid #8b5cf6;
+            border-left: 3px solid #8b5cf6;
         }
 
         .level-card.principal:hover {
-            border-color: #8b5cf6;
+            border-left-color: #7c3aed;
         }
 
         .level-header {
             padding: 20px 20px 16px 20px;
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            border-bottom: 1px solid #e2e8f0;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1216,38 +1339,46 @@
 
         .level-header h4 {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
         }
 
         .level-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border: 1px solid var(--border-medium);
+            background: var(--bg-card);
+            color: var(--text-secondary);
         }
 
         .level-card.consultant .level-badge {
-            background: #dcfce7;
+            background: #f0fdf4;
             color: #166534;
+            border-color: #bbf7d0;
         }
 
         .level-card.consultant-ii .level-badge.fast-track {
-            background: #dbeafe;
+            background: #eff6ff;
             color: #1e40af;
+            border-color: #bfdbfe;
         }
 
         .level-card.senior .level-badge {
-            background: #fef3c7;
+            background: #fffbeb;
             color: #92400e;
+            border-color: #fed7aa;
         }
 
         .level-card.principal .level-badge {
-            background: #ede9fe;
+            background: #faf5ff;
             color: #6b21a8;
+            border-color: #e9d5ff;
         }
 
         .level-content {
@@ -1260,49 +1391,53 @@
             align-items: center;
             padding: 12px 16px;
             margin-bottom: 8px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border-left: 3px solid #e2e8f0;
+            background: var(--bg-primary);
+            border-radius: 6px;
+            border-left: 3px solid #64748b;
+            border: 1px solid var(--border-light);
         }
 
         .threshold-row .label, .commission-row .label {
             font-weight: 500;
-            color: #64748b;
-            font-size: 14px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .threshold-row .value, .commission-row .value {
-            font-weight: 700;
-            color: #1e293b;
-            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 15px;
         }
 
         .commission-tiers {
-            background: #f8fafc;
-            border-radius: 8px;
+            background: var(--bg-primary);
+            border-radius: 6px;
             padding: 16px;
             margin-bottom: 16px;
+            border: 1px solid var(--border-light);
         }
 
         .tier {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            background: white;
-            border-radius: 6px;
-            border-left: 3px solid #e2e8f0;
+            padding: 10px 14px;
+            margin-bottom: 4px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            border-left: 3px solid var(--border-medium);
             transition: all 0.2s ease;
         }
 
         .tier:hover {
             border-left-color: #3b82f6;
-            transform: translateX(4px);
+            transform: translateX(2px);
         }
 
         .tier.highlight {
-            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            background: #fffbeb;
             border-left-color: #f59e0b;
         }
 
@@ -1312,14 +1447,14 @@
 
         .tier-range {
             font-weight: 500;
-            color: #64748b;
+            color: var(--text-secondary);
             font-size: 13px;
         }
 
         .tier-rate {
-            font-weight: 700;
-            color: #1e293b;
-            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
         }
 
         .tier.highlight .tier-rate {
@@ -1328,14 +1463,20 @@
 
         .promotions-section {
             margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            border: 1px solid var(--border-light);
         }
 
         .promotions-section h5 {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
-            color: #374151;
+            color: var(--text-secondary);
             margin-bottom: 8px;
-            margin-top: 16px;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .promotions-section h5:first-child {
@@ -1345,37 +1486,38 @@
         .promotion-path {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
         }
 
         .promotion-step {
-            background: white;
+            background: var(--bg-card);
             padding: 8px 12px;
-            border-radius: 6px;
-            border-left: 3px solid #10b981;
+            border-radius: 4px;
+            border: 1px solid var(--border-light);
             font-size: 13px;
             font-weight: 500;
-            color: #166534;
+            color: var(--text-secondary);
             transition: all 0.2s ease;
         }
 
         .promotion-step:hover {
-            transform: translateX(4px);
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+            background: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         .team-bonus {
-            background: #f0f9ff;
+            background: #f8fafc;
             border-radius: 8px;
             padding: 16px;
             margin-top: 16px;
-            border-left: 3px solid #0ea5e9;
+            border-left: 3px solid #3b82f6;
+            border: 1px solid var(--border-light);
         }
 
         .team-bonus h5 {
             font-size: 14px;
             font-weight: 600;
-            color: #0c4a6e;
+            color: #1e40af;
             margin-bottom: 8px;
         }
 
@@ -1388,29 +1530,30 @@
         .bonus-rate {
             font-size: 18px;
             font-weight: 700;
-            color: #0ea5e9;
+            color: #3b82f6;
         }
 
         .bonus-desc {
             font-size: 14px;
-            color: #0369a1;
+            color: #64748b;
             font-weight: 500;
         }
 
         .key-points {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            border-radius: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
             padding: 24px;
             margin: 24px 20px 20px 20px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-light);
         }
 
         .key-points h4 {
-            color: #1e293b;
-            font-size: 18px;
+            color: var(--text-primary);
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             text-align: center;
+            letter-spacing: -0.025em;
         }
 
         .points-grid {
@@ -1422,36 +1565,41 @@
         .point {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 16px;
             padding: 16px;
-            background: white;
+            background: var(--bg-card);
             border-radius: 8px;
-            border-left: 3px solid #3b82f6;
+            border-left: 3px solid #64748b;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .point:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+            border-left-color: #3b82f6;
         }
 
         .point-icon {
-            font-size: 16px;
+            width: 6px;
+            height: 6px;
+            background: #64748b;
+            border-radius: 50%;
             flex-shrink: 0;
-            margin-top: 2px;
+            margin-top: 8px;
         }
 
         .point span:last-child {
             font-size: 14px;
-            color: #64748b;
+            color: var(--text-secondary);
             line-height: 1.5;
             font-weight: 500;
         }
 
         @media (max-width: 768px) {
             .levels-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
                 margin: 16px;
             }
             
@@ -1461,6 +1609,21 @@
 
             .key-points {
                 margin: 20px 16px 16px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .levels-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .level-header {
+                padding: 16px 16px 12px 16px;
+            }
+            
+            .level-content {
+                padding: 16px;
             }
         }
         
@@ -1651,7 +1814,7 @@
                             <input type="checkbox" id="fastTrackToggle" class="toggle-input">
                             <label for="fastTrackToggle" class="toggle-label">
                                 <span class="toggle-slider">
-                                    <span class="toggle-icon">🚀</span>
+                                    <span class="toggle-icon"></span>
                                 </span>
                             </label>
                             <div class="toggle-text">
@@ -1669,7 +1832,7 @@
                             <input type="checkbox" id="firstHalfToggle" class="toggle-input">
                             <label for="firstHalfToggle" class="toggle-label">
                                 <span class="toggle-slider">
-                                    <span class="toggle-icon">⚡</span>
+                                    <span class="toggle-icon"></span>
                                 </span>
                             </label>
                             <div class="toggle-text">
@@ -1704,7 +1867,7 @@
                 
                 <div class="next-deal-section">
                     <div class="next-deal-header" onclick="toggleNextDeal()">
-                        <span>📊 Next Deal Calculator</span>
+                        <span>Next Deal Calculator</span>
                         <span class="dropdown-arrow" id="nextDealArrow">▼</span>
                     </div>
                     <div class="next-deal-panel" id="nextDealPanel">
@@ -1794,7 +1957,7 @@
                 <div class="levels-grid">
                     <div class="level-card consultant">
                         <div class="level-header">
-                            <h4>👤 Consultant</h4>
+                            <h4>Consultant</h4>
                             <div class="level-badge">Starting Level</div>
                         </div>
                         <div class="level-content">
@@ -1807,16 +1970,16 @@
                                 <span class="value">20%</span>
                             </div>
                             <div class="promotions-section">
-                                <h5>🚀 Fast-Track (Year 1)</h5>
+                                <h5>Fast-Track (Year 1)</h5>
                                 <div class="promotion-path">
-                                    <div class="promotion-step">£100k → Consultant II</div>
-                                    <div class="promotion-step">£140k → Senior</div>
-                                    <div class="promotion-step">£180k → Principal</div>
+                                    <div class="promotion-step">£100k to Consultant II</div>
+                                    <div class="promotion-step">£140k to Senior</div>
+                                    <div class="promotion-step">£180k to Principal</div>
                                 </div>
-                                <h5>📈 Standard Path</h5>
+                                <h5>Standard Path</h5>
                                 <div class="promotion-path">
-                                    <div class="promotion-step">£96k → Senior (Early, First Half)</div>
-                                    <div class="promotion-step">£160k → Senior (Standard)</div>
+                                    <div class="promotion-step">£96k to Senior (Early, First Half)</div>
+                                    <div class="promotion-step">£160k to Senior (Standard)</div>
                                 </div>
                             </div>
                         </div>
@@ -1824,7 +1987,7 @@
 
                     <div class="level-card consultant-ii">
                         <div class="level-header">
-                            <h4>👥 Consultant II</h4>
+                            <h4>Consultant II</h4>
                             <div class="level-badge fast-track">Fast-Track Only</div>
                         </div>
                         <div class="level-content">
@@ -1837,10 +2000,10 @@
                                 <span class="value">22.5%</span>
                             </div>
                             <div class="promotions-section">
-                                <h5>📈 Promotion Path</h5>
+                                <h5>Promotion Path</h5>
                                 <div class="promotion-path">
-                                    <div class="promotion-step">£96k → Senior (Early, First Half)</div>
-                                    <div class="promotion-step">£160k → Senior (Standard)</div>
+                                    <div class="promotion-step">£96k to Senior (Early, First Half)</div>
+                                    <div class="promotion-step">£160k to Senior (Standard)</div>
                                 </div>
                             </div>
                         </div>
@@ -1848,7 +2011,7 @@
 
                     <div class="level-card senior">
                         <div class="level-header">
-                            <h4>⭐ Senior Consultant</h4>
+                            <h4>Senior Consultant</h4>
                             <div class="level-badge">Tiered Commission</div>
                         </div>
                         <div class="level-content">
@@ -1867,10 +2030,10 @@
                                 </div>
                             </div>
                             <div class="promotions-section">
-                                <h5>📈 Promotion Path</h5>
+                                <h5>Promotion Path</h5>
                                 <div class="promotion-path">
-                                    <div class="promotion-step">£120k → Principal (Early, First Half)</div>
-                                    <div class="promotion-step">£200k → Principal (Standard)</div>
+                                    <div class="promotion-step">£120k to Principal (Early, First Half)</div>
+                                    <div class="promotion-step">£200k to Principal (Standard)</div>
                                 </div>
                             </div>
                         </div>
@@ -1878,7 +2041,7 @@
 
                     <div class="level-card principal">
                         <div class="level-header">
-                            <h4>🏆 Principal Consultant</h4>
+                            <h4>Principal Consultant</h4>
                             <div class="level-badge">Highest in Tool</div>
                         </div>
                         <div class="level-content">
@@ -1909,7 +2072,7 @@
                                 </div>
                             </div>
                             <div class="team-bonus">
-                                <h5>👥 Team Bonus</h5>
+                                <h5>Team Bonus</h5>
                                 <div class="bonus-detail">
                                     <span class="bonus-rate">10%</span>
                                     <span class="bonus-desc">of team billings</span>
@@ -1920,26 +2083,26 @@
                 </div>
                 
                 <div class="key-points">
-                    <h4>💡 Key Points</h4>
+                    <h4>Key Points</h4>
                     <div class="points-grid">
                         <div class="point">
-                            <span class="point-icon">🎯</span>
+                            <span class="point-icon"></span>
                             <span>Thresholds based on commissionable billings (after minimum)</span>
                         </div>
                         <div class="point">
-                            <span class="point-icon">🚀</span>
+                            <span class="point-icon"></span>
                             <span>Fast-track only for Consultants in first year</span>
                         </div>
                         <div class="point">
-                            <span class="point-icon">⚡</span>
+                            <span class="point-icon"></span>
                             <span>Early promotions: 60% of annual goal in first 6 months</span>
                         </div>
                         <div class="point">
-                            <span class="point-icon">📊</span>
+                            <span class="point-icon"></span>
                             <span>Commission calculations based on billings and level progression</span>
                         </div>
                         <div class="point">
-                            <span class="point-icon">🏆</span>
+                            <span class="point-icon"></span>
                             <span>This tool covers levels up to Principal - higher levels exist with different criteria</span>
                         </div>
                     </div>
@@ -1947,30 +2110,7 @@
             </div>
         </div>
 
-        <div class="info-section">
-            <div class="info-header" onclick="toggleInfo()">
-                <span>Commission Information & Rules</span>
-                <span class="dropdown-arrow" id="infoArrow">▼</span>
-            </div>
-            <div class="info-panel" id="infoPanel">
-                <div class="info-box">
-                    <h4>Commission Calculations</h4>
-                    <p>All calculations are performed in GBP (£). Commission calculations are based on the order of invoice payment received dates, not invoice sent dates.</p>
-                </div>
-                <div class="info-box">
-                    <h4>Promotions</h4>
-                    <p>Standard promotions are determined by invoice sent date order and cumulative billings targets</p>
-                </div>
-                <div class="info-box">
-                    <h4>Early Promotions</h4>
-                    <p>Available if you achieve 60% of your annual goal within the first 6 months of your commission year (e.g., £96k by month 6 for a £160k annual target for Senior, £120k for Principal)</p>
-                </div>
-                <div class="info-box">
-                    <h4>First Year Fast-Track</h4>
-                    <p>Special accelerated promotion thresholds available only during your first 12 months as a Consultant</p>
-                </div>
-            </div>
-        </div>
+
     </div>
 
     <script>
@@ -2109,9 +2249,7 @@
                 
                 parent.classList.remove('valid', 'invalid');
                 
-                if (element.value && value >= 0) {
-                    parent.classList.add('valid');
-                } else if (element.value && value < 0) {
+                if (element.value && value < 0) {
                     parent.classList.add('invalid');
                 }
             }
@@ -2712,10 +2850,15 @@
                     this.updateThresholdStatus(totalBillings, result);
                     this.updatePromotionProgress(totalBillings, result.finalLevel, currentLevel, isFirstYear, result.promotions, result.earlyPromotions, isFirstHalf);
                     
+                    // Update level highlighting to show final level after promotions
+                    this.updateCurrentLevelHighlight(result.finalLevel);
+                    
                     document.getElementById('emptyState')?.classList.add('hidden');
                     document.getElementById('calculationResults')?.classList.remove('hidden');
                 } else {
                     this.resetDisplays(baseSalary);
+                    // Reset to starting level when no billings
+                    this.updateCurrentLevelHighlight();
                 }
 
                 this.calculateNextDeal();
@@ -2764,19 +2907,32 @@
                     // If we have both current billings and next deal, show the breakdown with this context
                     if (currentBillings > 0 && nextDealValue > 0) {
                         breakdownHTML += `<div style="background: #eff6ff; padding: 12px; border-radius: 6px; margin-bottom: 16px; border-left: 3px solid #3b82f6;">
-                            <div style="font-size: 13px; color: #1e40af; font-weight: 600; margin-bottom: 4px;">📊 Total Projected Earnings</div>
+                            <div style="font-size: 13px; color: #1e40af; font-weight: 600; margin-bottom: 4px;">Total Projected Earnings</div>
                             <div style="font-size: 12px; color: #64748b;">
                                 Current billings: ${this.formatCurrency(currentBillings)} + Next deal: ${this.formatCurrency(nextDealValue)} = <strong>${this.formatCurrency(currentBillings + nextDealValue)}</strong>
                             </div>
                         </div>`;
                     }
                     
-                    // Simple flat list of all breakdown items
-                    result.breakdown.forEach((item) => {
+                    // Track previous level to detect changes
+                    let previousLevel = '';
+                    
+                    result.breakdown.forEach((item, index) => {
+                        // Extract the base level name (e.g., "Senior Consultant" from "Senior Consultant (25%)")
+                        const currentBaseLevel = item.level.split(' (')[0];
+                        const previousBaseLevel = previousLevel.split(' (')[0];
+                        
+                        // Add a subtle divider when the seniority level changes
+                        if (index > 0 && currentBaseLevel !== previousBaseLevel) {
+                            breakdownHTML += `<div class="breakdown-divider"></div>`;
+                        }
+                        
                         breakdownHTML += `<div class="breakdown-item">
                             <span class="breakdown-left">${this.formatCurrency(item.billings)} @ ${item.level}</span>
                             <span class="breakdown-right">${this.formatCurrency(item.commission)}</span>
                         </div>`;
+                        
+                        previousLevel = item.level;
                     });
                     
                     document.getElementById('breakdownItems').innerHTML = breakdownHTML;
@@ -2865,12 +3021,12 @@
                     
                     if (earlyPromotions.length > 0) {
                         html += `<div class="status success" style="margin-bottom: 20px;">
-                            <div class="status-title">🚀 Early Promotion Achieved!</div>
+                            <div class="status-title">Early Promotion Achieved!</div>
                             <div class="status-text">Congratulations! You've achieved early promotion to ${earlyPromotions[earlyPromotions.length - 1]} by hitting ${this.formatCurrency(earlyCheck.earlyThreshold)} (60% of the ${this.formatCurrency(earlyCheck.standardTarget)} annual target) in the first half of your commission year.</div>
                         </div>`;
                     } else if (earlyCheck.eligible) {
                         html += `<div class="status warning" style="margin-bottom: 20px;">
-                            <div class="status-title">⚡ Early Promotion Eligible!</div>
+                            <div class="status-title">Early Promotion Eligible!</div>
                             <div class="status-text">You're eligible for early promotion to ${earlyCheck.targetLevel}! You've hit ${this.formatCurrency(earlyCheck.earlyThreshold)} (60% of the ${this.formatCurrency(earlyCheck.standardTarget)} annual target) in the first half.</div>
                         </div>`;
                     }
@@ -2907,7 +3063,7 @@
                     
                     html += `<div class="promotion-achievement">
                         <div class="achievement-header">
-                            <span class="achievement-icon">✓</span>
+                            <span class="achievement-icon"></span>
                             <div class="achievement-text">
                                 <div class="achievement-title">Promotion Achieved!</div>
                                 <div class="achievement-path">${startingLevel} → ${finalLevel} ${promotionThreshold ? `at ${promotionThreshold}` : ''}</div>
@@ -2919,7 +3075,7 @@
                     // Add special message for reaching Principal (highest level in tool)
                     if (hasReachedMax) {
                         html += `<div class="status success" style="margin-top: 16px;">
-                            <div class="status-title">🏆 Maximum Level Reached!</div>
+                            <div class="status-title">Maximum Level Reached!</div>
                             <div class="status-text">Congratulations on reaching Principal Consultant - the highest level covered by this calculator. Higher seniority levels exist with different commission structures and criteria.</div>
                         </div>`;
                     }
@@ -2934,17 +3090,17 @@
                         
                         // Enhanced title to show early promotion when applicable
                         const promotionTitle = nextPromotion.isEarly ? 
-                            `<strong>Next: ${nextPromotion.title.replace(' (Early)', '')} (Early Promotion!)</strong>` :
+                            `<strong>Next: ${nextPromotion.title.replace(' (Early)', '')}</strong><br><small style="color: #64748b; font-weight: 500; font-size: 12px;">Eligible for early promotion</small>` :
                             `Next: ${nextPromotion.title}`;
                         
                         html += `<div class="next-promotion-card">
                             <div class="promotion-card-header">
-                                <span class="promotion-target" style="${nextPromotion.isEarly ? 'color: #7c3aed; font-weight: 700;' : ''}">${promotionTitle}</span>
+                                <span class="promotion-target">${promotionTitle}</span>
                                 <div class="promotion-progress-text">${progress.toFixed(1)}% of ${this.formatCurrency(nextPromotion.threshold)}</div>
                             </div>
                             
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progress}%; ${nextPromotion.isEarly ? 'background: linear-gradient(90deg, #7c3aed, #6d28d9);' : ''}"></div>
+                                <div class="progress-fill" style="width: ${progress}%;"></div>
                             </div>
                             
                             <div class="promotion-stats">
@@ -2959,8 +3115,8 @@
                             </div>
                             
                             ${nextPromotion.isEarly ? 
-                                `<div class="promotion-note" style="background: #f3f4f6; border-color: #7c3aed;">
-                                    <span class="note-icon" style="color: #7c3aed;">⚡</span>
+                                `<div class="promotion-note">
+                                    <span class="note-icon"></span>
                                     Early promotion available in first half (60% of ${this.formatCurrency(nextPromotion.fullTarget)} annual target)
                                 </div>` : ''}
                         </div>`;
@@ -3098,6 +3254,7 @@
                 this.updateFirstYearSection();
                 this.updateTimePeriodAvailability();
                 this.updateFastTrackAvailability();
+                this.updateCurrentLevelHighlight();
             }
 
             updateTeamSection() {
@@ -3110,6 +3267,36 @@
                     teamSection?.classList.add('hidden');
                     const teamBillingsEl = document.getElementById('teamBillings');
                     if (teamBillingsEl) teamBillingsEl.value = '';
+                }
+            }
+
+            updateCurrentLevelHighlight(levelToHighlight = null, isPromoted = false) {
+                // Use provided level or fall back to selected starting level
+                const startingLevel = document.getElementById('currentLevel').value;
+                const currentLevel = levelToHighlight || startingLevel;
+                const levelCards = document.querySelectorAll('.level-card');
+                
+                // Remove current highlighting
+                levelCards.forEach(card => {
+                    card.classList.remove('current-level', 'promoted-level');
+                });
+                
+                // Add highlighting to current level
+                let targetCard = null;
+                if (currentLevel === 'Consultant') {
+                    targetCard = document.querySelector('.level-card.consultant');
+                } else if (currentLevel === 'Consultant II') {
+                    targetCard = document.querySelector('.level-card.consultant-ii');
+                } else if (currentLevel === 'Senior Consultant') {
+                    targetCard = document.querySelector('.level-card.senior');
+                } else if (currentLevel === 'Principal Consultant') {
+                    targetCard = document.querySelector('.level-card.principal');
+                }
+                
+                if (targetCard) {
+                    // Check if this is a promotion from the starting level
+                    const hasBeenPromoted = levelToHighlight && (levelToHighlight !== startingLevel);
+                    targetCard.classList.add(hasBeenPromoted ? 'promoted-level' : 'current-level');
                 }
             }
 
@@ -3222,22 +3409,9 @@
             }
         }
         
-        function toggleInfo() {
-            const panel = document.getElementById('infoPanel');
-            const arrow = document.getElementById('infoArrow');
-            const header = panel.previousElementSibling;
-            
-            if (panel.classList.contains('open')) {
-                panel.classList.remove('open');
-                arrow.classList.remove('rotated');
-                header.classList.remove('active');
-            } else {
-                panel.classList.add('open');
-                arrow.classList.add('rotated');
-                header.classList.add('active');
-            }
-        }
+
         
+                
         function toggleLevels() {
             const panel = document.getElementById('levelsPanel');
             const arrow = document.getElementById('levelsArrow');
@@ -3272,7 +3446,7 @@
             
             // Remove validation classes
             document.querySelectorAll('.input-group').forEach(group => {
-                group.classList.remove('valid', 'invalid', 'focused');
+                group.classList.remove('invalid', 'focused');
             });
             
             // Update calculator
