@@ -2458,6 +2458,85 @@
                 return commission;
             }
 
+            // This function applies Principal tier structure starting from a specific billing amount
+            calculatePrincipalTiersFromExcess(excessBillings, breakdown, startingTotalBillings) {
+                let commission = 0;
+                let remaining = excessBillings;
+                let currentTotalBillings = startingTotalBillings;
+                
+                // Principal tier boundaries based on total billings
+                const tier1End = 100000;  // 25% up to £100k total
+                const tier2End = 200000;  // 30% from £100k to £200k total  
+                const tier3End = 300000;  // 35% from £200k to £300k total
+                const tier4End = 400000;  // 40% from £300k to £400k total
+                                         // 50% above £400k total
+                
+                // Determine which tier to start from based on current total billings
+                while (remaining > 0) {
+                    if (currentTotalBillings < tier1End) {
+                        // 25% tier (but this shouldn't happen for promotions to Principal)
+                        const tierAmount = Math.min(remaining, tier1End - currentTotalBillings);
+                        const tierCommission = tierAmount * 0.25;
+                        commission += tierCommission;
+                        breakdown.push({
+                            level: 'Principal Consultant (25%)',
+                            billings: tierAmount,
+                            commission: tierCommission
+                        });
+                        remaining -= tierAmount;
+                        currentTotalBillings += tierAmount;
+                    } else if (currentTotalBillings < tier2End) {
+                        // 30% tier (£100k to £200k total billings)
+                        const tierAmount = Math.min(remaining, tier2End - currentTotalBillings);
+                        const tierCommission = tierAmount * 0.30;
+                        commission += tierCommission;
+                        breakdown.push({
+                            level: 'Principal Consultant (30%)',
+                            billings: tierAmount,
+                            commission: tierCommission
+                        });
+                        remaining -= tierAmount;
+                        currentTotalBillings += tierAmount;
+                    } else if (currentTotalBillings < tier3End) {
+                        // 35% tier (£200k to £300k total billings)
+                        const tierAmount = Math.min(remaining, tier3End - currentTotalBillings);
+                        const tierCommission = tierAmount * 0.35;
+                        commission += tierCommission;
+                        breakdown.push({
+                            level: 'Principal Consultant (35%)',
+                            billings: tierAmount,
+                            commission: tierCommission
+                        });
+                        remaining -= tierAmount;
+                        currentTotalBillings += tierAmount;
+                    } else if (currentTotalBillings < tier4End) {
+                        // 40% tier (£300k to £400k total billings)
+                        const tierAmount = Math.min(remaining, tier4End - currentTotalBillings);
+                        const tierCommission = tierAmount * 0.40;
+                        commission += tierCommission;
+                        breakdown.push({
+                            level: 'Principal Consultant (40%)',
+                            billings: tierAmount,
+                            commission: tierCommission
+                        });
+                        remaining -= tierAmount;
+                        currentTotalBillings += tierAmount;
+                    } else {
+                        // 50% tier (above £400k total billings)
+                        const tierCommission = remaining * 0.50;
+                        commission += tierCommission;
+                        breakdown.push({
+                            level: 'Principal Consultant (50%)',
+                            billings: remaining,
+                            commission: tierCommission
+                        });
+                        remaining = 0;
+                    }
+                }
+                
+                return commission;
+            }
+
             calculateCommission(billings, level, isFirstYear, isFirstHalf) {
                 const levelKey = level.toLowerCase().replace(/\s+/g, '');
                 const threshold = this.THRESHOLDS[levelKey];
@@ -2566,20 +2645,19 @@
                     }
                 }
                 
-                // Tier 3: Senior (25%) from £140k to £180k
+                // Tier 3: Senior commission from £140k to £180k (using proper Senior tier structure)
                 if (billings >= this.PROMOTION_THRESHOLDS.fastTrack.senior) {
                     const seniorStartPoint = this.PROMOTION_THRESHOLDS.fastTrack.senior;
                     const seniorEndPoint = Math.min(billings, this.PROMOTION_THRESHOLDS.fastTrack.principal);
-                    const seniorPortion = seniorEndPoint - seniorStartPoint;
                     
-                    if (seniorPortion > 0) {
-                        const seniorCommission = seniorPortion * 0.25;
+                    if (seniorEndPoint > seniorStartPoint) {
+                        // Use Senior tier structure starting from £140k total billings
+                        const seniorCommission = this.calculateSeniorTiersFromPosition(
+                            seniorStartPoint,
+                            seniorEndPoint,
+                            breakdown
+                        );
                         totalCommission += seniorCommission;
-                        breakdown.push({
-                            level: 'Senior Consultant (25%)',
-                            billings: seniorPortion,
-                            commission: seniorCommission
-                        });
                     }
                 }
                 
@@ -2588,14 +2666,9 @@
                     const principalStartPoint = this.PROMOTION_THRESHOLDS.fastTrack.principal;
                     const principalPortion = billings - principalStartPoint;
                     if (principalPortion > 0) {
-                        // Principal gets 35% on their first tier (starting from £180k in fast-track)
-                        const principalCommission = principalPortion * 0.35;
+                        // Apply Principal tier structure starting from £180k total billings
+                        const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, principalStartPoint);
                         totalCommission += principalCommission;
-                        breakdown.push({
-                            level: 'Principal Consultant (35%)',
-                            billings: principalPortion,
-                            commission: principalCommission
-                        });
                     }
                 }
                 
@@ -2639,26 +2712,28 @@
                                 finalLevel = 'Principal Consultant';
                                 
                                 // Calculate Senior portion only up to Principal promotion threshold  
-                                const seniorPortionToPrincipal = this.PROMOTION_THRESHOLDS.early.principal - this.PROMOTION_THRESHOLDS.early.senior;
-                                const seniorResult = this.calculateSeniorTiers(seniorPortionToPrincipal, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.early.senior, 
+                                    this.PROMOTION_THRESHOLDS.early.principal, 
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                                 
                                 // Calculate Principal portion from £120k onwards (only the excess)
                                 const principalPortion = billings - this.PROMOTION_THRESHOLDS.early.principal;
                                 if (principalPortion > 0) {
-                                    // Principal gets 35% on first tier above £120k early promotion (which is their 3rd tier)
-                                    const principalCommission = principalPortion * 0.35;
+                                    // Apply Principal tier structure starting from £120k total billings
+                                    const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, this.PROMOTION_THRESHOLDS.early.principal);
                                     totalCommission += principalCommission;
-                                    breakdown.push({
-                                        level: 'Principal Consultant (35%)',
-                                        billings: principalPortion,
-                                        commission: principalCommission
-                                    });
                                 }
                             } else {
                                 // No promotion to Principal yet
-                                const seniorResult = this.calculateSeniorTiers(seniorPortion, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.early.senior,
+                                    billings,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                             }
                         }
                     } else if (billings >= this.PROMOTION_THRESHOLDS.standard.senior) {
@@ -2682,26 +2757,28 @@
                                 promotions.push('Principal Consultant');
                                 
                                 // Calculate Senior portion only up to Principal promotion threshold
-                                const seniorPortionToPrincipal = this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior;
-                                const seniorResult = this.calculateSeniorTiers(seniorPortionToPrincipal, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.standard.senior,
+                                    this.PROMOTION_THRESHOLDS.standard.principal,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                                 
                                 // Calculate Principal portion from £200k onwards (only the excess)
                                 const principalPortion = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                                 if (principalPortion > 0) {
-                                    // Principal gets 35% on first tier above £200k (which is their 3rd tier)
-                                    const principalCommission = principalPortion * 0.35;
+                                    // Apply Principal tier structure starting from £200k total billings
+                                    const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, this.PROMOTION_THRESHOLDS.standard.principal);
                                     totalCommission += principalCommission;
-                                    breakdown.push({
-                                        level: 'Principal Consultant (35%)',
-                                        billings: principalPortion,
-                                        commission: principalCommission
-                                    });
                                 }
                             } else {
                                 // No promotion to Principal yet
-                                const seniorResult = this.calculateSeniorTiers(seniorPortion, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.standard.senior,
+                                    billings,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                             }
                         }
                     } else {
@@ -2736,26 +2813,28 @@
                                 finalLevel = 'Principal Consultant';
                                 
                                 // Calculate Senior portion only up to Principal promotion threshold
-                                const seniorPortionToPrincipal = this.PROMOTION_THRESHOLDS.early.principal - this.PROMOTION_THRESHOLDS.early.senior;
-                                const seniorResult = this.calculateSeniorTiers(seniorPortionToPrincipal, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.early.senior,
+                                    this.PROMOTION_THRESHOLDS.early.principal,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                                 
                                 // Calculate Principal portion from £120k onwards (only the excess)
                                 const principalPortion = billings - this.PROMOTION_THRESHOLDS.early.principal;
                                 if (principalPortion > 0) {
-                                    // Principal gets 35% on first tier above £120k early promotion
-                                    const principalCommission = principalPortion * 0.35;
+                                    // Apply Principal tier structure starting from £120k total billings
+                                    const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, this.PROMOTION_THRESHOLDS.early.principal);
                                     totalCommission += principalCommission;
-                                    breakdown.push({
-                                        level: 'Principal Consultant (35%)',
-                                        billings: principalPortion,
-                                        commission: principalCommission
-                                    });
                                 }
                             } else {
                                 // No promotion to Principal yet
-                                const seniorResult = this.calculateSeniorTiers(seniorPortion, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.early.senior,
+                                    billings,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                             }
                         }
                     } else if (billings >= this.PROMOTION_THRESHOLDS.standard.senior) {
@@ -2779,26 +2858,28 @@
                                 promotions.push('Principal Consultant');
                                 
                                 // Calculate Senior portion only up to Principal promotion threshold
-                                const seniorPortionToPrincipal = this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior;
-                                const seniorResult = this.calculateSeniorTiers(seniorPortionToPrincipal, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.standard.senior,
+                                    this.PROMOTION_THRESHOLDS.standard.principal,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                                 
                                 // Calculate Principal portion from £200k onwards (only the excess)
                                 const principalPortion = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                                 if (principalPortion > 0) {
-                                    // Principal gets 35% on first tier above £200k
-                                    const principalCommission = principalPortion * 0.35;
+                                    // Apply Principal tier structure starting from £200k total billings
+                                    const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, this.PROMOTION_THRESHOLDS.standard.principal);
                                     totalCommission += principalCommission;
-                                    breakdown.push({
-                                        level: 'Principal Consultant (35%)',
-                                        billings: principalPortion,
-                                        commission: principalCommission
-                                    });
                                 }
                             } else {
                                 // No promotion to Principal yet
-                                const seniorResult = this.calculateSeniorTiers(seniorPortion, breakdown);
-                                totalCommission += seniorResult.commission;
+                                const seniorCommission = this.calculateSeniorTiersFromPosition(
+                                    this.PROMOTION_THRESHOLDS.standard.senior,
+                                    billings,
+                                    breakdown
+                                );
+                                totalCommission += seniorCommission;
                             }
                         }
                     } else {
@@ -2825,47 +2906,47 @@
                 
                 // Check for early promotion to Principal (£120k)
                 if (isFirstHalf && billings >= this.PROMOTION_THRESHOLDS.early.principal) {
-                    const seniorPortion = this.PROMOTION_THRESHOLDS.early.principal - threshold;
-                    const seniorResult = this.calculateSeniorTiers(seniorPortion, breakdown);
-                    totalCommission += seniorResult.commission;
+                    const seniorCommission = this.calculateSeniorTiersFromPosition(
+                        threshold,
+                        this.PROMOTION_THRESHOLDS.early.principal,
+                        breakdown
+                    );
+                    totalCommission += seniorCommission;
                     
                     finalLevel = 'Principal Consultant';
                     
                     const principalPortion = billings - this.PROMOTION_THRESHOLDS.early.principal;
                     if (principalPortion > 0) {
-                        // Principal gets 35% on their first tier (above £120k early promotion)
-                        const principalCommission = principalPortion * 0.35;
+                        // Apply Principal tier structure starting from £120k total billings
+                        const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, this.PROMOTION_THRESHOLDS.early.principal);
                         totalCommission += principalCommission;
-                        breakdown.push({
-                            level: 'Principal Consultant (35%)',
-                            billings: principalPortion,
-                            commission: principalCommission
-                        });
                     }
                 } else if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
                     // Standard promotion to Principal at £200k
-                    const seniorPortion = this.PROMOTION_THRESHOLDS.standard.principal - threshold;
-                    const seniorResult = this.calculateSeniorTiers(seniorPortion, breakdown);
-                    totalCommission += seniorResult.commission;
+                    const seniorCommission = this.calculateSeniorTiersFromPosition(
+                        threshold,
+                        this.PROMOTION_THRESHOLDS.standard.principal,
+                        breakdown
+                    );
+                    totalCommission += seniorCommission;
                     
                     finalLevel = 'Principal Consultant';
                     promotions.push('Principal Consultant');
                     
                     const principalPortion = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                     if (principalPortion > 0) {
-                        // Principal gets 35% on their first tier (above £200k)
-                        const principalCommission = principalPortion * 0.35;
+                        // Apply Principal tier structure starting from £200k total billings
+                        const principalCommission = this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, this.PROMOTION_THRESHOLDS.standard.principal);
                         totalCommission += principalCommission;
-                        breakdown.push({
-                            level: 'Principal Consultant (35%)',
-                            billings: principalPortion,
-                            commission: principalCommission
-                        });
                     }
                 } else {
-                    // No promotion yet
-                    const seniorResult = this.calculateSeniorTiers(commissionableBillings, breakdown);
-                    totalCommission += seniorResult.commission;
+                    // No promotion yet - calculate Senior commission from threshold to current billings
+                    const seniorCommission = this.calculateSeniorTiersFromPosition(
+                        threshold,
+                        billings,
+                        breakdown
+                    );
+                    totalCommission += seniorCommission;
                 }
                 
                 return { totalCommission, breakdown, finalLevel, promotions };
@@ -2901,6 +2982,49 @@
                 }
                 
                 return { commission };
+            }
+
+            // Calculate Senior commission when promoted mid-stream, accounting for position in total billings
+            calculateSeniorTiersFromPosition(startBillings, endBillings, breakdown) {
+                let commission = 0;
+                const seniorPortion = endBillings - startBillings;
+                
+                // Senior tier boundaries: 25% up to £100k total, 30% above £100k total
+                const tier1Boundary = 100000;
+                
+                if (startBillings < tier1Boundary) {
+                    // Some or all earnings are in the 25% tier
+                    const tier1End = Math.min(endBillings, tier1Boundary);
+                    const tier1Amount = tier1End - startBillings;
+                    
+                    if (tier1Amount > 0) {
+                        const tier1Commission = tier1Amount * 0.25;
+                        commission += tier1Commission;
+                        breakdown.push({
+                            level: 'Senior Consultant (25%)',
+                            billings: tier1Amount,
+                            commission: tier1Commission
+                        });
+                    }
+                }
+                
+                if (endBillings > tier1Boundary) {
+                    // Some earnings are in the 30% tier
+                    const tier2Start = Math.max(startBillings, tier1Boundary);
+                    const tier2Amount = endBillings - tier2Start;
+                    
+                    if (tier2Amount > 0) {
+                        const tier2Commission = tier2Amount * 0.30;
+                        commission += tier2Commission;
+                        breakdown.push({
+                            level: 'Senior Consultant (30%)',
+                            billings: tier2Amount,
+                            commission: tier2Commission
+                        });
+                    }
+                }
+                
+                return commission;
             }
 
             updateCalculation() {
