@@ -2052,19 +2052,19 @@
                             <div class="commission-tiers">
                                 <div class="tier">
                                     <span class="tier-range">£40k-100k:</span>
-                                    <span class="tier-rate">25%</span>
-                                </div>
-                                <div class="tier">
-                                    <span class="tier-range">£100k-200k:</span>
                                     <span class="tier-rate">30%</span>
                                 </div>
                                 <div class="tier">
-                                    <span class="tier-range">£200k-300k:</span>
+                                    <span class="tier-range">£100k-200k:</span>
                                     <span class="tier-rate">35%</span>
                                 </div>
                                 <div class="tier">
-                                    <span class="tier-range">£300k-400k:</span>
+                                    <span class="tier-range">£200k-300k:</span>
                                     <span class="tier-rate">40%</span>
+                                </div>
+                                <div class="tier">
+                                    <span class="tier-range">£300k-400k:</span>
+                                    <span class="tier-rate">45%</span>
                                 </div>
                                 <div class="tier highlight">
                                     <span class="tier-range">£400k+:</span>
@@ -2402,10 +2402,10 @@
                 let remaining = billings;
                 
                 const tiers = [
-                    { limit: 60000, rate: 0.25, name: 'Principal Consultant (25%)', range: '£40k-£100k' },  
-                    { limit: 100000, rate: 0.30, name: 'Principal Consultant (30%)', range: '£100k-£200k' }, 
-                    { limit: 100000, rate: 0.35, name: 'Principal Consultant (35%)', range: '£200k-£300k' }, 
-                    { limit: 100000, rate: 0.40, name: 'Principal Consultant (40%)', range: '£300k-£400k' }, 
+                    { limit: 60000, rate: 0.30, name: 'Principal Consultant (30%)', range: '£40k-£100k' },  
+                    { limit: 100000, rate: 0.35, name: 'Principal Consultant (35%)', range: '£100k-£200k' }, 
+                    { limit: 100000, rate: 0.40, name: 'Principal Consultant (40%)', range: '£200k-£300k' }, 
+                    { limit: 100000, rate: 0.45, name: 'Principal Consultant (45%)', range: '£300k-£400k' }, 
                     { limit: Infinity, rate: 0.50, name: 'Principal Consultant (50%)', range: '£400k+' } 
                 ];
                 
