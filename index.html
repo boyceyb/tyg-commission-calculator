@@ -115,17 +115,17 @@
             left: 50%;
             transform: translateX(-50%);
             margin-top: 8px;
-            padding: 8px 12px;
+            padding: 12px 16px;
             background: rgba(30, 41, 59, 0.95);
             color: white;
             font-size: 12px;
             font-weight: 400;
             line-height: 1.4;
-            border-radius: 6px;
-            white-space: nowrap;
-            max-width: 240px;
+            border-radius: 8px;
             white-space: normal;
-            text-align: center;
+            min-width: 220px;
+            max-width: 320px;
+            text-align: left;
             z-index: 1000;
             opacity: 0;
             animation: tooltipFadeIn 0.2s ease forwards;
@@ -174,10 +174,12 @@
                 left: 50%;
                 transform: translateX(-50%);
                 margin-top: 0;
-                max-width: 280px;
+                min-width: 250px;
+                max-width: 85vw;
                 font-size: 13px;
-                padding: 10px 14px;
-                border-radius: 8px;
+                padding: 14px 18px;
+                border-radius: 10px;
+                text-align: left;
             }
 
             .header-toggle[data-tooltip]:hover::before,
@@ -190,9 +192,11 @@
         .in-iframe .header-toggle[data-tooltip]:hover::after,
         .in-iframe .header-toggle[data-tooltip].tooltip-active::after {
             position: absolute;
-            max-width: 200px;
+            min-width: 200px;
+            max-width: 300px;
             font-size: 11px;
-            padding: 6px 10px;
+            padding: 10px 14px;
+            text-align: left;
         }
 
         .header-toggle-input {
@@ -2238,16 +2242,6 @@
         .btn-primary:hover {
             background: #1d4ed8;
         }
-        
-        .btn-reset { 
-            background: var(--text-secondary); 
-            color: white; 
-            margin-top: 20px; 
-        }
-        
-        .btn-reset:hover { 
-            background: var(--text-primary);
-        }
 
         .btn-small {
             padding: 8px 16px;
@@ -2442,18 +2436,21 @@
         }
 
         .in-iframe .sticky-header {
-            position: relative !important;
+            position: sticky !important;
+            top: 0 !important;
             margin: -12px -12px 16px -12px;
             border-radius: 0;
-            background: rgba(255, 255, 255, 0.97);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             border: none;
             border-bottom: 1px solid #e2e8f0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             padding: 10px 12px;
+            z-index: 9999;
         }
 
         .in-iframe .sticky-header.js-sticky {
+            /* Force fixed positioning for iframe contexts where sticky fails */
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
@@ -2465,6 +2462,26 @@
             backdrop-filter: blur(12px) !important;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.12) !important;
             border-bottom: 1px solid #e2e8f0 !important;
+            width: 100% !important;
+        }
+
+        /* Fallback: Always keep header visible in iframe if sticky fails */
+        .in-iframe.sticky-fallback .sticky-header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 !important;
+            z-index: 999999 !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(12px) !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.12) !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            width: 100% !important;
+        }
+
+        .in-iframe.sticky-fallback .container {
+            padding-top: 60px; /* Account for fixed header height */
         }
 
         .in-iframe .sticky-content {
@@ -2497,7 +2514,7 @@
             <div class="sticky-content">
                 <div class="sticky-title">TYG Commission Tracker</div>
                 <div class="sticky-controls">
-                    <div class="header-toggle" data-tooltip="Year 1 accelerated promotion path (Consultant only): £100k → Consultant II, £140k → Senior, £180k → Principal">
+                    <div class="header-toggle" data-tooltip="Year 1 accelerated promotion path available for Consultants only">
                         <input type="checkbox" id="fastTrackToggle" class="header-toggle-input">
                         <label for="fastTrackToggle" class="header-toggle-label">
                             <span class="header-toggle-slider"></span>
@@ -2542,8 +2559,6 @@
                     <small>Select your level at the start of your personal commission year (not calendar year)</small>
                 </div>
 
-                <h3 style="margin-top: 24px;">Billings & Income</h3>
-                
                 <div class="input-group">
                     <label>Annual Billings (£) - Year to Date</label>
                     <input type="number" id="billings" placeholder="Enter your current billings in £..." min="0" step="1000">
@@ -2924,7 +2939,8 @@
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
             // Detect if we're in an iframe (like Monday.com)
-            if (window !== window.top) {
+            const isInIframe = window !== window.top;
+            if (isInIframe) {
                 document.body.classList.add('in-iframe');
                 
                 // Optimize for embedded context while keeping sticky behavior
@@ -2935,6 +2951,25 @@
                 // Ensure smooth scrolling in iframe
                 document.documentElement.style.scrollBehavior = 'smooth';
                 document.body.style.scrollBehavior = 'smooth';
+                
+                // Test if sticky positioning works in this iframe context
+                setTimeout(() => {
+                    const stickyTest = document.createElement('div');
+                    stickyTest.style.position = 'sticky';
+                    stickyTest.style.top = '0';
+                    stickyTest.style.visibility = 'hidden';
+                    stickyTest.style.height = '1px';
+                    document.body.appendChild(stickyTest);
+                    
+                    const stickyWorks = stickyTest.offsetParent !== null;
+                    document.body.removeChild(stickyTest);
+                    
+                    // If sticky doesn't work, use fallback approach
+                    if (!stickyWorks) {
+                        document.body.classList.add('sticky-fallback');
+                        console.log('Using sticky fallback for iframe context');
+                    }
+                }, 100);
             }
             
             try {
@@ -3014,6 +3049,7 @@
 
                 let isSticky = false;
                 let originalTop = stickyHeader.offsetTop;
+                const isInIframe = window !== window.top;
 
                 const handleScroll = () => {
                     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -3025,12 +3061,21 @@
                         stickyHeader.classList.add('js-sticky');
                         stickyPlaceholder.classList.add('active');
                         stickyHeader.classList.add('scrolled');
+                        
+                        // For iframe contexts, ensure proper spacing
+                        if (isInIframe) {
+                            stickyPlaceholder.style.height = `${headerHeight}px`;
+                        }
                     } else if (!shouldBeSticky && isSticky) {
                         // Remove sticky
                         isSticky = false;
                         stickyHeader.classList.remove('js-sticky');
                         stickyPlaceholder.classList.remove('active');
                         stickyHeader.classList.remove('scrolled');
+                        
+                        if (isInIframe) {
+                            stickyPlaceholder.style.height = '0px';
+                        }
                     }
                 };
 
@@ -3055,13 +3100,31 @@
                 this.setupTooltipTouchSupport();
 
                 // For iframe environments, use more aggressive detection
-                if (window !== window.top) {
+                if (isInIframe) {
                     // Additional scroll detection for iframe
                     const iframeScrollCheck = () => {
                         handleScroll();
                         requestAnimationFrame(iframeScrollCheck);
                     };
                     requestAnimationFrame(iframeScrollCheck);
+                    
+                    // Also listen for parent window scroll if accessible
+                    try {
+                        if (window.parent && window.parent !== window) {
+                            window.parent.addEventListener('scroll', handleScroll, { passive: true });
+                        }
+                    } catch (e) {
+                        // Cross-origin restrictions - that's ok
+                    }
+                    
+                    // Force sticky behavior after a short delay to ensure it works
+                    setTimeout(() => {
+                        if (document.body.classList.contains('sticky-fallback')) {
+                            // Force the header to always be sticky in fallback mode
+                            stickyHeader.classList.add('js-sticky');
+                            stickyPlaceholder.style.height = `${headerHeight}px`;
+                        }
+                    }, 500);
                 }
             }
 
