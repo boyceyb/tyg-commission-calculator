@@ -766,12 +766,12 @@
         .breakdown-level-header {
             font-size: 14px;
             font-weight: 600;
-            color: #1e40af;
-            background: #eff6ff;
+            color: #64748b;
+            background: #f8fafc;
             padding: 8px 12px;
             margin: 8px -8px;
             border-radius: 4px;
-            border-left: 3px solid #3b82f6;
+            border-left: 3px solid #cbd5e1;
         }
 
         .breakdown-level-summary {
@@ -804,6 +804,48 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .breakdown-promotion-divider {
+            position: relative;
+            margin: 16px -8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .breakdown-promotion-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #d1d5db;
+            z-index: 1;
+        }
+
+        .promotion-indicator {
+            background: #f9fafb;
+            padding: 4px 12px;
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 2;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .breakdown-item-promoted {
+            background: rgba(148, 163, 184, 0.02) !important;
+            border-left: 2px solid #cbd5e1 !important;
+            padding-left: 14px !important;
+        }
+
+        .breakdown-item-promoted:hover {
+            background: rgba(148, 163, 184, 0.05) !important;
         }
         
         .earnings-item { 
@@ -910,6 +952,15 @@
             background: #dcfce7;
         }
 
+        .status-compact.info {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .status-compact.info:hover {
+            background: #dbeafe;
+        }
+
         .status-compact.error {
             background: #fef2f2;
             border-color: #fecaca;
@@ -926,6 +977,7 @@
         }
 
         .status-compact.success .status-title { color: #166534; }
+        .status-compact.info .status-title { color: #1d4ed8; }
         .status-compact.error .status-title { color: #dc2626; }
 
         .status-compact .status-text {
@@ -2689,11 +2741,6 @@
                         <div class="status-text" id="statusText">Checking threshold requirements...</div>
                     </div>
                     
-                    <div id="currentSeniority" class="status-compact hidden">
-                        <div class="status-title" id="currentSeniorityTitle">Current Seniority Level</div>
-                        <div class="status-text" id="currentSeniorityText">Your current level...</div>
-                    </div>
-                    
                     <div id="breakdown" class="breakdown hidden">
                         <h4>Commission Breakdown</h4>
                         <div id="breakdownItems"></div>
@@ -2902,7 +2949,7 @@
                     <div class="points-grid">
                         <div class="point">
                             <span class="point-icon"></span>
-                            <span>Thresholds based on commissionable billings (after minimum)</span>
+                            <span>Commission rates apply to billings above threshold (£35k Consultant, £40k others)</span>
                         </div>
                         <div class="point">
                             <span class="point-icon"></span>
@@ -3586,8 +3633,8 @@
                 if (level === 'Consultant') {
                     // Check for early promotion to Senior
                     if (isFirstHalf && billings >= this.PROMOTION_THRESHOLDS.early.senior) {
-                        // Calculate Consultant commission up to promotion threshold
-                        const consultantBillings = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.early.senior - threshold);
+                        // Early promotion to Senior at £96k
+                        const consultantBillings = this.PROMOTION_THRESHOLDS.early.senior - threshold; // £96k - £35k = £61k
                         const consultantCommission = consultantBillings * 0.20;
                         commission += consultantCommission;
                         breakdown.push({
@@ -3599,21 +3646,53 @@
                         promotions.push('Senior Consultant');
                         currentLevel = 'Senior Consultant';
                         
-                        // Calculate remaining as Senior
-                        const seniorBillings = commissionableBillings - consultantBillings;
+                        // Calculate Senior commission on billings above £96k
+                        const seniorBillings = billings - this.PROMOTION_THRESHOLDS.early.senior;
                         if (seniorBillings > 0) {
-                            const seniorResult = this.calculateSeniorTiers(seniorBillings, breakdown);
-                            commission += seniorResult;
+                            // At £96k total, we're in the 25% Senior tier initially, but need to check if we cross £100k
+                            let seniorCommission = 0;
+                            if (billings <= 100000) {
+                                // All Senior billings at 25%
+                                seniorCommission = seniorBillings * 0.25;
+                                breakdown.push({
+                                    level: 'Senior Consultant (25%)',
+                                    billings: seniorBillings,
+                                    commission: seniorCommission
+                                });
+                            } else {
+                                // Split: some at 25%, some at 30%
+                                const at25Rate = 100000 - this.PROMOTION_THRESHOLDS.early.senior; // £4k
+                                const at30Rate = seniorBillings - at25Rate;
+                                
+                                if (at25Rate > 0) {
+                                    seniorCommission += at25Rate * 0.25;
+                                    breakdown.push({
+                                        level: 'Senior Consultant (25%)',
+                                        billings: at25Rate,
+                                        commission: at25Rate * 0.25
+                                    });
+                                }
+                                
+                                if (at30Rate > 0) {
+                                    seniorCommission += at30Rate * 0.30;
+                                    breakdown.push({
+                                        level: 'Senior Consultant (30%)',
+                                        billings: at30Rate,
+                                        commission: at30Rate * 0.30
+                                    });
+                                }
+                            }
+                            commission += seniorCommission;
                         }
                         
-                        // Check for early promotion to Principal
+                        // Check for early promotion to Principal at £120k
                         if (billings >= this.PROMOTION_THRESHOLDS.early.principal) {
-                            // Recalculate everything with Principal rates
+                            // Recalculate with Principal promotion at £120k
                             commission = 0;
                             breakdown = [];
                             
-                            // Consultant portion
-                            const consultantPortion = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.early.senior - threshold);
+                            // Consultant portion (£35k to £96k): £61k × 20%
+                            const consultantPortion = this.PROMOTION_THRESHOLDS.early.senior - threshold;
                             commission += consultantPortion * 0.20;
                             breakdown.push({
                                 level: 'Consultant (20%)',
@@ -3621,28 +3700,43 @@
                                 commission: consultantPortion * 0.20
                             });
                             
-                            // Senior portion
-                            const seniorPortion = Math.min(
-                                commissionableBillings - consultantPortion,
-                                this.PROMOTION_THRESHOLDS.early.principal - this.PROMOTION_THRESHOLDS.early.senior
-                            );
-                            if (seniorPortion > 0) {
-                                commission += this.calculateSeniorTiers(seniorPortion, breakdown);
+                            // Senior portion (£96k to £120k): £24k
+                            const seniorPortion = this.PROMOTION_THRESHOLDS.early.principal - this.PROMOTION_THRESHOLDS.early.senior;
+                            // This £24k spans from £96k to £120k, all at 25% rate since £96k-£100k is 25% and £100k-£120k is 30%
+                            const seniorAt25 = Math.min(seniorPortion, 100000 - this.PROMOTION_THRESHOLDS.early.senior); // £4k at 25%
+                            const seniorAt30 = seniorPortion - seniorAt25; // £20k at 30%
+                            
+                            if (seniorAt25 > 0) {
+                                commission += seniorAt25 * 0.25;
+                                breakdown.push({
+                                    level: 'Senior Consultant (25%)',
+                                    billings: seniorAt25,
+                                    commission: seniorAt25 * 0.25
+                                });
                             }
                             
-                            // Principal portion
-                            const principalPortion = commissionableBillings - consultantPortion - seniorPortion;
-                            if (principalPortion > 0) {
-                                const principalStartBillings = this.PROMOTION_THRESHOLDS.early.principal;
-                                commission += this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, principalStartBillings);
+                            if (seniorAt30 > 0) {
+                                commission += seniorAt30 * 0.30;
+                                breakdown.push({
+                                    level: 'Senior Consultant (30%)',
+                                    billings: seniorAt30,
+                                    commission: seniorAt30 * 0.30
+                                });
+                            }
+                            
+                            // Principal portion (£120k+)
+                            const principalBillings = billings - this.PROMOTION_THRESHOLDS.early.principal;
+                            if (principalBillings > 0) {
+                                const principalCommission = this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, this.PROMOTION_THRESHOLDS.early.principal);
+                                commission += principalCommission;
                             }
                             
                             promotions.push('Principal Consultant');
                             currentLevel = 'Principal Consultant';
                         }
                     } else if (billings >= this.PROMOTION_THRESHOLDS.standard.senior) {
-                        // Standard promotion to Senior
-                        const consultantBillings = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.standard.senior - threshold);
+                        // Standard promotion to Senior at £160k
+                        const consultantBillings = this.PROMOTION_THRESHOLDS.standard.senior - threshold; // £160k - £35k = £125k
                         const consultantCommission = consultantBillings * 0.20;
                         commission += consultantCommission;
                         breakdown.push({
@@ -3654,31 +3748,53 @@
                         promotions.push('Senior Consultant');
                         currentLevel = 'Senior Consultant';
                         
+                        // Calculate Senior commission on billings above £160k
+                        const seniorBillings = billings - this.PROMOTION_THRESHOLDS.standard.senior; // £200k - £160k = £40k
+                        if (seniorBillings > 0) {
+                            // Since we're at £160k+ total, we're in the 30% Senior tier
+                            const seniorCommission = seniorBillings * 0.30;
+                            commission += seniorCommission;
+                            breakdown.push({
+                                level: 'Senior Consultant (30%)',
+                                billings: seniorBillings,
+                                commission: seniorCommission
+                            });
+                        }
+                        
                         // Check for further promotion to Principal
                         if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
-                            // Promoted to Principal as well
-                            const seniorBillings = Math.min(
-                                commissionableBillings - consultantBillings,
-                                this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior
-                            );
-                            if (seniorBillings > 0) {
-                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            // Recalculate with Principal promotion at £200k
+                            commission = 0;
+                            breakdown = [];
+                            
+                            // Consultant portion (£35k to £160k): £125k × 20%
+                            const consultantPortion = this.PROMOTION_THRESHOLDS.standard.senior - threshold;
+                            commission += consultantPortion * 0.20;
+                            breakdown.push({
+                                level: 'Consultant (20%)',
+                                billings: consultantPortion,
+                                commission: consultantPortion * 0.20
+                            });
+                            
+                            // Senior portion (£160k to £200k): £40k × 30% (since above £100k)
+                            const seniorPortion = this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior;
+                            const seniorCommission = seniorPortion * 0.30;
+                            commission += seniorCommission;
+                            breakdown.push({
+                                level: 'Senior Consultant (30%)',
+                                billings: seniorPortion,
+                                commission: seniorCommission
+                            });
+                            
+                            // Principal portion (£200k+)
+                            const principalBillings = billings - this.PROMOTION_THRESHOLDS.standard.principal;
+                            if (principalBillings > 0) {
+                                const principalCommission = this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, this.PROMOTION_THRESHOLDS.standard.principal);
+                                commission += principalCommission;
                             }
                             
                             promotions.push('Principal Consultant');
                             currentLevel = 'Principal Consultant';
-                            
-                            const principalBillings = commissionableBillings - consultantBillings - seniorBillings;
-                            if (principalBillings > 0) {
-                                const principalStartBillings = this.PROMOTION_THRESHOLDS.standard.principal;
-                                commission += this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, principalStartBillings);
-                            }
-                        } else {
-                            // Just Senior
-                            const seniorBillings = commissionableBillings - consultantBillings;
-                            if (seniorBillings > 0) {
-                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
-                            }
                         }
                     } else {
                         // No promotion, straight Consultant commission
@@ -3692,7 +3808,8 @@
                 } else if (level === 'Consultant II') {
                     // Same promotion logic as Consultant but with 22.5% rate
                     if (isFirstHalf && billings >= this.PROMOTION_THRESHOLDS.early.senior) {
-                        const consultantIIBillings = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.early.senior - threshold);
+                        // Early promotion to Senior at £96k
+                        const consultantIIBillings = this.PROMOTION_THRESHOLDS.early.senior - threshold; // £96k - £40k = £56k
                         const consultantIICommission = consultantIIBillings * 0.225;
                         commission += consultantIICommission;
                         breakdown.push({
@@ -3704,18 +3821,52 @@
                         promotions.push('Senior Consultant');
                         currentLevel = 'Senior Consultant';
                         
-                        const seniorBillings = commissionableBillings - consultantIIBillings;
+                        // Calculate Senior commission on billings above £96k
+                        const seniorBillings = billings - this.PROMOTION_THRESHOLDS.early.senior;
                         if (seniorBillings > 0) {
-                            commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            let seniorCommission = 0;
+                            if (billings <= 100000) {
+                                // All Senior billings at 25%
+                                seniorCommission = seniorBillings * 0.25;
+                                breakdown.push({
+                                    level: 'Senior Consultant (25%)',
+                                    billings: seniorBillings,
+                                    commission: seniorCommission
+                                });
+                            } else {
+                                // Split between 25% and 30%
+                                const at25Rate = 100000 - this.PROMOTION_THRESHOLDS.early.senior; // £4k
+                                const at30Rate = seniorBillings - at25Rate;
+                                
+                                if (at25Rate > 0) {
+                                    seniorCommission += at25Rate * 0.25;
+                                    breakdown.push({
+                                        level: 'Senior Consultant (25%)',
+                                        billings: at25Rate,
+                                        commission: at25Rate * 0.25
+                                    });
+                                }
+                                
+                                if (at30Rate > 0) {
+                                    seniorCommission += at30Rate * 0.30;
+                                    breakdown.push({
+                                        level: 'Senior Consultant (30%)',
+                                        billings: at30Rate,
+                                        commission: at30Rate * 0.30
+                                    });
+                                }
+                            }
+                            commission += seniorCommission;
                         }
                         
-                        // Check for early promotion to Principal
+                        // Check for early promotion to Principal at £120k
                         if (billings >= this.PROMOTION_THRESHOLDS.early.principal) {
-                            // Recalculate with Principal rates
+                            // Recalculate with Principal promotion at £120k
                             commission = 0;
                             breakdown = [];
                             
-                            const consultantIIPortion = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.early.senior - threshold);
+                            // Consultant II portion (£40k to £96k): £56k × 22.5%
+                            const consultantIIPortion = this.PROMOTION_THRESHOLDS.early.senior - threshold;
                             commission += consultantIIPortion * 0.225;
                             breakdown.push({
                                 level: 'Consultant II (22.5%)',
@@ -3723,25 +3874,42 @@
                                 commission: consultantIIPortion * 0.225
                             });
                             
-                            const seniorPortion = Math.min(
-                                commissionableBillings - consultantIIPortion,
-                                this.PROMOTION_THRESHOLDS.early.principal - this.PROMOTION_THRESHOLDS.early.senior
-                            );
-                            if (seniorPortion > 0) {
-                                commission += this.calculateSeniorTiers(seniorPortion, breakdown);
+                            // Senior portion (£96k to £120k): £24k split between 25% and 30%
+                            const seniorPortion = this.PROMOTION_THRESHOLDS.early.principal - this.PROMOTION_THRESHOLDS.early.senior;
+                            const seniorAt25 = Math.min(seniorPortion, 100000 - this.PROMOTION_THRESHOLDS.early.senior); // £4k at 25%
+                            const seniorAt30 = seniorPortion - seniorAt25; // £20k at 30%
+                            
+                            if (seniorAt25 > 0) {
+                                commission += seniorAt25 * 0.25;
+                                breakdown.push({
+                                    level: 'Senior Consultant (25%)',
+                                    billings: seniorAt25,
+                                    commission: seniorAt25 * 0.25
+                                });
                             }
                             
-                            const principalPortion = commissionableBillings - consultantIIPortion - seniorPortion;
-                            if (principalPortion > 0) {
-                                const principalStartBillings = this.PROMOTION_THRESHOLDS.early.principal;
-                                commission += this.calculatePrincipalTiersFromExcess(principalPortion, breakdown, principalStartBillings);
+                            if (seniorAt30 > 0) {
+                                commission += seniorAt30 * 0.30;
+                                breakdown.push({
+                                    level: 'Senior Consultant (30%)',
+                                    billings: seniorAt30,
+                                    commission: seniorAt30 * 0.30
+                                });
+                            }
+                            
+                            // Principal portion (£120k+)
+                            const principalBillings = billings - this.PROMOTION_THRESHOLDS.early.principal;
+                            if (principalBillings > 0) {
+                                const principalCommission = this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, this.PROMOTION_THRESHOLDS.early.principal);
+                                commission += principalCommission;
                             }
                             
                             promotions.push('Principal Consultant');
                             currentLevel = 'Principal Consultant';
                         }
                     } else if (billings >= this.PROMOTION_THRESHOLDS.standard.senior) {
-                        const consultantIIBillings = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.standard.senior - threshold);
+                        // Standard promotion to Senior at £160k
+                        const consultantIIBillings = this.PROMOTION_THRESHOLDS.standard.senior - threshold; // £160k - £40k = £120k
                         const consultantIICommission = consultantIIBillings * 0.225;
                         commission += consultantIICommission;
                         breakdown.push({
@@ -3753,33 +3921,55 @@
                         promotions.push('Senior Consultant');
                         currentLevel = 'Senior Consultant';
                         
-                        // Check for further promotion to Principal
+                        // Calculate Senior commission on billings above £160k
+                        const seniorBillings = billings - this.PROMOTION_THRESHOLDS.standard.senior; // Above £160k = 30% rate
+                        if (seniorBillings > 0) {
+                            const seniorCommission = seniorBillings * 0.30;
+                            commission += seniorCommission;
+                            breakdown.push({
+                                level: 'Senior Consultant (30%)',
+                                billings: seniorBillings,
+                                commission: seniorCommission
+                            });
+                        }
+                        
+                        // Check for further promotion to Principal at £200k
                         if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
-                            // Promoted to Principal as well
-                            const seniorBillings = Math.min(
-                                commissionableBillings - consultantIIBillings,
-                                this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior
-                            );
-                            if (seniorBillings > 0) {
-                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            // Recalculate with Principal promotion at £200k
+                            commission = 0;
+                            breakdown = [];
+                            
+                            // Consultant II portion (£40k to £160k): £120k × 22.5%
+                            const consultantIIPortion = this.PROMOTION_THRESHOLDS.standard.senior - threshold;
+                            commission += consultantIIPortion * 0.225;
+                            breakdown.push({
+                                level: 'Consultant II (22.5%)',
+                                billings: consultantIIPortion,
+                                commission: consultantIIPortion * 0.225
+                            });
+                            
+                            // Senior portion (£160k to £200k): £40k × 30%
+                            const seniorPortion = this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior;
+                            const seniorCommission = seniorPortion * 0.30;
+                            commission += seniorCommission;
+                            breakdown.push({
+                                level: 'Senior Consultant (30%)',
+                                billings: seniorPortion,
+                                commission: seniorCommission
+                            });
+                            
+                            // Principal portion (£200k+)
+                            const principalBillings = billings - this.PROMOTION_THRESHOLDS.standard.principal;
+                            if (principalBillings > 0) {
+                                const principalCommission = this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, this.PROMOTION_THRESHOLDS.standard.principal);
+                                commission += principalCommission;
                             }
                             
                             promotions.push('Principal Consultant');
                             currentLevel = 'Principal Consultant';
-                            
-                            const principalBillings = commissionableBillings - consultantIIBillings - seniorBillings;
-                            if (principalBillings > 0) {
-                                const principalStartBillings = this.PROMOTION_THRESHOLDS.standard.principal;
-                                commission += this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, principalStartBillings);
-                            }
-                        } else {
-                            // Just Senior
-                            const seniorBillings = commissionableBillings - consultantIIBillings;
-                            if (seniorBillings > 0) {
-                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
-                            }
                         }
                     } else {
+                        // No promotion
                         commission = commissionableBillings * 0.225;
                         breakdown.push({
                             level: 'Consultant II (22.5%)',
@@ -3790,30 +3980,32 @@
                 } else if (level === 'Senior Consultant') {
                     // Check for early or standard promotion to Principal
                     if (isFirstHalf && billings >= this.PROMOTION_THRESHOLDS.early.principal) {
-                        // Early promotion to Principal
-                        const seniorBillings = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.early.principal - threshold);
+                        // Early promotion to Principal at £120k
+                        const seniorBillings = this.PROMOTION_THRESHOLDS.early.principal - threshold; // £120k - £40k = £80k
                         commission += this.calculateSeniorTiers(seniorBillings, breakdown);
                         
                         promotions.push('Principal Consultant');
                         currentLevel = 'Principal Consultant';
                         
-                        const principalBillings = commissionableBillings - seniorBillings;
+                        // Calculate Principal commission on billings above £120k
+                        const principalBillings = billings - this.PROMOTION_THRESHOLDS.early.principal;
                         if (principalBillings > 0) {
-                            const principalStartBillings = this.PROMOTION_THRESHOLDS.early.principal;
-                            commission += this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, principalStartBillings);
+                            const principalCommission = this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, this.PROMOTION_THRESHOLDS.early.principal);
+                            commission += principalCommission;
                         }
                     } else if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
-                        // Standard promotion to Principal
-                        const seniorBillings = Math.min(commissionableBillings, this.PROMOTION_THRESHOLDS.standard.principal - threshold);
+                        // Standard promotion to Principal at £200k
+                        const seniorBillings = this.PROMOTION_THRESHOLDS.standard.principal - threshold; // £200k - £40k = £160k
                         commission += this.calculateSeniorTiers(seniorBillings, breakdown);
                         
                         promotions.push('Principal Consultant');
                         currentLevel = 'Principal Consultant';
                         
-                        const principalBillings = commissionableBillings - seniorBillings;
+                        // Calculate Principal commission on billings above £200k
+                        const principalBillings = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                         if (principalBillings > 0) {
-                            const principalStartBillings = this.PROMOTION_THRESHOLDS.standard.principal;
-                            commission += this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, principalStartBillings);
+                            const principalCommission = this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, this.PROMOTION_THRESHOLDS.standard.principal);
+                            commission += principalCommission;
                         }
                     } else {
                         // No promotion, calculate Senior tiers
@@ -3891,7 +4083,13 @@
                     });
                     
                     const seniorBillings = commissionableBillings - consultantBillings - consultantIIBillings;
-                    commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                    // In fast track, Senior starts at £140k, so all Senior billings are at 30% rate
+                    commission += seniorBillings * 0.30;
+                    breakdown.push({
+                        level: 'Senior Consultant (30%)',
+                        billings: seniorBillings,
+                        commission: seniorBillings * 0.30
+                    });
                     
                     currentLevel = 'Senior Consultant';
                     promotions.push('Consultant II', 'Senior Consultant');
@@ -3914,7 +4112,13 @@
                     });
                     
                     const seniorBillings = thresholds.principal - thresholds.senior;
-                    commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                    // In fast track, Senior starts at £140k, so all Senior billings are at 30% rate
+                    commission += seniorBillings * 0.30;
+                    breakdown.push({
+                        level: 'Senior Consultant (30%)',
+                        billings: seniorBillings,
+                        commission: seniorBillings * 0.30
+                    });
                     
                     const principalBillings = commissionableBillings - consultantBillings - consultantIIBillings - seniorBillings;
                     const principalStartBillings = thresholds.principal;
@@ -3936,28 +4140,191 @@
                 let commission = 0;
                 let remaining = billings;
                 
-                // Tier 1: 25% on first £60k
-                const tier1 = Math.min(remaining, 60000);
-                if (tier1 > 0) {
-                    const tier1Commission = tier1 * 0.25;
-                    commission += tier1Commission;
+                // Senior commission tiers based on commissionable billings:
+                // First £60k (equivalent to £40k-100k total): 25%
+                // Remainder (equivalent to £100k+ total): 30%
+                
+                if (remaining <= 60000) {
+                    // All at 25% rate
+                    commission = remaining * 0.25;
                     breakdown.push({
                         level: 'Senior Consultant (25%)',
-                        billings: tier1,
-                        commission: tier1Commission
+                        billings: remaining,
+                        commission: commission
                     });
-                    remaining -= tier1;
-                }
-                
-                // Tier 2: 30% on next £100k
-                if (remaining > 0) {
-                    const tier2Commission = remaining * 0.30;
+                } else {
+                    // First 60k at 25%
+                    commission += 60000 * 0.25;
+                    breakdown.push({
+                        level: 'Senior Consultant (25%)',
+                        billings: 60000,
+                        commission: 60000 * 0.25
+                    });
+                    
+                    // Remainder at 30%
+                    const tier2Billings = remaining - 60000;
+                    const tier2Commission = tier2Billings * 0.30;
                     commission += tier2Commission;
                     breakdown.push({
                         level: 'Senior Consultant (30%)',
-                        billings: remaining,
+                        billings: tier2Billings,
                         commission: tier2Commission
                     });
+                }
+                
+                return commission;
+            }
+
+            calculatePrincipalTiersFromExcess(excessBillings, breakdown, promotionPoint = 0) {
+                // Apply Principal rates to excess billings after promotion
+                // Determine the correct tier based on where the promotion occurred
+                let commission = 0;
+                
+                // Principal tiers: £40k-100k (25%), £100k-200k (30%), £200k-300k (35%), £300k-400k (40%), £400k+ (50%)
+                if (promotionPoint >= 400000) {
+                    // Already in 50% tier
+                    commission = excessBillings * 0.50;
+                    breakdown.push({
+                        level: 'Principal Consultant (50%)',
+                        billings: excessBillings,
+                        commission: commission
+                    });
+                } else if (promotionPoint >= 300000) {
+                    // Already in 40% tier
+                    commission = excessBillings * 0.40;
+                    breakdown.push({
+                        level: 'Principal Consultant (40%)',
+                        billings: excessBillings,
+                        commission: commission
+                    });
+                } else if (promotionPoint >= 200000) {
+                    // Already in 35% tier, might spill into 40% and 50%
+                    let remaining = excessBillings;
+                    
+                    // 35% tier (up to £300k)
+                    const in35Tier = Math.min(remaining, 300000 - promotionPoint);
+                    if (in35Tier > 0) {
+                        commission += in35Tier * 0.35;
+                        breakdown.push({
+                            level: 'Principal Consultant (35%)',
+                            billings: in35Tier,
+                            commission: in35Tier * 0.35
+                        });
+                        remaining -= in35Tier;
+                    }
+                    
+                    // 40% tier (£300k-£400k)
+                    const in40Tier = Math.min(remaining, 100000);
+                    if (in40Tier > 0) {
+                        commission += in40Tier * 0.40;
+                        breakdown.push({
+                            level: 'Principal Consultant (40%)',
+                            billings: in40Tier,
+                            commission: in40Tier * 0.40
+                        });
+                        remaining -= in40Tier;
+                    }
+                    
+                    // 50% tier (£400k+)
+                    if (remaining > 0) {
+                        commission += remaining * 0.50;
+                        breakdown.push({
+                            level: 'Principal Consultant (50%)',
+                            billings: remaining,
+                            commission: remaining * 0.50
+                        });
+                    }
+                } else if (promotionPoint >= 100000) {
+                    // Already in 30% tier, might spill into higher tiers
+                    let remaining = excessBillings;
+                    
+                    // 30% tier (up to £200k)
+                    const in30Tier = Math.min(remaining, 200000 - promotionPoint);
+                    if (in30Tier > 0) {
+                        commission += in30Tier * 0.30;
+                        breakdown.push({
+                            level: 'Principal Consultant (30%)',
+                            billings: in30Tier,
+                            commission: in30Tier * 0.30
+                        });
+                        remaining -= in30Tier;
+                    }
+                    
+                    // Apply higher tiers for any remaining
+                    if (remaining > 0) {
+                        commission += this.calculatePrincipalTiersFromPoint(remaining, breakdown, 200000);
+                    }
+                } else {
+                    // Starting from 25% tier - use the full tier calculation
+                    commission = this.calculatePrincipalTiers(excessBillings, breakdown);
+                }
+                
+                return commission;
+            }
+
+            calculatePrincipalTiersFromPoint(billings, breakdown, startPoint) {
+                // Helper function to calculate Principal tiers starting from a specific point
+                let commission = 0;
+                let remaining = billings;
+                
+                if (startPoint <= 200000) {
+                    // 35% tier (£200k-£300k)
+                    const in35Tier = Math.min(remaining, 100000);
+                    if (in35Tier > 0) {
+                        commission += in35Tier * 0.35;
+                        breakdown.push({
+                            level: 'Principal Consultant (35%)',
+                            billings: in35Tier,
+                            commission: in35Tier * 0.35
+                        });
+                        remaining -= in35Tier;
+                    }
+                }
+                
+                if (remaining > 0 && startPoint <= 300000) {
+                    // 40% tier (£300k-£400k)
+                    const in40Tier = Math.min(remaining, 100000);
+                    if (in40Tier > 0) {
+                        commission += in40Tier * 0.40;
+                        breakdown.push({
+                            level: 'Principal Consultant (40%)',
+                            billings: in40Tier,
+                            commission: in40Tier * 0.40
+                        });
+                        remaining -= in40Tier;
+                    }
+                }
+                
+                if (remaining > 0) {
+                    // 50% tier (£400k+)
+                    commission += remaining * 0.50;
+                    breakdown.push({
+                        level: 'Principal Consultant (50%)',
+                        billings: remaining,
+                        commission: remaining * 0.50
+                    });
+                }
+                
+                return commission;
+            }
+
+            calculateSeniorTiersFromExcess(excessBillings, breakdown, promotionPoint = 0) {
+                // Apply Senior rates to excess billings after promotion
+                // Senior tiers are based on total billings: £40k-100k (25%), £100k-200k (30%)
+                // When promoted at £160k, the excess billings should be at 30% rate
+                let commission = 0;
+                
+                if (promotionPoint >= 100000) {
+                    // Promoted at or above £100k, so excess is at 30% rate
+                    commission = excessBillings * 0.30;
+                    breakdown.push({
+                        level: 'Senior Consultant (30%)',
+                        billings: excessBillings,
+                        commission: commission
+                    });
+                } else {
+                    // Use the standard Senior tier calculation for excess billings
+                    commission = this.calculateSeniorTiers(excessBillings, breakdown);
                 }
                 
                 return commission;
@@ -3967,201 +4334,216 @@
                 let commission = 0;
                 let remaining = billings;
                 
-                // Tier 1: 25% on first £60k
-                const tier1 = Math.min(remaining, 60000);
-                if (tier1 > 0) {
-                    const tier1Commission = tier1 * 0.25;
-                    commission += tier1Commission;
+                // Principal commission tiers based on commissionable billings:
+                // £0-60k (equiv £40k-100k total): 25%
+                // £60k-160k (equiv £100k-200k total): 30% 
+                // £160k-260k (equiv £200k-300k total): 35%
+                // £260k-360k (equiv £300k-400k total): 40%
+                // £360k+ (equiv £400k+ total): 50%
+                
+                if (remaining <= 60000) {
+                    commission = remaining * 0.25;
                     breakdown.push({
                         level: 'Principal Consultant (25%)',
-                        billings: tier1,
-                        commission: tier1Commission
+                        billings: remaining,
+                        commission: commission
                     });
-                    remaining -= tier1;
-                }
-                
-                // Tier 2: 30% on next £100k
-                const tier2 = Math.min(remaining, 100000);
-                if (tier2 > 0) {
-                    const tier2Commission = tier2 * 0.30;
-                    commission += tier2Commission;
+                } else if (remaining <= 160000) {
+                    // 25% on first 60k, 30% on remainder
+                    commission += 60000 * 0.25;
+                    breakdown.push({
+                        level: 'Principal Consultant (25%)',
+                        billings: 60000,
+                        commission: 60000 * 0.25
+                    });
+                    
+                    const tier2 = remaining - 60000;
+                    commission += tier2 * 0.30;
                     breakdown.push({
                         level: 'Principal Consultant (30%)',
                         billings: tier2,
-                        commission: tier2Commission
+                        commission: tier2 * 0.30
                     });
-                    remaining -= tier2;
-                }
-                
-                // Tier 3: 35% on next £100k
-                const tier3 = Math.min(remaining, 100000);
-                if (tier3 > 0) {
-                    const tier3Commission = tier3 * 0.35;
-                    commission += tier3Commission;
+                } else if (remaining <= 260000) {
+                    // 25%, 30%, 35%
+                    commission += 60000 * 0.25;
+                    breakdown.push({
+                        level: 'Principal Consultant (25%)',
+                        billings: 60000,
+                        commission: 60000 * 0.25
+                    });
+                    
+                    commission += 100000 * 0.30;
+                    breakdown.push({
+                        level: 'Principal Consultant (30%)',
+                        billings: 100000,
+                        commission: 100000 * 0.30
+                    });
+                    
+                    const tier3 = remaining - 160000;
+                    commission += tier3 * 0.35;
                     breakdown.push({
                         level: 'Principal Consultant (35%)',
                         billings: tier3,
-                        commission: tier3Commission
+                        commission: tier3 * 0.35
                     });
-                    remaining -= tier3;
-                }
-                
-                // Tier 4: 40% on next £100k
-                const tier4 = Math.min(remaining, 100000);
-                if (tier4 > 0) {
-                    const tier4Commission = tier4 * 0.40;
-                    commission += tier4Commission;
+                } else if (remaining <= 360000) {
+                    // 25%, 30%, 35%, 40%
+                    commission += 60000 * 0.25 + 100000 * 0.30 + 100000 * 0.35;
+                    breakdown.push(
+                        {
+                            level: 'Principal Consultant (25%)',
+                            billings: 60000,
+                            commission: 60000 * 0.25
+                        },
+                        {
+                            level: 'Principal Consultant (30%)',
+                            billings: 100000,
+                            commission: 100000 * 0.30
+                        },
+                        {
+                            level: 'Principal Consultant (35%)',
+                            billings: 100000,
+                            commission: 100000 * 0.35
+                        }
+                    );
+                    
+                    const tier4 = remaining - 260000;
+                    commission += tier4 * 0.40;
                     breakdown.push({
                         level: 'Principal Consultant (40%)',
                         billings: tier4,
-                        commission: tier4Commission
+                        commission: tier4 * 0.40
                     });
-                    remaining -= tier4;
-                }
-                
-                // Tier 5: 50% on everything above £400k
-                if (remaining > 0) {
-                    const tier5Commission = remaining * 0.50;
-                    commission += tier5Commission;
+                } else {
+                    // All tiers including 50%
+                    commission += 60000 * 0.25 + 100000 * 0.30 + 100000 * 0.35 + 100000 * 0.40;
+                    breakdown.push(
+                        {
+                            level: 'Principal Consultant (25%)',
+                            billings: 60000,
+                            commission: 60000 * 0.25
+                        },
+                        {
+                            level: 'Principal Consultant (30%)',
+                            billings: 100000,
+                            commission: 100000 * 0.30
+                        },
+                        {
+                            level: 'Principal Consultant (35%)',
+                            billings: 100000,
+                            commission: 100000 * 0.35
+                        },
+                        {
+                            level: 'Principal Consultant (40%)',
+                            billings: 100000,
+                            commission: 100000 * 0.40
+                        }
+                    );
+                    
+                    const tier5 = remaining - 360000;
+                    commission += tier5 * 0.50;
                     breakdown.push({
                         level: 'Principal Consultant (50%)',
-                        billings: remaining,
-                        commission: tier5Commission
+                        billings: tier5,
+                        commission: tier5 * 0.50
                     });
                 }
                 
                 return commission;
             }
 
-            calculatePrincipalTiersFromExcess(excessBillings, breakdown, startingTotalBillings) {
+            calculatePrincipalTiersFromExcess(excessBillings, breakdown, promotionPoint = 0) {
+                // When promoted to Principal, continue from the appropriate tier based on total billings
+                // Don't reset to 25% - continue from where they should be
                 let commission = 0;
                 let remaining = excessBillings;
                 
-                // We need to figure out which tier we're starting in based on total billings
-                const threshold = 40000;
-                const commissionableAtPromotion = startingTotalBillings - threshold;
-                
-                // Determine starting position in Principal tiers
-                if (commissionableAtPromotion < 60000) {
-                    // Starting in first tier
-                    const tier1Remaining = 60000 - commissionableAtPromotion;
-                    const tier1 = Math.min(remaining, tier1Remaining);
-                    if (tier1 > 0) {
-                        commission += tier1 * 0.25;
-                        breakdown.push({
-                            level: 'Principal Consultant (25%)',
-                            billings: tier1,
-                            commission: tier1 * 0.25
-                        });
-                        remaining -= tier1;
-                    }
-                    
-                    // Continue with remaining tiers
-                    if (remaining > 0) {
-                        const tier2 = Math.min(remaining, 100000);
-                        if (tier2 > 0) {
-                            commission += tier2 * 0.30;
-                            breakdown.push({
-                                level: 'Principal Consultant (30%)',
-                                billings: tier2,
-                                commission: tier2 * 0.30
-                            });
-                            remaining -= tier2;
-                        }
-                    }
-                    
-                    if (remaining > 0) {
-                        const tier3 = Math.min(remaining, 100000);
-                        if (tier3 > 0) {
-                            commission += tier3 * 0.35;
-                            breakdown.push({
-                                level: 'Principal Consultant (35%)',
-                                billings: tier3,
-                                commission: tier3 * 0.35
-                            });
-                            remaining -= tier3;
-                        }
-                    }
-                    
-                    if (remaining > 0) {
-                        const tier4 = Math.min(remaining, 100000);
-                        if (tier4 > 0) {
-                            commission += tier4 * 0.40;
-                            breakdown.push({
-                                level: 'Principal Consultant (40%)',
-                                billings: tier4,
-                                commission: tier4 * 0.40
-                            });
-                            remaining -= tier4;
-                        }
-                    }
-                    
-                    if (remaining > 0) {
-                        commission += remaining * 0.50;
-                        breakdown.push({
-                            level: 'Principal Consultant (50%)',
-                            billings: remaining,
-                            commission: remaining * 0.50
-                        });
-                    }
-                } else if (commissionableAtPromotion < 160000) {
-                    // Starting in second tier
-                    const tier2Remaining = 160000 - commissionableAtPromotion;
-                    const tier2 = Math.min(remaining, tier2Remaining);
-                    if (tier2 > 0) {
-                        commission += tier2 * 0.30;
-                        breakdown.push({
-                            level: 'Principal Consultant (30%)',
-                            billings: tier2,
-                            commission: tier2 * 0.30
-                        });
-                        remaining -= tier2;
-                    }
-                    
-                    // Continue with remaining tiers...
-                    if (remaining > 0) {
-                        const tier3 = Math.min(remaining, 100000);
-                        if (tier3 > 0) {
-                            commission += tier3 * 0.35;
-                            breakdown.push({
-                                level: 'Principal Consultant (35%)',
-                                billings: tier3,
-                                commission: tier3 * 0.35
-                            });
-                            remaining -= tier3;
-                        }
-                    }
-                    
-                    if (remaining > 0) {
-                        const tier4 = Math.min(remaining, 100000);
-                        if (tier4 > 0) {
-                            commission += tier4 * 0.40;
-                            breakdown.push({
-                                level: 'Principal Consultant (40%)',
-                                billings: tier4,
-                                commission: tier4 * 0.40
-                            });
-                            remaining -= tier4;
-                        }
-                    }
-                    
-                    if (remaining > 0) {
-                        commission += remaining * 0.50;
-                        breakdown.push({
-                            level: 'Principal Consultant (50%)',
-                            billings: remaining,
-                            commission: remaining * 0.50
-                        });
-                    }
-                } else {
-                    // Starting in third tier or higher
-                    // Apply 35% to all excess for early/standard promotions
-                    commission = excessBillings * 0.35;
+                // Determine which tier to start from based on promotion point
+                if (promotionPoint >= 400000) {
+                    // Already at 50% tier
+                    commission = remaining * 0.50;
                     breakdown.push({
-                        level: 'Principal Consultant (35%)',
-                        billings: excessBillings,
+                        level: 'Principal Consultant (50%)',
+                        billings: remaining,
                         commission: commission
                     });
+                } else if (promotionPoint >= 300000) {
+                    // Start from 40% tier, might go to 50%
+                    const in40Tier = Math.min(remaining, 400000 - promotionPoint);
+                    if (in40Tier > 0) {
+                        commission += in40Tier * 0.40;
+                        breakdown.push({
+                            level: 'Principal Consultant (40%)',
+                            billings: in40Tier,
+                            commission: in40Tier * 0.40
+                        });
+                        remaining -= in40Tier;
+                    }
+                    
+                    // 50% tier for remainder
+                    if (remaining > 0) {
+                        commission += remaining * 0.50;
+                        breakdown.push({
+                            level: 'Principal Consultant (50%)',
+                            billings: remaining,
+                            commission: remaining * 0.50
+                        });
+                    }
+                } else if (promotionPoint >= 200000) {
+                    // Start from 35% tier
+                    const in35Tier = Math.min(remaining, 300000 - promotionPoint);
+                    if (in35Tier > 0) {
+                        commission += in35Tier * 0.35;
+                        breakdown.push({
+                            level: 'Principal Consultant (35%)',
+                            billings: in35Tier,
+                            commission: in35Tier * 0.35
+                        });
+                        remaining -= in35Tier;
+                    }
+                    
+                    // 40% tier
+                    const in40Tier = Math.min(remaining, 100000);
+                    if (in40Tier > 0) {
+                        commission += in40Tier * 0.40;
+                        breakdown.push({
+                            level: 'Principal Consultant (40%)',
+                            billings: in40Tier,
+                            commission: in40Tier * 0.40
+                        });
+                        remaining -= in40Tier;
+                    }
+                    
+                    // 50% tier for remainder
+                    if (remaining > 0) {
+                        commission += remaining * 0.50;
+                        breakdown.push({
+                            level: 'Principal Consultant (50%)',
+                            billings: remaining,
+                            commission: remaining * 0.50
+                        });
+                    }
+                } else if (promotionPoint >= 100000) {
+                    // Start from 30% tier
+                    const in30Tier = Math.min(remaining, 200000 - promotionPoint);
+                    if (in30Tier > 0) {
+                        commission += in30Tier * 0.30;
+                        breakdown.push({
+                            level: 'Principal Consultant (30%)',
+                            billings: in30Tier,
+                            commission: in30Tier * 0.30
+                        });
+                        remaining -= in30Tier;
+                    }
+                    
+                    // Continue with higher tiers
+                    if (remaining > 0) {
+                        commission += this.calculatePrincipalTiersFromPoint(remaining, breakdown, 200000);
+                    }
+                } else {
+                    // Start from 25% tier (only if promoted very early)
+                    commission = this.calculatePrincipalTiers(excessBillings, breakdown);
                 }
                 
                 return commission;
@@ -4203,8 +4585,8 @@
                 // Update threshold status
                 this.updateThresholdStatus(totalBillings, currentLevel, result.belowThreshold);
                 
-                // Update current seniority level
-                this.updateCurrentSeniority(result.finalLevel, result.promotions);
+                // Update current seniority level (removed - now shown in promotion progress)
+                // this.updateCurrentSeniority(result.finalLevel, result.promotions);
                 
                 // Update breakdown
                 this.updateBreakdown(result.breakdown, result.belowThreshold);
@@ -4236,18 +4618,8 @@
             }
 
             updateCurrentSeniority(finalLevel, promotions) {
-                const seniorityDiv = document.getElementById('currentSeniority');
-                const seniorityTitle = document.getElementById('currentSeniorityTitle');
-                const seniorityText = document.getElementById('currentSeniorityText');
-                
-                if (promotions.length > 0) {
-                    seniorityDiv.classList.remove('hidden');
-                    seniorityDiv.className = 'status-compact success';
-                    seniorityTitle.textContent = 'Promoted!';
-                    seniorityText.textContent = `Your current level: ${finalLevel} (promoted through: ${promotions.join(' → ')})`;
-                } else {
-                    seniorityDiv.classList.add('hidden');
-                }
+                // This functionality has been moved to updatePromotionProgress
+                // No action needed here
             }
 
             updateBreakdown(breakdown, belowThreshold) {
@@ -4261,20 +4633,66 @@
                 
                 breakdownDiv.classList.remove('hidden');
                 
-                // Group breakdown by level
+                // Get current settings to determine promotion thresholds
+                const currentLevel = document.getElementById('currentLevel').value;
+                const fastTrackEnabled = document.getElementById('fastTrackToggle')?.checked;
+                const isFirstHalf = document.getElementById('firstHalfToggle')?.checked;
+                const isFirstYear = fastTrackEnabled && currentLevel === 'Consultant';
+                
+                // Group breakdown by level and detect promotions
                 const levelGroups = {};
-                breakdown.forEach(item => {
+                const promotionPoints = [];
+                let currentLevelName = null;
+                
+                breakdown.forEach((item, index) => {
                     const baseLevel = item.level.split(' (')[0];
+                    
+                    // Detect promotion points and calculate the promotion threshold
+                    if (currentLevelName && currentLevelName !== baseLevel) {
+                        let promotionAmount = 0;
+                        
+                        // Determine promotion amount based on transition
+                        if (currentLevelName === 'Consultant' && baseLevel === 'Consultant II' && isFirstYear) {
+                            promotionAmount = this.PROMOTION_THRESHOLDS.fastTrack.consultantII;
+                        } else if (currentLevelName === 'Consultant II' && baseLevel === 'Senior Consultant' && isFirstYear) {
+                            promotionAmount = this.PROMOTION_THRESHOLDS.fastTrack.senior;
+                        } else if ((currentLevelName === 'Consultant' || currentLevelName === 'Consultant II') && baseLevel === 'Senior Consultant') {
+                            promotionAmount = isFirstHalf ? this.PROMOTION_THRESHOLDS.early.senior : this.PROMOTION_THRESHOLDS.standard.senior;
+                        } else if (currentLevelName === 'Senior Consultant' && baseLevel === 'Principal Consultant') {
+                            if (isFirstYear) {
+                                promotionAmount = this.PROMOTION_THRESHOLDS.fastTrack.principal;
+                            } else {
+                                promotionAmount = isFirstHalf ? this.PROMOTION_THRESHOLDS.early.principal : this.PROMOTION_THRESHOLDS.standard.principal;
+                            }
+                        }
+                        
+                        promotionPoints.push({
+                            index: index,
+                            from: currentLevelName,
+                            to: baseLevel,
+                            atBillings: promotionAmount
+                        });
+                    }
+                    currentLevelName = baseLevel;
+                    
                     if (!levelGroups[baseLevel]) {
                         levelGroups[baseLevel] = [];
                     }
-                    levelGroups[baseLevel].push(item);
+                    levelGroups[baseLevel].push({...item, originalIndex: index});
                 });
                 
                 let html = '';
-                Object.entries(levelGroups).forEach(([level, items]) => {
-                    if (items.length > 1) {
-                        html += `<div class="breakdown-level-header">${level}</div>`;
+                let itemIndex = 0;
+                
+                Object.entries(levelGroups).forEach(([level, items], groupIndex) => {
+                    // Check if this level starts with a promotion
+                    const promotion = promotionPoints.find(p => p.to === level);
+                    if (promotion) {
+                        html += `
+                            <div class="breakdown-promotion-divider">
+                                <div class="promotion-indicator">Promoted at ${this.formatCurrency(promotion.atBillings)}</div>
+                            </div>
+                        `;
                     }
                     
                     items.forEach(item => {
@@ -4285,17 +4703,6 @@
                             </div>
                         `;
                     });
-                    
-                    if (items.length > 1) {
-                        const totalBillings = items.reduce((sum, item) => sum + item.billings, 0);
-                        const totalCommission = items.reduce((sum, item) => sum + item.commission, 0);
-                        html += `
-                            <div class="breakdown-level-summary">
-                                <span class="breakdown-left">${level} Total</span>
-                                <span class="breakdown-right">${this.formatCurrency(totalCommission)}</span>
-                            </div>
-                        `;
-                    }
                 });
                 
                 breakdownItems.innerHTML = html;
@@ -4436,49 +4843,55 @@
                 const progressContent = document.getElementById('promotionContent');
                 const startingLevel = document.getElementById('currentLevel').value;
                 
-                // Check if user started at Principal level
-                if (currentLevel === 'Principal Consultant' && startingLevel === 'Principal Consultant') {
-                    progressDiv.classList.remove('hidden');
-                    progressContent.innerHTML = `
-                        <div class="status info">
-                            <div class="status-title">Principal Consultant Level</div>
-                            <div class="status-text">This tool covers levels up to Principal - higher levels exist with different criteria.</div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                // Check if user was promoted to Principal level
-                if (currentLevel === 'Principal Consultant' && startingLevel !== 'Principal Consultant') {
-                    progressDiv.classList.remove('hidden');
-                    progressContent.innerHTML = `
-                        <div class="promotion-badge">
-                            <h4>Principal Consultant Achieved!</h4>
-                            <p>You've reached the highest level covered by this tool.</p>
-                        </div>
-                    `;
-                    return;
-                }
+                // Get promotion information for display
+                const result = this.calculateCommission(billings, startingLevel, isFirstYear, isFirstHalf);
                 
                 progressDiv.classList.remove('hidden');
                 
                 let html = '';
                 
+                // Show promotion notification first if promoted
+                if (result.promotions && result.promotions.length > 0) {
+                    const fullPath = [startingLevel, ...result.promotions].join(' → ');
+                    html += `
+                        <div class="status-compact success">
+                            <div class="status-title">Promoted!</div>
+                            <div class="status-text">Your current level: ${currentLevel} (promoted through: ${fullPath})</div>
+                        </div>
+                    `;
+                }
+                
+                // Check if user is at Principal level (either started there or got promoted)
+                if (currentLevel === 'Principal Consultant') {
+                    html += `
+                        <div class="status-compact info">
+                            <div class="status-title">Principal Consultant Level</div>
+                            <div class="status-text">This tool covers levels up to Principal - higher levels exist with different criteria.</div>
+                        </div>
+                    `;
+                    progressContent.innerHTML = html;
+                    return;
+                }
+                
                 if (isFirstYear) {
                     // Fast-track progress
                     const nextThresholds = this.getNextFastTrackThresholds(billings);
                     if (nextThresholds.length > 0) {
-                        html = this.renderFastTrackProgress(billings, nextThresholds);
+                        html += this.renderFastTrackProgress(billings, nextThresholds);
                     } else {
-                        html = '<div class="promotion-badge"><h4>Principal Consultant Achieved!</h4><p>You\'ve reached the highest level covered by this tool.</p></div>';
+                        if (result.promotions.length === 0) {
+                            html += '<div class="promotion-badge"><h4>Principal Consultant Achieved!</h4><p>You\'ve reached the highest level covered by this tool.</p></div>';
+                        }
                     }
                 } else {
                     // Standard progress
                     const nextPromotion = this.getNextStandardPromotion(currentLevel, billings, isFirstHalf);
                     if (nextPromotion) {
-                        html = this.renderStandardProgress(billings, nextPromotion, isFirstHalf);
+                        html += this.renderStandardProgress(billings, nextPromotion, isFirstHalf);
                     } else {
-                        html = '<div class="promotion-badge"><h4>Principal Consultant Achieved!</h4><p>You\'ve reached the highest level covered by this tool.</p></div>';
+                        if (result.promotions.length === 0) {
+                            html += '<div class="promotion-badge"><h4>Principal Consultant Achieved!</h4><p>You\'ve reached the highest level covered by this tool.</p></div>';
+                        }
                     }
                 }
                 
