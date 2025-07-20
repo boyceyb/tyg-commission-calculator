@@ -2632,7 +2632,7 @@
                     <div class="status-text">
                         <strong>Consultant:</strong> £35,000 minimum to earn commission<br>
                         <strong>All other levels:</strong> £40,000 minimum to earn commission<br><br>
-                        Enter your billings above to see detailed calculations.
+                        Enter your billings to the left to see detailed calculations.
                     </div>
                 </div>
                 
@@ -3031,8 +3031,8 @@
                 
                 this.bindEvents();
                 this.setupStickyHeaderScroll();
-                this.updateDependentSections();
-                this.updateCalculation();
+                this.updateDependentSections(); // Initialize based on starting level
+                this.updateCalculation(); // This will call updateDependentSections again with final level
                 this.updateDealsDisplay();
                 // Initialize sticky header with default values and correct level color
                 this.updateStickyHeaderFromCurrentData();
@@ -3052,7 +3052,13 @@
                 const isInIframe = window !== window.top;
 
                 const handleScroll = () => {
-                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    // Try multiple ways to get scroll position for iframe compatibility
+                    const scrollTop = Math.max(
+                        window.pageYOffset || 0,
+                        document.documentElement.scrollTop || 0,
+                        document.body.scrollTop || 0
+                    );
+                    
                     const shouldBeSticky = scrollTop > originalTop;
 
                     if (shouldBeSticky && !isSticky) {
@@ -3088,10 +3094,20 @@
                     document.documentElement.style.setProperty('--header-height', `${newHeaderHeight}px`);
                 };
 
-                // Bind events
-                window.addEventListener('scroll', handleScroll, { passive: true });
+                // Multiple scroll event listeners for iframe compatibility
+                const scrollEvents = ['scroll', 'touchmove', 'wheel'];
+                const scrollTargets = [window, document, document.documentElement, document.body];
+                
+                scrollTargets.forEach(target => {
+                    scrollEvents.forEach(event => {
+                        if (target && target.addEventListener) {
+                            target.addEventListener(event, handleScroll, { passive: true });
+                        }
+                    });
+                });
+
+                // Bind resize events
                 window.addEventListener('resize', handleResize, { passive: true });
-                document.addEventListener('scroll', handleScroll, { passive: true });
 
                 // Initial check
                 handleScroll();
@@ -3101,20 +3117,48 @@
 
                 // For iframe environments, use more aggressive detection
                 if (isInIframe) {
-                    // Additional scroll detection for iframe
-                    const iframeScrollCheck = () => {
+                    // Continuous scroll monitoring for iframe contexts
+                    let animationFrameId;
+                    const continuousScrollCheck = () => {
                         handleScroll();
-                        requestAnimationFrame(iframeScrollCheck);
+                        animationFrameId = requestAnimationFrame(continuousScrollCheck);
                     };
-                    requestAnimationFrame(iframeScrollCheck);
+                    continuousScrollCheck();
+                    
+                    // Cleanup on page unload
+                    window.addEventListener('beforeunload', () => {
+                        if (animationFrameId) {
+                            cancelAnimationFrame(animationFrameId);
+                        }
+                    });
                     
                     // Also listen for parent window scroll if accessible
                     try {
                         if (window.parent && window.parent !== window) {
-                            window.parent.addEventListener('scroll', handleScroll, { passive: true });
+                            scrollEvents.forEach(event => {
+                                window.parent.addEventListener(event, handleScroll, { passive: true });
+                            });
                         }
                     } catch (e) {
                         // Cross-origin restrictions - that's ok
+                        console.log('Cross-origin scroll detection not available');
+                    }
+                    
+                    // Observer-based fallback for iframe scroll detection
+                    if (window.IntersectionObserver) {
+                        const observer = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                const shouldBeSticky = entry.intersectionRatio < 1;
+                                if (shouldBeSticky !== isSticky) {
+                                    handleScroll();
+                                }
+                            });
+                        }, {
+                            threshold: [0, 1],
+                            rootMargin: '0px 0px -1px 0px'
+                        });
+                        
+                        observer.observe(stickyHeader);
                     }
                     
                     // Force sticky behavior after a short delay to ensure it works
@@ -3123,6 +3167,7 @@
                             // Force the header to always be sticky in fallback mode
                             stickyHeader.classList.add('js-sticky');
                             stickyPlaceholder.style.height = `${headerHeight}px`;
+                            isSticky = true;
                         }
                     }, 500);
                 }
@@ -3202,7 +3247,7 @@
                             // Update tracking when user manually changes level
                             this.currentDisplayLevel = element.value;
                             this.showNotification('Settings updated', 'success');
-                            this.updateDependentSections();
+                            this.updateDependentSections(); // No final level - use starting level
                             this.updateCalculation();
                             // Ensure sticky header updates immediately
                             this.updateStickyHeaderFromCurrentData();
@@ -3497,12 +3542,13 @@
                 return Math.round(parsed * 100) / 100;
             }
 
-            updateDependentSections() {
-                const level = document.getElementById('currentLevel').value;
+            updateDependentSections(finalLevel = null) {
+                const startingLevel = document.getElementById('currentLevel').value;
+                const currentFinalLevel = finalLevel || startingLevel;
                 const teamSection = document.getElementById('teamSection');
                 
-                // Show/hide team section for Principal
-                if (level === 'Principal Consultant') {
+                // Show/hide team section for Principal (either starting level or promoted level)
+                if (startingLevel === 'Principal Consultant' || currentFinalLevel === 'Principal Consultant') {
                     teamSection.classList.remove('hidden');
                 } else {
                     teamSection.classList.add('hidden');
@@ -3657,9 +3703,31 @@
                         promotions.push('Senior Consultant');
                         currentLevel = 'Senior Consultant';
                         
-                        const seniorBillings = commissionableBillings - consultantBillings;
-                        if (seniorBillings > 0) {
-                            commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                        // Check for further promotion to Principal
+                        if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
+                            // Promoted to Principal as well
+                            const seniorBillings = Math.min(
+                                commissionableBillings - consultantBillings,
+                                this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior
+                            );
+                            if (seniorBillings > 0) {
+                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            }
+                            
+                            promotions.push('Principal Consultant');
+                            currentLevel = 'Principal Consultant';
+                            
+                            const principalBillings = commissionableBillings - consultantBillings - seniorBillings;
+                            if (principalBillings > 0) {
+                                const principalStartBillings = this.PROMOTION_THRESHOLDS.standard.principal;
+                                commission += this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, principalStartBillings);
+                            }
+                        } else {
+                            // Just Senior
+                            const seniorBillings = commissionableBillings - consultantBillings;
+                            if (seniorBillings > 0) {
+                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            }
                         }
                     } else {
                         // No promotion, straight Consultant commission
@@ -3734,9 +3802,31 @@
                         promotions.push('Senior Consultant');
                         currentLevel = 'Senior Consultant';
                         
-                        const seniorBillings = commissionableBillings - consultantIIBillings;
-                        if (seniorBillings > 0) {
-                            commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                        // Check for further promotion to Principal
+                        if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
+                            // Promoted to Principal as well
+                            const seniorBillings = Math.min(
+                                commissionableBillings - consultantIIBillings,
+                                this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior
+                            );
+                            if (seniorBillings > 0) {
+                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            }
+                            
+                            promotions.push('Principal Consultant');
+                            currentLevel = 'Principal Consultant';
+                            
+                            const principalBillings = commissionableBillings - consultantIIBillings - seniorBillings;
+                            if (principalBillings > 0) {
+                                const principalStartBillings = this.PROMOTION_THRESHOLDS.standard.principal;
+                                commission += this.calculatePrincipalTiersFromExcess(principalBillings, breakdown, principalStartBillings);
+                            }
+                        } else {
+                            // Just Senior
+                            const seniorBillings = commissionableBillings - consultantIIBillings;
+                            if (seniorBillings > 0) {
+                                commission += this.calculateSeniorTiers(seniorBillings, breakdown);
+                            }
                         }
                     } else {
                         commission = commissionableBillings * 0.225;
@@ -4155,6 +4245,9 @@
                 
                 // Calculate commission based on total billings (current + pipeline)
                 const result = this.calculateCommission(totalBillings, currentLevel, isFirstYear, isFirstHalf);
+                
+                // Update dependent sections based on final level (to show team section if promoted to Principal)
+                this.updateDependentSections(result.finalLevel);
                 
                 // Update threshold status
                 this.updateThresholdStatus(totalBillings, currentLevel, result.belowThreshold);
