@@ -48,29 +48,26 @@
 
         .sticky-header {
             position: sticky;
-            top: 0;
+            top: 16px;
             z-index: 100;
             background: rgba(255, 255, 255, 0.98);
-            border-radius: 0 0 8px 8px;
+            border-radius: 8px;
             padding: 12px 20px;
-            margin: -24px -24px 24px -24px;
+            margin-bottom: 24px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
             border: 1px solid #e2e8f0;
-            border-top: none;
             backdrop-filter: blur(12px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Optimize for iframe/embedded contexts */
         .in-iframe .sticky-header {
             position: sticky;
-            top: 0;
-            margin: -24px -24px 20px -24px;
-            border-radius: 0;
+            top: 8px;
+            margin-bottom: 20px;
+            border-radius: 8px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            border: none;
-            border-bottom: 1px solid #e2e8f0;
+            border: 1px solid #e2e8f0;
             box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
         }
 
@@ -218,7 +215,6 @@
             height: 20px;
             background: #cbd5e1;
             border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             padding: 2px;
@@ -231,7 +227,6 @@
             height: 16px;
             background: white;
             border-radius: 8px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
             transform: translateX(0);
         }
@@ -248,7 +243,6 @@
             font-size: 12px;
             font-weight: 500;
             color: #64748b;
-            transition: color 0.2s ease;
             white-space: nowrap;
         }
 
@@ -310,7 +304,6 @@
             background: #f8fafc;
             border-radius: 6px;
             border: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
             min-width: 120px;
         }
 
@@ -488,17 +481,6 @@
             font-weight: 400;
             color: var(--text-primary);
             font-family: inherit;
-        }
-
-        /* Hide number input spinners/arrows */
-        .input-group input[type="number"]::-webkit-outer-spin-button,
-        .input-group input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .input-group input[type="number"] {
-            -moz-appearance: textfield;
         }
         
         .input-group input:focus, .input-group select:focus { 
@@ -2403,23 +2385,13 @@
             }
 
             .sticky-header {
-                margin: -16px -16px 20px -16px;
-                border-radius: 0;
+                margin-bottom: 20px;
+                border-radius: 8px;
                 padding: 8px 16px;
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(8px);
                 box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
-            }
-
-            .sticky-header.js-sticky {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                margin: 0 !important;
-                z-index: 99999 !important;
-                padding: 8px 16px;
-                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+                top: 8px;
             }
 
             .sticky-content {
@@ -2514,35 +2486,41 @@
             /* Force fixed positioning for iframe contexts where sticky fails */
             position: fixed !important;
             top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
+            left: 12px !important;
+            right: 12px !important;
             margin: 0 !important;
             padding: 10px 12px !important;
             z-index: 999999 !important;
             background: rgba(255, 255, 255, 0.98) !important;
             backdrop-filter: blur(12px) !important;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.12) !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-            width: 100% !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            max-width: calc(1200px - 24px) !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
 
         /* Fallback: Always keep header visible in iframe if sticky fails */
         .in-iframe.sticky-fallback .sticky-header {
             position: fixed !important;
             top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
+            left: 12px !important;
+            right: 12px !important;
             margin: 0 !important;
             z-index: 999999 !important;
             background: rgba(255, 255, 255, 0.98) !important;
             backdrop-filter: blur(12px) !important;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.12) !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-            width: 100% !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            max-width: calc(1200px - 24px) !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
 
         .in-iframe.sticky-fallback .container {
-            padding-top: 60px; /* Account for fixed header height */
+            padding-top: 80px; /* Account for fixed header height with some spacing */
         }
 
         .in-iframe .sticky-content {
@@ -2570,7 +2548,6 @@
 </head>
 <body>
     <div class="container">
-        <div class="sticky-placeholder" id="stickyPlaceholder"></div>
         <div class="sticky-header" id="stickyHeader">
             <div class="sticky-content">
                 <div class="sticky-title">TYG Commission Tracker</div>
@@ -3043,33 +3020,9 @@
             if (isInIframe) {
                 document.body.classList.add('in-iframe');
                 
-                // Optimize for embedded context while keeping sticky behavior
-                document.body.style.overflow = 'auto';
-                document.body.style.height = 'auto';
-                document.documentElement.style.height = 'auto';
-                
                 // Ensure smooth scrolling in iframe
                 document.documentElement.style.scrollBehavior = 'smooth';
                 document.body.style.scrollBehavior = 'smooth';
-                
-                // Test if sticky positioning works in this iframe context
-                setTimeout(() => {
-                    const stickyTest = document.createElement('div');
-                    stickyTest.style.position = 'sticky';
-                    stickyTest.style.top = '0';
-                    stickyTest.style.visibility = 'hidden';
-                    stickyTest.style.height = '1px';
-                    document.body.appendChild(stickyTest);
-                    
-                    const stickyWorks = stickyTest.offsetParent !== null;
-                    document.body.removeChild(stickyTest);
-                    
-                    // If sticky doesn't work, use fallback approach
-                    if (!stickyWorks) {
-                        document.body.classList.add('sticky-fallback');
-                        console.log('Using sticky fallback for iframe context');
-                    }
-                }, 100);
             }
             
             try {
@@ -3139,137 +3092,19 @@
             }
 
             setupStickyHeaderScroll() {
+                // Simplified setup for pure CSS sticky positioning
                 const stickyHeader = document.getElementById('stickyHeader');
-                const stickyPlaceholder = document.getElementById('stickyPlaceholder');
-                if (!stickyHeader || !stickyPlaceholder) return;
+                if (!stickyHeader) return;
 
-                // Store original header height
-                const headerHeight = stickyHeader.offsetHeight;
-                document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
-
-                let isSticky = false;
-                let originalTop = stickyHeader.offsetTop;
-                const isInIframe = window !== window.top;
-
-                const handleScroll = () => {
-                    // Try multiple ways to get scroll position for iframe compatibility
-                    const scrollTop = Math.max(
-                        window.pageYOffset || 0,
-                        document.documentElement.scrollTop || 0,
-                        document.body.scrollTop || 0
-                    );
-                    
-                    const shouldBeSticky = scrollTop > originalTop;
-
-                    if (shouldBeSticky && !isSticky) {
-                        // Make sticky
-                        isSticky = true;
-                        stickyHeader.classList.add('js-sticky');
-                        stickyPlaceholder.classList.add('active');
-                        stickyHeader.classList.add('scrolled');
-                        
-                        // For iframe contexts, ensure proper spacing
-                        if (isInIframe) {
-                            stickyPlaceholder.style.height = `${headerHeight}px`;
-                        }
-                    } else if (!shouldBeSticky && isSticky) {
-                        // Remove sticky
-                        isSticky = false;
-                        stickyHeader.classList.remove('js-sticky');
-                        stickyPlaceholder.classList.remove('active');
-                        stickyHeader.classList.remove('scrolled');
-                        
-                        if (isInIframe) {
-                            stickyPlaceholder.style.height = '0px';
-                        }
-                    }
-                };
-
-                // Handle resize to recalculate positions
-                const handleResize = () => {
-                    if (!isSticky) {
-                        originalTop = stickyHeader.offsetTop;
-                    }
-                    const newHeaderHeight = stickyHeader.offsetHeight;
-                    document.documentElement.style.setProperty('--header-height', `${newHeaderHeight}px`);
-                };
-
-                // Multiple scroll event listeners for iframe compatibility
-                const scrollEvents = ['scroll', 'touchmove', 'wheel'];
-                const scrollTargets = [window, document, document.documentElement, document.body];
-                
-                scrollTargets.forEach(target => {
-                    scrollEvents.forEach(event => {
-                        if (target && target.addEventListener) {
-                            target.addEventListener(event, handleScroll, { passive: true });
-                        }
-                    });
-                });
-
-                // Bind resize events
-                window.addEventListener('resize', handleResize, { passive: true });
-
-                // Initial check
-                handleScroll();
-
-                // Add touch support for tooltips on mobile
+                // Just set up tooltip touch support - no complex scroll handling needed
                 this.setupTooltipTouchSupport();
 
-                // For iframe environments, use more aggressive detection
+                // For iframe environments, ensure compatibility
+                const isInIframe = window !== window.top;
                 if (isInIframe) {
-                    // Continuous scroll monitoring for iframe contexts
-                    let animationFrameId;
-                    const continuousScrollCheck = () => {
-                        handleScroll();
-                        animationFrameId = requestAnimationFrame(continuousScrollCheck);
-                    };
-                    continuousScrollCheck();
-                    
-                    // Cleanup on page unload
-                    window.addEventListener('beforeunload', () => {
-                        if (animationFrameId) {
-                            cancelAnimationFrame(animationFrameId);
-                        }
-                    });
-                    
-                    // Also listen for parent window scroll if accessible
-                    try {
-                        if (window.parent && window.parent !== window) {
-                            scrollEvents.forEach(event => {
-                                window.parent.addEventListener(event, handleScroll, { passive: true });
-                            });
-                        }
-                    } catch (e) {
-                        // Cross-origin restrictions - that's ok
-                        console.log('Cross-origin scroll detection not available');
-                    }
-                    
-                    // Observer-based fallback for iframe scroll detection
-                    if (window.IntersectionObserver) {
-                        const observer = new IntersectionObserver((entries) => {
-                            entries.forEach(entry => {
-                                const shouldBeSticky = entry.intersectionRatio < 1;
-                                if (shouldBeSticky !== isSticky) {
-                                    handleScroll();
-                                }
-                            });
-                        }, {
-                            threshold: [0, 1],
-                            rootMargin: '0px 0px -1px 0px'
-                        });
-                        
-                        observer.observe(stickyHeader);
-                    }
-                    
-                    // Force sticky behavior after a short delay to ensure it works
-                    setTimeout(() => {
-                        if (document.body.classList.contains('sticky-fallback')) {
-                            // Force the header to always be sticky in fallback mode
-                            stickyHeader.classList.add('js-sticky');
-                            stickyPlaceholder.style.height = `${headerHeight}px`;
-                            isSticky = true;
-                        }
-                    }, 500);
+                    // Ensure smooth scrolling in iframe
+                    document.documentElement.style.scrollBehavior = 'smooth';
+                    document.body.style.scrollBehavior = 'smooth';
                 }
             }
 
