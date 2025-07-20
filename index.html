@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TYG Commission Calculator</title>
+    <title>TYG Commission Tracker</title>
     <style>
         :root {
             --primary-blue: #2563eb;
@@ -79,6 +79,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 24px;
+            flex-wrap: wrap;
         }
 
         .sticky-title {
@@ -86,7 +87,209 @@
             font-size: 16px;
             font-weight: 600;
             letter-spacing: -0.025em;
-            min-width: 180px;
+            min-width: 140px;
+        }
+
+        .sticky-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .header-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .header-toggle[data-tooltip] {
+            cursor: help;
+        }
+
+        .header-toggle[data-tooltip]:hover::after,
+        .header-toggle[data-tooltip].tooltip-active::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: rgba(30, 41, 59, 0.95);
+            color: white;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.4;
+            border-radius: 6px;
+            white-space: nowrap;
+            max-width: 240px;
+            white-space: normal;
+            text-align: center;
+            z-index: 1000;
+            opacity: 0;
+            animation: tooltipFadeIn 0.2s ease forwards;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+        }
+
+        .header-toggle[data-tooltip]:hover::before,
+        .header-toggle[data-tooltip].tooltip-active::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 2px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 6px solid rgba(30, 41, 59, 0.95);
+            z-index: 1001;
+            opacity: 0;
+            animation: tooltipFadeIn 0.2s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Responsive tooltip positioning for mobile */
+        @media (max-width: 768px) {
+            .header-toggle[data-tooltip]:hover::after,
+            .header-toggle[data-tooltip].tooltip-active::after {
+                position: fixed;
+                top: auto;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 0;
+                max-width: 280px;
+                font-size: 13px;
+                padding: 10px 14px;
+                border-radius: 8px;
+            }
+
+            .header-toggle[data-tooltip]:hover::before,
+            .header-toggle[data-tooltip].tooltip-active::before {
+                display: none;
+            }
+        }
+
+        /* Ensure tooltips work in iframe */
+        .in-iframe .header-toggle[data-tooltip]:hover::after,
+        .in-iframe .header-toggle[data-tooltip].tooltip-active::after {
+            position: absolute;
+            max-width: 200px;
+            font-size: 11px;
+            padding: 6px 10px;
+        }
+
+        .header-toggle-input {
+            display: none;
+        }
+
+        .header-toggle-label {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            width: 36px;
+            height: 20px;
+        }
+
+        .header-toggle-slider {
+            position: absolute;
+            width: 36px;
+            height: 20px;
+            background: #cbd5e1;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            padding: 2px;
+        }
+
+        .header-toggle-slider::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transform: translateX(0);
+        }
+
+        .header-toggle-input:checked + .header-toggle-label .header-toggle-slider {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .header-toggle-input:checked + .header-toggle-label .header-toggle-slider::after {
+            transform: translateX(16px);
+        }
+
+        .header-toggle-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            transition: color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .header-toggle-input:checked ~ .header-toggle-text {
+            color: #1d4ed8;
+            font-weight: 600;
+        }
+
+        .header-toggle.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .header-toggle.disabled[data-tooltip]:hover::after {
+            display: none;
+        }
+
+        .header-toggle.disabled .header-toggle-slider {
+            background: #e2e2e2;
+        }
+
+        .header-toggle.disabled .header-toggle-text {
+            color: #999;
+        }
+
+        /* Add subtle indicator for tooltips */
+        .header-toggle[data-tooltip] .header-toggle-text::after {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background: #94a3b8;
+            border-radius: 50%;
+            margin-left: 4px;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .header-toggle[data-tooltip]:hover .header-toggle-text::after {
+            opacity: 1;
+            background: #3b82f6;
+        }
+
+        .header-toggle.disabled[data-tooltip] .header-toggle-text::after {
+            display: none;
         }
 
         .sticky-metrics {
@@ -1330,22 +1533,22 @@
 
         .info-section {
             background: white;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             overflow: hidden;
             border: 1px solid #e2e8f0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .info-section:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             transform: translateY(-1px);
         }
 
         .info-header {
             background: #f8fafc;
-            padding: 20px 24px;
+            padding: 16px 20px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -1379,31 +1582,31 @@
 
         .info-box {
             background: white;
-            margin: 16px;
-            padding: 20px;
+            margin: 12px;
+            padding: 16px;
             border-radius: 8px;
-            border-left: 4px solid #3b82f6;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 3px solid #3b82f6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
         }
 
         .info-box:hover {
             border-left-color: var(--primary-green);
-            transform: translateX(4px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+            transform: translateX(2px);
+            box-shadow: 0 3px 10px rgba(59, 130, 246, 0.12);
         }
 
         .info-box h4 {
             color: #1e293b;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .info-box p {
             color: #64748b;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 1.5;
             margin: 0;
         }
 
@@ -1419,32 +1622,33 @@
             color: var(--primary-green);
         }
 
-        /* Level Cards - keeping the same structure */
+        /* Level Cards - More Compact Design */
         .levels-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
             margin: 20px;
-            padding-top: 16px;
+            padding-top: 12px;
         }
 
         .level-card.current-level {
-            border: 1px solid #3b82f6;
-            background: #fafbfc;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12);
+            border: 2px solid #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.12);
             position: relative;
             overflow: visible;
+            transform: translateY(-1px);
         }
 
         .level-card.current-level .level-header {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
             border-bottom: 1px solid #3b82f6;
             color: #1e293b;
         }
 
         .level-card.current-level .level-header h4 {
-            color: #1e293b;
-            font-weight: 600;
+            color: #1e40af;
+            font-weight: 700;
         }
 
         .level-card.current-level .level-badge {
@@ -1452,222 +1656,274 @@
             color: white;
             font-weight: 600;
             border-color: #3b82f6;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
         }
 
         .level-card.current-level::before {
             content: 'CURRENT';
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #3b82f6;
+            top: -6px;
+            right: 12px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-size: 8px;
-            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 700;
             letter-spacing: 0.3px;
             z-index: 10;
+            box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
         }
 
         .level-card.promoted-level {
-            border: 1px solid #16a34a;
-            background: #fafbfc;
-            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.12);
+            border: 2px solid #10b981;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
             position: relative;
             overflow: visible;
+            transform: translateY(-1px);
         }
 
         .level-card.promoted-level .level-header {
-            background: #f8fafc;
-            border-bottom: 1px solid #16a34a;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-bottom: 1px solid #10b981;
             color: #1e293b;
         }
 
         .level-card.promoted-level .level-header h4 {
-            color: #1e293b;
-            font-weight: 600;
+            color: #047857;
+            font-weight: 700;
         }
 
         .level-card.promoted-level .level-badge {
-            background: #16a34a;
+            background: #10b981;
             color: white;
             font-weight: 600;
-            border-color: #16a34a;
+            border-color: #10b981;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
         }
 
         .level-card.promoted-level::before {
             content: 'PROMOTED';
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #16a34a;
+            top: -6px;
+            right: 12px;
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
-            padding: 3px 6px;
-            border-radius: 3px;
-            font-size: 8px;
-            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 700;
             letter-spacing: 0.3px;
             z-index: 10;
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
         }
 
         .level-card {
-            background: var(--bg-card);
-            border-radius: 8px;
+            background: #ffffff;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: var(--shadow-light);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border-light);
+            border: 1px solid #f1f5f9;
             position: relative;
         }
 
         .level-card:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         .level-card.consultant {
-            border-left: 3px solid #10b981;
+            border-top: 3px solid #10b981;
         }
 
         .level-card.consultant:hover {
-            border-left-color: #059669;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.1);
+            border-color: #bbf7d0;
         }
 
         .level-card.consultant-ii {
-            border-left: 3px solid #3b82f6;
+            border-top: 3px solid #3b82f6;
         }
 
         .level-card.consultant-ii:hover {
-            border-left-color: #2563eb;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.1);
+            border-color: #bfdbfe;
         }
 
         .level-card.senior {
-            border-left: 3px solid #f59e0b;
+            border-top: 3px solid #f59e0b;
         }
 
         .level-card.senior:hover {
-            border-left-color: #d97706;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.1);
+            border-color: #fed7aa;
         }
 
         .level-card.principal {
-            border-left: 3px solid #8b5cf6;
+            border-top: 3px solid #8b5cf6;
         }
 
         .level-card.principal:hover {
-            border-left-color: #7c3aed;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.1);
+            border-color: #e9d5ff;
         }
 
         .level-header {
-            padding: 20px 20px 16px 20px;
-            background: var(--bg-primary);
-            border-bottom: 1px solid var(--border-light);
+            padding: 16px 16px 12px 16px;
+            background: #fafbfc;
+            border-bottom: 1px solid #f1f5f9;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .level-header h4 {
             margin: 0;
             font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
+            font-weight: 700;
+            color: #1e293b;
             letter-spacing: -0.025em;
+            line-height: 1.2;
+            flex: 1;
         }
 
         .level-badge {
-            padding: 4px 10px;
-            border-radius: 4px;
+            padding: 4px 8px;
+            border-radius: 16px;
             font-size: 10px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 1px solid var(--border-medium);
-            background: var(--bg-card);
-            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+            border: none;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .level-card.consultant .level-badge {
-            background: #f0fdf4;
-            color: #166534;
-            border-color: #bbf7d0;
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
         }
 
-        .level-card.consultant-ii .level-badge.fast-track {
-            background: #eff6ff;
+        .level-card.consultant-ii .level-badge {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
             color: #1e40af;
-            border-color: #bfdbfe;
         }
 
         .level-card.senior .level-badge {
-            background: #fffbeb;
+            background: linear-gradient(135deg, #fef3c7, #fed7aa);
             color: #92400e;
-            border-color: #fed7aa;
         }
 
         .level-card.principal .level-badge {
-            background: #faf5ff;
+            background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
             color: #6b21a8;
-            border-color: #e9d5ff;
         }
 
         .level-content {
-            padding: 20px;
+            padding: 16px;
         }
 
-        .threshold-row, .commission-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            margin-bottom: 8px;
-            background: var(--bg-primary);
-            border-radius: 6px;
-            border-left: 3px solid #64748b;
-            border: 1px solid var(--border-light);
+        .level-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
-        .threshold-row .label, .commission-row .label {
-            font-weight: 500;
-            color: var(--text-secondary);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .metric-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
         }
 
-        .threshold-row .value, .commission-row .value {
+        .metric-card:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+
+        .metric-label {
+            font-size: 10px;
             font-weight: 600;
-            color: var(--text-primary);
-            font-size: 15px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .commission-info {
+            margin-bottom: 14px;
+        }
+
+        .commission-simple {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .commission-rate {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 2px;
+        }
+
+        .commission-label {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
         }
 
         .commission-tiers {
-            background: var(--bg-primary);
-            border-radius: 6px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-light);
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .commission-tiers-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .tier {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 14px;
+            padding: 6px 10px;
             margin-bottom: 4px;
-            background: var(--bg-card);
-            border-radius: 4px;
-            border-left: 3px solid var(--border-medium);
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
             transition: all 0.2s ease;
         }
 
         .tier:hover {
-            border-left-color: #3b82f6;
-            transform: translateX(2px);
+            border-color: #cbd5e1;
+            transform: translateX(1px);
         }
 
         .tier.highlight {
-            background: #fffbeb;
-            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-color: #f59e0b;
         }
 
         .tier:last-child {
@@ -1676,111 +1932,131 @@
 
         .tier-range {
             font-weight: 500;
-            color: var(--text-secondary);
-            font-size: 13px;
+            color: #64748b;
+            font-size: 11px;
         }
 
         .tier-rate {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 12px;
         }
 
         .tier.highlight .tier-rate {
             color: #92400e;
         }
 
-        .promotions-section {
-            margin-top: 16px;
-            padding: 12px;
-            background: var(--bg-primary);
-            border-radius: 4px;
-            border: 1px solid var(--border-light);
+        .promotion-paths {
+            margin-top: 14px;
         }
 
-        .promotions-section h5 {
-            font-size: 12px;
+        .promotion-section {
+            margin-bottom: 12px;
+        }
+
+        .promotion-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .promotion-title {
+            font-size: 10px;
             font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            margin-top: 12px;
+            color: #475569;
+            margin-bottom: 6px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
 
-        .promotions-section h5:first-child {
-            margin-top: 0;
-        }
-
-        .promotion-path {
+        .promotion-list {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
-        .promotion-step {
-            background: var(--bg-card);
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid var(--border-light);
-            font-size: 13px;
+        .promotion-item {
+            background: white;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            font-size: 11px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: #64748b;
             transition: all 0.2s ease;
         }
 
-        .promotion-step:hover {
-            background: var(--bg-primary);
-            color: var(--text-primary);
+        .promotion-item:hover {
+            background: #f8fafc;
+            color: #475569;
+            border-color: #cbd5e1;
         }
 
         .team-bonus {
-            background: #f8fafc;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
             border-radius: 8px;
-            padding: 16px;
-            margin-top: 16px;
-            border-left: 3px solid #3b82f6;
-            border: 1px solid var(--border-light);
+            padding: 12px;
+            margin-top: 14px;
+            border: 1px solid #bfdbfe;
+            text-align: center;
         }
 
-        .team-bonus h5 {
-            font-size: 14px;
+        .team-bonus-title {
+            font-size: 11px;
             font-weight: 600;
             color: #1e40af;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .bonus-detail {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            gap: 6px;
         }
 
         .bonus-rate {
-            font-size: 18px;
-            font-weight: 700;
-            color: #3b82f6;
+            font-size: 16px;
+            font-weight: 800;
+            color: #1e40af;
         }
 
         .bonus-desc {
-            font-size: 14px;
-            color: #64748b;
+            font-size: 11px;
+            color: #3b82f6;
             font-weight: 500;
         }
 
+        /* Dynamic Level Colors for Sticky Header */
+        .sticky-metric.seniority.consultant .sticky-metric-value {
+            color: #10b981;
+        }
+
+        .sticky-metric.seniority.consultant-ii .sticky-metric-value {
+            color: #3b82f6;
+        }
+
+        .sticky-metric.seniority.senior .sticky-metric-value {
+            color: #f59e0b;
+        }
+
+        .sticky-metric.seniority.principal .sticky-metric-value {
+            color: #8b5cf6;
+        }
+
         .key-points {
-            background: var(--bg-primary);
-            border-radius: 8px;
-            padding: 24px;
-            margin: 24px 20px 20px 20px;
-            border: 1px solid var(--border-light);
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 20px 16px 20px;
+            border: 1px solid #e2e8f0;
         }
 
         .key-points h4 {
-            color: var(--text-primary);
+            color: #1e293b;
             font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
             text-align: center;
             letter-spacing: -0.025em;
         }
@@ -1788,56 +2064,94 @@
         .points-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
+            gap: 12px;
         }
 
         .point {
             display: flex;
             align-items: flex-start;
-            gap: 16px;
-            padding: 16px;
-            background: var(--bg-card);
+            gap: 12px;
+            padding: 14px;
+            background: white;
             border-radius: 8px;
-            border-left: 3px solid #64748b;
+            border: 1px solid #e2e8f0;
             transition: all 0.3s ease;
             position: relative;
         }
 
         .point:hover {
             transform: translateY(-1px);
-            box-shadow: var(--shadow-medium);
-            border-left-color: #3b82f6;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+            border-color: #cbd5e1;
         }
 
         .point-icon {
             width: 6px;
             height: 6px;
-            background: #64748b;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             border-radius: 50%;
             flex-shrink: 0;
-            margin-top: 8px;
+            margin-top: 4px;
         }
 
         .point span:last-child {
-            font-size: 14px;
-            color: var(--text-secondary);
+            font-size: 12px;
+            color: #475569;
             line-height: 1.5;
             font-weight: 500;
         }
 
         @media (max-width: 768px) {
             .levels-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 1fr;
                 gap: 12px;
-                margin: 16px;
+                margin: 16px 12px;
             }
             
             .points-grid {
                 grid-template-columns: 1fr;
+                gap: 8px;
             }
 
             .key-points {
-                margin: 20px 16px 16px 16px;
+                margin: 16px 12px 12px 12px;
+                padding: 16px;
+            }
+
+            .key-points h4 {
+                font-size: 15px;
+                margin-bottom: 12px;
+            }
+
+            .level-header {
+                padding: 14px 14px 10px 14px;
+            }
+
+            .level-content {
+                padding: 14px;
+            }
+
+            .level-metrics {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .metric-card {
+                padding: 10px;
+            }
+
+            .commission-tiers, .team-bonus {
+                padding: 10px;
+            }
+
+            .tier {
+                padding: 5px 8px;
+                margin-bottom: 3px;
+            }
+
+            .promotion-item {
+                padding: 6px 8px;
             }
 
             .add-deal-section {
@@ -1862,16 +2176,33 @@
 
         @media (max-width: 480px) {
             .levels-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                margin: 12px 8px;
+                gap: 10px;
             }
             
             .level-header {
-                padding: 16px 16px 12px 16px;
+                padding: 12px 12px 8px 12px;
             }
             
             .level-content {
-                padding: 16px;
+                padding: 12px;
+            }
+
+            .level-header h4 {
+                font-size: 15px;
+            }
+
+            .key-points {
+                margin: 12px 8px 8px 8px;
+                padding: 14px;
+            }
+
+            .point {
+                padding: 12px;
+            }
+
+            .point span:last-child {
+                font-size: 11px;
             }
         }
         
@@ -1936,37 +2267,6 @@
         }
 
         .disabled label {
-            color: #999 !important;
-        }
-
-        .disabled .radio-option {
-            background: #f8f8f8;
-            border-color: #ddd;
-            cursor: not-allowed;
-        }
-
-        .disabled .toggle-wrapper {
-            background: #f8f8f8;
-            border-color: #ddd;
-            cursor: not-allowed;
-        }
-
-        .disabled .toggle-wrapper:hover {
-            background: #f8f8f8;
-            border-color: #ddd;
-            transform: none;
-        }
-
-        .disabled .toggle-slider {
-            background: #e2e2e2 !important;
-        }
-
-        .disabled .toggle-input:checked + .toggle-label .toggle-slider {
-            background: #e2e2e2 !important;
-        }
-
-        .disabled .toggle-text strong,
-        .disabled .toggle-text span {
             color: #999 !important;
         }
 
@@ -2050,31 +2350,73 @@
             .sticky-header {
                 margin: -16px -16px 20px -16px;
                 border-radius: 0;
-                padding: 10px 16px;
-                position: sticky !important;
-                top: 0 !important;
+                padding: 8px 16px;
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(8px);
                 box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
             }
 
+            .sticky-header.js-sticky {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                margin: 0 !important;
+                z-index: 99999 !important;
+                padding: 8px 16px;
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            }
+
             .sticky-content {
                 flex-direction: column;
-                gap: 12px;
+                gap: 8px;
                 text-align: center;
             }
 
             .sticky-title {
-                font-size: 14px;
-                margin-bottom: 4px;
+                font-size: 13px;
+                margin-bottom: 0;
                 min-width: auto;
+                order: 1;
+            }
+
+            .sticky-controls {
+                gap: 16px;
+                order: 2;
+                justify-content: center;
+            }
+
+            .header-toggle-text {
+                font-size: 10px;
+            }
+
+            .header-toggle-label {
+                width: 32px;
+                height: 18px;
+            }
+
+            .header-toggle-slider {
+                width: 32px;
+                height: 18px;
+                border-radius: 9px;
+            }
+
+            .header-toggle-slider::after {
+                width: 14px;
+                height: 14px;
+                border-radius: 7px;
+            }
+
+            .header-toggle-input:checked + .header-toggle-label .header-toggle-slider::after {
+                transform: translateX(14px);
             }
 
             .sticky-metrics {
-                gap: 8px;
+                gap: 6px;
                 flex-direction: row;
                 flex-wrap: wrap;
                 justify-content: center;
+                order: 3;
             }
 
             .sticky-metric {
@@ -2100,8 +2442,7 @@
         }
 
         .in-iframe .sticky-header {
-            position: sticky !important;
-            top: 0 !important;
+            position: relative !important;
             margin: -12px -12px 16px -12px;
             border-radius: 0;
             background: rgba(255, 255, 255, 0.97);
@@ -2109,6 +2450,33 @@
             border: none;
             border-bottom: 1px solid #e2e8f0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 10px 12px;
+        }
+
+        .in-iframe .sticky-header.js-sticky {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 !important;
+            padding: 10px 12px !important;
+            z-index: 999999 !important;
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(12px) !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.12) !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        .in-iframe .sticky-content {
+            gap: 12px;
+        }
+
+        .in-iframe .sticky-controls {
+            gap: 12px;
+        }
+
+        .in-iframe .header-toggle-text {
+            font-size: 11px;
         }
 
         .in-iframe .card {
@@ -2120,18 +2488,30 @@
             min-height: auto;
             overflow-x: hidden;
         }
-
-        /* Ensure sticky header stays on top in Monday.com */
-        .in-iframe .sticky-header {
-            z-index: 999 !important;
-        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="sticky-placeholder" id="stickyPlaceholder"></div>
         <div class="sticky-header" id="stickyHeader">
             <div class="sticky-content">
-                <div class="sticky-title">Commission Tracker</div>
+                <div class="sticky-title">TYG Commission Tracker</div>
+                <div class="sticky-controls">
+                    <div class="header-toggle" data-tooltip="Year 1 accelerated promotion path (Consultant only): £100k → Consultant II, £140k → Senior, £180k → Principal">
+                        <input type="checkbox" id="fastTrackToggle" class="header-toggle-input">
+                        <label for="fastTrackToggle" class="header-toggle-label">
+                            <span class="header-toggle-slider"></span>
+                        </label>
+                        <span class="header-toggle-text">Year 1 Fast-Track</span>
+                    </div>
+                    <div class="header-toggle" data-tooltip="Early promotion mode: Achieve promotion with 60% of annual target in first 6 months">
+                        <input type="checkbox" id="firstHalfToggle" class="header-toggle-input">
+                        <label for="firstHalfToggle" class="header-toggle-label">
+                            <span class="header-toggle-slider"></span>
+                        </label>
+                        <span class="header-toggle-text">Early Promotion</span>
+                    </div>
+                </div>
                 <div class="sticky-metrics">
                     <div class="sticky-metric billings">
                         <span class="sticky-metric-label">Total Billings</span>
@@ -2141,7 +2521,7 @@
                         <span class="sticky-metric-label">Commission</span>
                         <span class="sticky-metric-value" id="stickyCommission">£0</span>
                     </div>
-                    <div class="sticky-metric seniority">
+                    <div class="sticky-metric seniority consultant">
                         <span class="sticky-metric-label">Current Level</span>
                         <span class="sticky-metric-value" id="stickySeniority">Consultant</span>
                     </div>
@@ -2160,42 +2540,6 @@
                         <option value="Principal Consultant">Principal Consultant</option>
                     </select>
                     <small>Select your level at the start of your personal commission year (not calendar year)</small>
-                </div>
-                
-                <div class="input-group">
-                    <label>Commission Year Type</label>
-                    <div class="toggle-container">
-                        <div class="toggle-wrapper">
-                            <input type="checkbox" id="fastTrackToggle" class="toggle-input">
-                            <label for="fastTrackToggle" class="toggle-label">
-                                <span class="toggle-slider">
-                                    <span class="toggle-icon"></span>
-                                </span>
-                            </label>
-                            <div class="toggle-text">
-                                <strong>First Year Fast-Track Mode</strong>
-                                <span>Accelerated promotion thresholds for your first 12 months as Consultant</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label>Time Period in Commission Year</label>
-                    <div class="toggle-container">
-                        <div class="toggle-wrapper">
-                            <input type="checkbox" id="firstHalfToggle" class="toggle-input">
-                            <label for="firstHalfToggle" class="toggle-label">
-                                <span class="toggle-slider">
-                                    <span class="toggle-icon"></span>
-                                </span>
-                            </label>
-                            <div class="toggle-text">
-                                <strong>First Half of Commission Year (Months 1-6)</strong>
-                                <span>Enable early promotion eligibility at 60% of annual targets</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <h3 style="margin-top: 24px;">Billings & Income</h3>
@@ -2334,25 +2678,32 @@
                             <div class="level-badge">Starting Level</div>
                         </div>
                         <div class="level-content">
-                            <div class="threshold-row">
-                                <span class="label">Threshold:</span>
-                                <span class="value">£35,000</span>
-                            </div>
-                            <div class="commission-row">
-                                <span class="label">Commission:</span>
-                                <span class="value">20%</span>
-                            </div>
-                            <div class="promotions-section">
-                                <h5>Fast-Track (Year 1)</h5>
-                                <div class="promotion-path">
-                                    <div class="promotion-step">£100k to Consultant II</div>
-                                    <div class="promotion-step">£140k to Senior</div>
-                                    <div class="promotion-step">£180k to Principal</div>
+                            <div class="level-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-label">Threshold</div>
+                                    <div class="metric-value">£35,000</div>
                                 </div>
-                                <h5>Standard Path</h5>
-                                <div class="promotion-path">
-                                    <div class="promotion-step">£96k to Senior (Early, First Half)</div>
-                                    <div class="promotion-step">£160k to Senior (Standard)</div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Commission</div>
+                                    <div class="metric-value">20%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="promotion-paths">
+                                <div class="promotion-section">
+                                    <div class="promotion-title">Fast-Track (Year 1)</div>
+                                    <div class="promotion-list">
+                                        <div class="promotion-item">£100k → Consultant II</div>
+                                        <div class="promotion-item">£140k → Senior</div>
+                                        <div class="promotion-item">£180k → Principal</div>
+                                    </div>
+                                </div>
+                                <div class="promotion-section">
+                                    <div class="promotion-title">Standard Path</div>
+                                    <div class="promotion-list">
+                                        <div class="promotion-item">£96k → Senior (Early)</div>
+                                        <div class="promotion-item">£160k → Senior (Standard)</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2361,22 +2712,27 @@
                     <div class="level-card consultant-ii">
                         <div class="level-header">
                             <h4>Consultant II</h4>
-                            <div class="level-badge fast-track">Fast-Track Only</div>
+                            <div class="level-badge">Fast-Track Only</div>
                         </div>
                         <div class="level-content">
-                            <div class="threshold-row">
-                                <span class="label">Threshold:</span>
-                                <span class="value">£40,000</span>
+                            <div class="level-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-label">Threshold</div>
+                                    <div class="metric-value">£40,000</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Commission</div>
+                                    <div class="metric-value">22.5%</div>
+                                </div>
                             </div>
-                            <div class="commission-row">
-                                <span class="label">Commission:</span>
-                                <span class="value">22.5%</span>
-                            </div>
-                            <div class="promotions-section">
-                                <h5>Promotion Path</h5>
-                                <div class="promotion-path">
-                                    <div class="promotion-step">£96k to Senior (Early, First Half)</div>
-                                    <div class="promotion-step">£160k to Senior (Standard)</div>
+                            
+                            <div class="promotion-paths">
+                                <div class="promotion-section">
+                                    <div class="promotion-title">Promotion Path</div>
+                                    <div class="promotion-list">
+                                        <div class="promotion-item">£96k → Senior (Early)</div>
+                                        <div class="promotion-item">£160k → Senior (Standard)</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2385,28 +2741,41 @@
                     <div class="level-card senior">
                         <div class="level-header">
                             <h4>Senior Consultant</h4>
-                            <div class="level-badge">Tiered Commission</div>
+                            <div class="level-badge">Tiered Rates</div>
                         </div>
                         <div class="level-content">
-                            <div class="threshold-row">
-                                <span class="label">Threshold:</span>
-                                <span class="value">£40,000</span>
-                            </div>
-                            <div class="commission-tiers">
-                                <div class="tier">
-                                    <span class="tier-range">£40k-100k:</span>
-                                    <span class="tier-rate">25%</span>
+                            <div class="level-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-label">Threshold</div>
+                                    <div class="metric-value">£40,000</div>
                                 </div>
-                                <div class="tier">
-                                    <span class="tier-range">£100k-200k:</span>
-                                    <span class="tier-rate">30%</span>
+                                <div class="metric-card">
+                                    <div class="metric-label">Max Rate</div>
+                                    <div class="metric-value">30%</div>
                                 </div>
                             </div>
-                            <div class="promotions-section">
-                                <h5>Promotion Path</h5>
-                                <div class="promotion-path">
-                                    <div class="promotion-step">£120k to Principal (Early, First Half)</div>
-                                    <div class="promotion-step">£200k to Principal (Standard)</div>
+                            
+                            <div class="commission-info">
+                                <div class="commission-tiers">
+                                    <div class="commission-tiers-title">Commission Tiers</div>
+                                    <div class="tier">
+                                        <span class="tier-range">£40k-100k</span>
+                                        <span class="tier-rate">25%</span>
+                                    </div>
+                                    <div class="tier">
+                                        <span class="tier-range">£100k-200k</span>
+                                        <span class="tier-rate">30%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="promotion-paths">
+                                <div class="promotion-section">
+                                    <div class="promotion-title">To Principal</div>
+                                    <div class="promotion-list">
+                                        <div class="promotion-item">£120k → Principal (Early)</div>
+                                        <div class="promotion-item">£200k → Principal (Standard)</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2415,37 +2784,48 @@
                     <div class="level-card principal">
                         <div class="level-header">
                             <h4>Principal Consultant</h4>
-                            <div class="level-badge">Highest in Tool</div>
+                            <div class="level-badge">Top Tier</div>
                         </div>
                         <div class="level-content">
-                            <div class="threshold-row">
-                                <span class="label">Threshold:</span>
-                                <span class="value">£40,000</span>
-                            </div>
-                            <div class="commission-tiers">
-                                <div class="tier">
-                                    <span class="tier-range">£40k-100k:</span>
-                                    <span class="tier-rate">25%</span>
+                            <div class="level-metrics">
+                                <div class="metric-card">
+                                    <div class="metric-label">Threshold</div>
+                                    <div class="metric-value">£40,000</div>
                                 </div>
-                                <div class="tier">
-                                    <span class="tier-range">£100k-200k:</span>
-                                    <span class="tier-rate">30%</span>
-                                </div>
-                                <div class="tier">
-                                    <span class="tier-range">£200k-300k:</span>
-                                    <span class="tier-rate">35%</span>
-                                </div>
-                                <div class="tier">
-                                    <span class="tier-range">£300k-400k:</span>
-                                    <span class="tier-rate">40%</span>
-                                </div>
-                                <div class="tier highlight">
-                                    <span class="tier-range">£400k+:</span>
-                                    <span class="tier-rate">50%</span>
+                                <div class="metric-card">
+                                    <div class="metric-label">Max Rate</div>
+                                    <div class="metric-value">50%</div>
                                 </div>
                             </div>
+                            
+                            <div class="commission-info">
+                                <div class="commission-tiers">
+                                    <div class="commission-tiers-title">Commission Tiers</div>
+                                    <div class="tier">
+                                        <span class="tier-range">£40k-100k</span>
+                                        <span class="tier-rate">25%</span>
+                                    </div>
+                                    <div class="tier">
+                                        <span class="tier-range">£100k-200k</span>
+                                        <span class="tier-rate">30%</span>
+                                    </div>
+                                    <div class="tier">
+                                        <span class="tier-range">£200k-300k</span>
+                                        <span class="tier-rate">35%</span>
+                                    </div>
+                                    <div class="tier">
+                                        <span class="tier-range">£300k-400k</span>
+                                        <span class="tier-rate">40%</span>
+                                    </div>
+                                    <div class="tier highlight">
+                                        <span class="tier-range">£400k+</span>
+                                        <span class="tier-rate">50%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="team-bonus">
-                                <h5>Team Bonus</h5>
+                                <div class="team-bonus-title">Team Bonus</div>
                                 <div class="bonus-detail">
                                     <span class="bonus-rate">10%</span>
                                     <span class="bonus-desc">of team billings</span>
@@ -2619,25 +2999,102 @@
                 this.updateDependentSections();
                 this.updateCalculation();
                 this.updateDealsDisplay();
-                // Initialize sticky header with default values
+                // Initialize sticky header with default values and correct level color
                 this.updateStickyHeaderFromCurrentData();
             }
 
             setupStickyHeaderScroll() {
                 const stickyHeader = document.getElementById('stickyHeader');
-                if (!stickyHeader) return;
+                const stickyPlaceholder = document.getElementById('stickyPlaceholder');
+                if (!stickyHeader || !stickyPlaceholder) return;
 
-                // Add scroll listener for sticky header effects
+                // Store original header height
+                const headerHeight = stickyHeader.offsetHeight;
+                document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+
+                let isSticky = false;
+                let originalTop = stickyHeader.offsetTop;
+
                 const handleScroll = () => {
-                    const scrolled = window.scrollY > 50 || document.documentElement.scrollTop > 50;
-                    stickyHeader.classList.toggle('scrolled', scrolled);
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const shouldBeSticky = scrollTop > originalTop;
+
+                    if (shouldBeSticky && !isSticky) {
+                        // Make sticky
+                        isSticky = true;
+                        stickyHeader.classList.add('js-sticky');
+                        stickyPlaceholder.classList.add('active');
+                        stickyHeader.classList.add('scrolled');
+                    } else if (!shouldBeSticky && isSticky) {
+                        // Remove sticky
+                        isSticky = false;
+                        stickyHeader.classList.remove('js-sticky');
+                        stickyPlaceholder.classList.remove('active');
+                        stickyHeader.classList.remove('scrolled');
+                    }
                 };
 
-                window.addEventListener('scroll', handleScroll);
-                document.addEventListener('scroll', handleScroll);
-                
+                // Handle resize to recalculate positions
+                const handleResize = () => {
+                    if (!isSticky) {
+                        originalTop = stickyHeader.offsetTop;
+                    }
+                    const newHeaderHeight = stickyHeader.offsetHeight;
+                    document.documentElement.style.setProperty('--header-height', `${newHeaderHeight}px`);
+                };
+
+                // Bind events
+                window.addEventListener('scroll', handleScroll, { passive: true });
+                window.addEventListener('resize', handleResize, { passive: true });
+                document.addEventListener('scroll', handleScroll, { passive: true });
+
                 // Initial check
                 handleScroll();
+
+                // Add touch support for tooltips on mobile
+                this.setupTooltipTouchSupport();
+
+                // For iframe environments, use more aggressive detection
+                if (window !== window.top) {
+                    // Additional scroll detection for iframe
+                    const iframeScrollCheck = () => {
+                        handleScroll();
+                        requestAnimationFrame(iframeScrollCheck);
+                    };
+                    requestAnimationFrame(iframeScrollCheck);
+                }
+            }
+
+            setupTooltipTouchSupport() {
+                const tooltipElements = document.querySelectorAll('[data-tooltip]');
+                
+                tooltipElements.forEach(element => {
+                    let touchTimer;
+                    
+                    element.addEventListener('touchstart', (e) => {
+                        touchTimer = setTimeout(() => {
+                            // Show tooltip after long press on mobile
+                            element.classList.add('tooltip-active');
+                            
+                            // Hide after 3 seconds
+                            setTimeout(() => {
+                                element.classList.remove('tooltip-active');
+                            }, 3000);
+                        }, 500);
+                    }, { passive: true });
+                    
+                    element.addEventListener('touchend', () => {
+                        if (touchTimer) {
+                            clearTimeout(touchTimer);
+                        }
+                    }, { passive: true });
+                    
+                    element.addEventListener('touchmove', () => {
+                        if (touchTimer) {
+                            clearTimeout(touchTimer);
+                        }
+                    }, { passive: true });
+                });
             }
 
             bindEvents() {
@@ -2693,14 +3150,14 @@
                 // Radio button listeners
                 document.getElementById('firstHalfToggle')?.addEventListener('change', (e) => {
                     // Prevent change if disabled
-                    if (e.target.closest('.input-group').classList.contains('disabled')) {
+                    if (e.target.closest('.header-toggle').classList.contains('disabled')) {
                         e.target.checked = !e.target.checked;
                         return;
                     }
                     
                     const isChecked = document.getElementById('firstHalfToggle').checked;
                     this.showNotification(
-                        isChecked ? 'First half mode enabled - early promotions available' : 'Second half mode - standard promotions only', 
+                        isChecked ? 'Early promotion mode enabled - 60% targets available' : 'Standard promotion mode - full targets required', 
                         'success'
                     );
                     this.updateFastTrackAvailability();
@@ -2711,14 +3168,14 @@
                 // Checkbox listener for fast-track
                 document.getElementById('fastTrackToggle')?.addEventListener('change', (e) => {
                     // Prevent change if disabled
-                    if (e.target.closest('.input-group').classList.contains('disabled')) {
+                    if (e.target.closest('.header-toggle').classList.contains('disabled')) {
                         e.target.checked = !e.target.checked;
                         return;
                     }
                     
                     const isChecked = document.getElementById('fastTrackToggle').checked;
                     this.showNotification(
-                        isChecked ? 'Fast-track mode enabled' : 'Fast-track mode disabled', 
+                        isChecked ? 'Year 1 fast-track enabled - accelerated promotion path' : 'Standard promotion path enabled', 
                         'success'
                     );
                     this.updateTimePeriodAvailability();
@@ -2924,7 +3381,7 @@
                     
                     this.updateStickyHeader(result.commission, baseSalary, teamBonus, result.finalLevel);
                 } else {
-                    // Update sticky header with zero values but keep it visible
+                    // Update sticky header with zero values but keep it visible and set correct level color
                     this.updateStickyHeader(0, baseSalary, 0, currentLevel);
                 }
             }
@@ -2996,19 +3453,20 @@
             updateFastTrackAvailability() {
                 const level = document.getElementById('currentLevel').value;
                 const isFirstHalf = document.getElementById('firstHalfToggle').checked;
-                const fastTrackContainer = document.getElementById('fastTrackToggle').closest('.input-group');
+                const fastTrackToggle = document.getElementById('fastTrackToggle');
+                const fastTrackContainer = fastTrackToggle.closest('.header-toggle');
                 
                 // Fast-track only available for Consultants
                 if (level !== 'Consultant') {
                     fastTrackContainer.style.display = 'none';
-                    document.getElementById('fastTrackToggle').checked = false;
+                    fastTrackToggle.checked = false;
                 } else {
-                    fastTrackContainer.style.display = 'block';
+                    fastTrackContainer.style.display = 'flex';
                     
-                    // Disable during first half instead of hiding
+                    // Disable during early promotion mode instead of hiding
                     if (isFirstHalf) {
                         fastTrackContainer.classList.add('disabled');
-                        document.getElementById('fastTrackToggle').checked = false;
+                        fastTrackToggle.checked = false;
                     } else {
                         fastTrackContainer.classList.remove('disabled');
                     }
@@ -3017,12 +3475,13 @@
 
             updateTimePeriodAvailability() {
                 const fastTrackEnabled = document.getElementById('fastTrackToggle').checked;
-                const timePeriodContainer = document.getElementById('firstHalfToggle').closest('.input-group');
+                const timePeriodToggle = document.getElementById('firstHalfToggle');
+                const timePeriodContainer = timePeriodToggle.closest('.header-toggle');
                 
-                // Time period selection disabled during fast-track
+                // Early promotion disabled during fast-track
                 if (fastTrackEnabled) {
                     timePeriodContainer.classList.add('disabled');
-                    document.getElementById('firstHalfToggle').checked = false;
+                    timePeriodToggle.checked = false;
                 } else {
                     timePeriodContainer.classList.remove('disabled');
                 }
@@ -3787,6 +4246,19 @@
                 document.getElementById('stickyCommission').textContent = this.formatCurrency(commission);
                 document.getElementById('stickySeniority').textContent = this.formatSeniorityLevel(displayLevel);
                 
+                // Update the color class for the seniority metric based on level
+                const seniorityMetric = document.querySelector('.sticky-metric.seniority');
+                if (seniorityMetric) {
+                    // Remove existing level classes
+                    seniorityMetric.classList.remove('consultant', 'consultant-ii', 'senior', 'principal');
+                    
+                    // Add the appropriate level class
+                    const levelClass = this.getLevelClass(displayLevel);
+                    if (levelClass) {
+                        seniorityMetric.classList.add(levelClass);
+                    }
+                }
+                
                 // Trigger promotion animation if promoted
                 if (wasPromoted) {
                     this.triggerPromotionAnimation();
@@ -3794,6 +4266,16 @@
                 
                 // Update tracking
                 this.currentDisplayLevel = displayLevel || this.currentDisplayLevel;
+            }
+
+            getLevelClass(level) {
+                const levelMap = {
+                    'Consultant': 'consultant',
+                    'Consultant II': 'consultant-ii',
+                    'Senior Consultant': 'senior',
+                    'Principal Consultant': 'principal'
+                };
+                return levelMap[level] || 'consultant';
             }
 
             checkForPromotion(newLevel) {
