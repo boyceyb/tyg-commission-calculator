@@ -489,6 +489,17 @@
             color: var(--text-primary);
             font-family: inherit;
         }
+
+        /* Hide number input spinners/arrows */
+        .input-group input[type="number"]::-webkit-outer-spin-button,
+        .input-group input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
         
         .input-group input:focus, .input-group select:focus { 
             outline: none; 
