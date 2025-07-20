@@ -305,6 +305,7 @@
             border-radius: 6px;
             border: 1px solid #e2e8f0;
             min-width: 120px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sticky-metric:hover {
@@ -346,31 +347,117 @@
             transition: all 0.3s ease;
         }
 
-        /* Professional promotion animation */
+        /* Enhanced promotion animation */
         .promoted-glow {
-            animation: promotedGlow 1.5s ease-in-out;
+            animation: promotedCelebration 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: visible;
         }
 
-        @keyframes promotedGlow {
-            0% { 
-                color: #8b5cf6; 
-                text-shadow: none;
+        .promoted-metric-card {
+            animation: promotedCardPulse 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes promotedCardPulse {
+            0% {
                 transform: scale(1);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                border-color: #e2e8f0;
             }
-            30% { 
-                color: #3b82f6; 
-                text-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
-                transform: scale(1.05);
+            15% {
+                transform: scale(1.03);
+                box-shadow: 0 8px 25px rgba(251, 191, 36, 0.2);
+                border-color: #fbbf24;
             }
-            70% { 
-                color: #10b981; 
-                text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+            30% {
                 transform: scale(1.02);
+                box-shadow: 0 12px 30px rgba(245, 158, 11, 0.25);
+                border-color: #f59e0b;
+            }
+            60% {
+                transform: scale(1.01);
+                box-shadow: 0 6px 20px rgba(245, 158, 11, 0.15);
+                border-color: #fbbf24;
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+                border-color: #e2e8f0;
+            }
+        }
+
+        .promoted-glow::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: promotedHalo 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes promotedCelebration {
+            0% { 
+                color: inherit;
+                text-shadow: none;
+                transform: scale(1) rotate(0deg);
+            }
+            15% {
+                color: #fbbf24;
+                text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+                transform: scale(1.15) rotate(2deg);
+            }
+            30% {
+                color: #f59e0b;
+                text-shadow: 0 0 15px rgba(245, 158, 11, 0.6), 0 0 25px rgba(245, 158, 11, 0.3);
+                transform: scale(1.12) rotate(-1deg);
+            }
+            45% {
+                color: #d97706;
+                text-shadow: 0 0 20px rgba(217, 119, 6, 0.7), 0 0 35px rgba(217, 119, 6, 0.4);
+                transform: scale(1.08) rotate(1deg);
+            }
+            60% {
+                color: #fbbf24;
+                text-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+                transform: scale(1.05) rotate(0deg);
+            }
+            80% {
+                color: #f59e0b;
+                text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+                transform: scale(1.02) rotate(0deg);
             }
             100% { 
-                color: #10b981; 
-                text-shadow: 0 0 4px rgba(16, 185, 129, 0.2);
-                transform: scale(1);
+                color: inherit;
+                text-shadow: none;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        @keyframes promotedHalo {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            20% {
+                opacity: 0.6;
+                transform: scale(1.2);
+            }
+            40% {
+                opacity: 0.8;
+                transform: scale(1.5);
+            }
+            60% {
+                opacity: 0.4;
+                transform: scale(1.8);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(2.2);
             }
         }
         
@@ -481,6 +568,17 @@
             font-weight: 400;
             color: var(--text-primary);
             font-family: inherit;
+        }
+
+        /* Hide number input spinner arrows */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
         
         .input-group input:focus, .input-group select:focus { 
@@ -2391,6 +2489,9 @@
             transform: translateX(400px);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1000;
+            font-weight: 500;
+            max-width: 350px;
+            animation: notificationPulse 0.5s ease-out;
         }
 
         .notification.show {
@@ -2404,6 +2505,18 @@
         .notification.warning {
             background: var(--warning-yellow);
             color: #1f2937;
+        }
+
+        @keyframes notificationPulse {
+            0% {
+                transform: translateX(400px) scale(0.9);
+            }
+            50% {
+                transform: translateX(-10px) scale(1.02);
+            }
+            100% {
+                transform: translateX(0) scale(1);
+            }
         }
 
         @media (max-width: 768px) { 
@@ -3367,7 +3480,7 @@
             }
 
             // Show notification system
-            showNotification(message, type = 'success') {
+            showNotification(message, type = 'success', duration = null) {
                 const existing = document.querySelector('.notification');
                 if (existing) {
                     existing.remove();
@@ -3381,10 +3494,13 @@
                 
                 setTimeout(() => notification.classList.add('show'), 100);
                 
+                // Auto-detect longer duration for promotion messages or use provided duration
+                const displayDuration = duration || (message.includes('Promoted!') || message.includes('Level up') || message.includes('Congratulations') ? 4000 : 3000);
+                
                 setTimeout(() => {
                     notification.classList.remove('show');
                     setTimeout(() => notification.remove(), 300);
-                }, 3000);
+                }, displayDuration);
             }
 
             // Deal management methods
@@ -3487,8 +3603,9 @@
                     
                     this.updateStickyHeader(result.commission, baseSalary, teamBonus, result.finalLevel);
                 } else {
-                    // Update sticky header with zero values but keep it visible and set correct level color
-                    this.updateStickyHeader(0, baseSalary, 0, currentLevel);
+                    // Even with zero personal billings, calculate team bonus for Principal
+                    const teamBonus = currentLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
+                    this.updateStickyHeader(0, baseSalary, teamBonus, currentLevel);
                 }
             }
 
@@ -4563,11 +4680,14 @@
                 const isFirstHalf = document.getElementById('firstHalfToggle')?.checked;
                 const isFirstYear = fastTrackEnabled && currentLevel === 'Consultant';
                 
+                // Check if there are team billings that would generate a bonus for Principal
+                const hasTeamBonus = currentLevel === 'Principal Consultant' && teamBillings > 0;
+                
                 // Show/hide results sections
                 const emptyState = document.getElementById('emptyState');
                 const calculationResults = document.getElementById('calculationResults');
                 
-                if (totalBillings === 0) {
+                if (totalBillings === 0 && !hasTeamBonus) {
                     emptyState.classList.remove('hidden');
                     calculationResults.classList.add('hidden');
                     return;
@@ -4721,9 +4841,20 @@
                     salaryRow.classList.add('hidden');
                 }
                 
-                // Team Bonus
+                // Team Bonus - applies if:
+                // 1. Final level is Principal Consultant AND
+                // 2. Either: started as Principal OR has billings that earned Principal status
+                // 3. Team billings exist
+                const startingLevel = document.getElementById('currentLevel').value;
+                const billings = this.safeParseFloat(document.getElementById('billings').value);
+                const pipelineValue = this.getTotalDealsValue();
+                const totalBillings = billings + pipelineValue;
+                
                 const teamBonusRow = document.getElementById('teamBonusRow');
-                const teamBonus = finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
+                const isEligibleForTeamBonus = finalLevel === 'Principal Consultant' && 
+                    (startingLevel === 'Principal Consultant' || totalBillings > 0) && 
+                    teamBillings > 0;
+                const teamBonus = isEligibleForTeamBonus ? teamBillings * 0.10 : 0;
                 
                 if (teamBonus > 0) {
                     teamBonusRow.classList.remove('hidden');
@@ -4755,9 +4886,12 @@
                 // Check if there's been a promotion
                 const wasPromoted = this.checkForPromotion(displayLevel);
                 
+                // Include team bonus in total commission for header display
+                const totalCommission = commission + teamBonus;
+                
                 // Always update values - show current level even if no billings
                 document.getElementById('stickyBillings').textContent = this.formatCurrency(totalBillings);
-                document.getElementById('stickyCommission').textContent = this.formatCurrency(commission);
+                document.getElementById('stickyCommission').textContent = this.formatCurrency(totalCommission);
                 document.getElementById('stickySeniority').textContent = this.formatSeniorityLevel(displayLevel);
                 
                 // Update the color class for the seniority metric based on level
@@ -4815,16 +4949,16 @@
                 const seniorityElement = document.querySelector('.sticky-metric.seniority .sticky-metric-value');
                 if (!seniorityElement) return;
                 
-                // Add glow effect to the text
+                // Add enhanced celebration effect to the text
                 seniorityElement.classList.add('promoted-glow');
                 
-                // Show celebration notification
-                this.showNotification('🏆 Promoted! Commission rate increased', 'success');
+                // Show enhanced celebration notification
+                this.showNotification('Congratulations! Level up achieved with higher commission rates!', 'success');
                 
                 // Clean up after animation
                 setTimeout(() => {
                     seniorityElement.classList.remove('promoted-glow');
-                }, 1500);
+                }, 2500);
             }
 
             formatSeniorityLevel(level) {
