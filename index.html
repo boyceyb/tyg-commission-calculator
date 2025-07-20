@@ -413,6 +413,56 @@
             border-bottom: 1px solid var(--border-light);
         }
         
+        .input-with-clear {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-clear input {
+            flex: 1;
+            padding-right: 40px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: none;
+            line-height: 1;
+            z-index: 10;
+        }
+
+        .clear-btn:hover {
+            background: #f1f5f9;
+            color: #64748b;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .clear-btn:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .input-with-clear:hover .clear-btn,
+        .input-with-clear input:focus ~ .clear-btn {
+            display: block;
+        }
+
+        /* Show clear button when field has content */
+        .input-with-clear.has-content .clear-btn {
+            display: block;
+        }
+
         .input-group { 
             margin-bottom: 24px; 
         }
@@ -2561,20 +2611,29 @@
 
                 <div class="input-group">
                     <label>Annual Billings (£) - Year to Date</label>
-                    <input type="number" id="billings" placeholder="Enter your current billings in £..." min="0" step="1000">
+                    <div class="input-with-clear">
+                        <input type="number" id="billings" placeholder="Enter your current billings in £..." min="0" step="1000">
+                        <button type="button" class="clear-btn" onclick="clearField('billings')" title="Clear billings">×</button>
+                    </div>
                     <small>Enter your total billings for the current commission year in GBP</small>
                 </div>
                 
                 <div class="input-group">
                     <label>Base Salary (£) - Optional</label>
-                    <input type="number" id="baseSalary" placeholder="Enter your annual base salary in £..." min="0" step="1000">
+                    <div class="input-with-clear">
+                        <input type="number" id="baseSalary" placeholder="Enter your annual base salary in £..." min="0" step="1000">
+                        <button type="button" class="clear-btn" onclick="clearField('baseSalary')" title="Clear salary">×</button>
+                    </div>
                     <small>Include for total earnings calculation</small>
                 </div>
                 
                 <div id="teamSection" class="hidden">
                     <div class="input-group">
                         <label>Team Annual Billings (£) ⓘ</label>
-                        <input type="number" id="teamBillings" placeholder="Team annual billings (£)" min="0" step="1000">
+                        <div class="input-with-clear">
+                            <input type="number" id="teamBillings" placeholder="Team annual billings (£)" min="0" step="1000">
+                            <button type="button" class="clear-btn" onclick="clearField('teamBillings')" title="Clear team billings">×</button>
+                        </div>
                         <small>10% commission applies to team billings for Principal level</small>
                     </div>
                 </div>
@@ -2884,6 +2943,36 @@
     </div>
 
     <script>
+        window.clearField = function(fieldId) {
+            const field = document.getElementById(fieldId);
+            const wrapper = field.closest('.input-with-clear');
+            
+            if (field && wrapper) {
+                field.value = '';
+                wrapper.classList.remove('has-content');
+                
+                // Trigger the input event to update calculations
+                field.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                // Immediately update sticky header to reflect cleared values
+                if (window.calculator) {
+                    window.calculator.updateStickyHeaderFromCurrentData();
+                }
+                
+                // Show notification
+                const fieldNames = {
+                    'billings': 'Billings',
+                    'baseSalary': 'Base Salary',
+                    'teamBillings': 'Team Billings'
+                };
+                const fieldName = fieldNames[fieldId] || 'Field';
+                window.calculator?.showNotification(`${fieldName} cleared`, 'success');
+                
+                // Focus the field
+                field.focus();
+            }
+        };
+
         window.toggleDeals = function() {
             const panel = document.getElementById('dealsPanel');
             const arrow = document.getElementById('dealsArrow');
@@ -3216,6 +3305,7 @@
                         element.addEventListener('input', this.debounce(() => {
                             this.addValidationFeedback(element);
                             this.updateCalculation();
+                            this.updateClearButtonVisibility(element);
                         }, 300));
                         
                         element.addEventListener('focus', () => {
@@ -3226,6 +3316,9 @@
                             element.parentElement.classList.remove('focused');
                             this.validateField(element);
                         });
+
+                        // Initialize clear button visibility
+                        this.updateClearButtonVisibility(element);
                     }
                 });
 
@@ -3290,6 +3383,18 @@
                     this.updateCalculation();
                     this.updateStickyHeaderFromCurrentData();
                 });
+            }
+
+            // Update clear button visibility based on field content
+            updateClearButtonVisibility(element) {
+                const wrapper = element.closest('.input-with-clear');
+                if (!wrapper) return;
+                
+                if (element.value && element.value.trim() !== '') {
+                    wrapper.classList.add('has-content');
+                } else {
+                    wrapper.classList.remove('has-content');
+                }
             }
 
             // Debouncing for better performance
