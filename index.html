@@ -1962,8 +1962,7 @@
                 .filter(b => b.period === 'early')
                 .reduce((sum, b) => sum + b.value, 0);
             
-            // FIXED: Check early promotions for ALL levels
-            
+            // Calculate commission based on level and promotion scenarios
             if (startLevel === 'Consultant') {
                 if (fastTrack) {
                     // Fast-track logic
@@ -1984,22 +1983,20 @@
                     finalLevel = 'Principal Consultant';
                     const consultantPortion = 61000; // £96k - £35k threshold
                     const seniorPortion = 24000;     // £120k - £96k
-                    const principalPortion = Math.max(0, commissionable - 85000); // Rest after both promotions
+                    const principalPortion = Math.max(0, commissionable - 85000);
                     
-                    // Consultant commission (up to £96k)
+                    // Consultant commission
                     commission = consultantPortion * 0.20;
                     
-                    // Senior commission (£96k to £120k) - tiered rates
-                    if (seniorPortion <= 4000) { // Up to £100k total (first tier of Senior)
-                        commission += seniorPortion * 0.25;
-                    } else {
-                        commission += (4000 * 0.25) + ((seniorPortion - 4000) * 0.30);
-                    }
+                    // Senior commission - properly handle tiers
+                    const seniorFirstTier = Math.min(seniorPortion, 4000); // Up to £100k total
+                    const seniorSecondTier = Math.max(0, seniorPortion - 4000);
+                    commission += (seniorFirstTier * 0.25) + (seniorSecondTier * 0.30);
                     
-                    // Principal commission (after £120k) - start at 30% tier since we're already above £40k threshold
+                    // Principal commission - start at proper tier
                     if (principalPortion > 0) {
                         let remaining = principalPortion;
-                        const inSecondTier = Math.min(remaining, 80000); // Up to £200k total
+                        const inSecondTier = Math.min(remaining, 80000); // £120k-200k
                         commission += inSecondTier * 0.30;
                         remaining -= inSecondTier;
                         
@@ -2025,83 +2022,82 @@
                     const consultantPortion = 61000; // £96k - £35k threshold
                     const seniorPortion = Math.max(0, commissionable - 61000);
                     
-                    // Consultant commission (up to £96k)
+                    // Consultant commission
                     commission = consultantPortion * 0.20;
                     
-                    // Senior commission (after £96k)
+                    // Senior commission with proper tiers
                     if (seniorPortion > 0) {
-                        if (seniorPortion <= 4000) { // Up to £100k total (first tier of Senior)
-                            commission += seniorPortion * 0.25;
-                        } else {
-                            commission += (4000 * 0.25) + ((seniorPortion - 4000) * 0.30);
-                        }
+                        const seniorFirstTier = Math.min(seniorPortion, 4000); // From £96k to £100k
+                        const seniorSecondTier = Math.max(0, seniorPortion - 4000); // Above £100k
+                        commission += (seniorFirstTier * 0.25) + (seniorSecondTier * 0.30);
                     }
                 } else {
+                    // No promotion
                     commission = commissionable * 0.20;
                 }
             } else if (startLevel === 'Consultant II') {
-                // Check early promotion for Consultant II
                 if (earlyBillings >= 120000) {
                     // Double early promotion to Principal
                     finalLevel = 'Principal Consultant';
-                    // Same logic as above double promotion
-                    const consultantIIPortion = 56000;
-                    const seniorPortion = 24000;
+                    const consultantIIPortion = 56000; // £96k - £40k threshold
+                    const seniorPortion = 24000;       // £120k - £96k
                     const principalPortion = Math.max(0, commissionable - 80000);
                     
+                    // Consultant II commission
                     commission = consultantIIPortion * 0.225;
                     
-                    if (seniorPortion <= 4000) {
-                        commission += seniorPortion * 0.25;
-                    } else {
-                        commission += (4000 * 0.25) + ((seniorPortion - 4000) * 0.30);
-                    }
+                    // Senior commission - handle the tiers properly
+                    // Senior starts at £96k, first tier goes to £100k (60k above threshold), so we have 4k in first tier, 20k in second
+                    const seniorFirstTier = Math.min(seniorPortion, 4000); // £96k to £100k is 4k in first tier
+                    const seniorSecondTier = Math.max(0, seniorPortion - 4000); // Rest is in second tier
+                    commission += (seniorFirstTier * 0.25) + (seniorSecondTier * 0.30);
                     
+                    // Principal commission - starts at second tier (£120k-200k)
                     if (principalPortion > 0) {
                         let remaining = principalPortion;
-                        const inSecondTier = Math.min(remaining, 80000);
+                        const inSecondTier = Math.min(remaining, 80000); // £120k-200k
                         commission += inSecondTier * 0.30;
                         remaining -= inSecondTier;
                         
                         if (remaining > 0) {
-                            const inThirdTier = Math.min(remaining, 100000);
+                            const inThirdTier = Math.min(remaining, 100000); // £200k-300k
                             commission += inThirdTier * 0.35;
                             remaining -= inThirdTier;
                         }
                         
                         if (remaining > 0) {
-                            const inFourthTier = Math.min(remaining, 100000);
+                            const inFourthTier = Math.min(remaining, 100000); // £300k-400k
                             commission += inFourthTier * 0.40;
                             remaining -= inFourthTier;
                         }
                         
-                        if (remaining > 0) {
+                        if (remaining > 0) { // £400k+
                             commission += remaining * 0.50;
                         }
                     }
                 } else if (earlyBillings >= 96000) {
                     // Single early promotion to Senior
                     finalLevel = 'Senior Consultant';
-                    const consultantIIPortion = 56000;
+                    const consultantIIPortion = 56000; // £96k - £40k threshold
                     const seniorPortion = Math.max(0, commissionable - 56000);
                     
+                    // Consultant II commission
                     commission = consultantIIPortion * 0.225;
                     
+                    // Senior commission with proper tiers
                     if (seniorPortion > 0) {
-                        if (seniorPortion <= 4000) {
-                            commission += seniorPortion * 0.25;
-                        } else {
-                            commission += (4000 * 0.25) + ((seniorPortion - 4000) * 0.30);
-                        }
+                        const seniorFirstTier = Math.min(seniorPortion, 4000); // From £96k to £100k
+                        const seniorSecondTier = Math.max(0, seniorPortion - 4000); // Above £100k
+                        commission += (seniorFirstTier * 0.25) + (seniorSecondTier * 0.30);
                     }
                 } else {
+                    // No promotion - standard Consultant II rate
                     commission = commissionable * 0.225;
                 }
             } else if (startLevel === 'Senior Consultant') {
-                // Check early promotion for Senior Consultant
                 if (earlyBillings >= 120000) {
+                    // Early promotion to Principal
                     finalLevel = 'Principal Consultant';
-                    // Apply the higher Principal rates after promotion
                     const beforePromotion = Math.min(80000, commissionable); // Up to £120k (minus £40k threshold)
                     
                     // Senior rates up to promotion
@@ -2115,7 +2111,7 @@
                     const afterPromotion = commissionable - 80000;
                     if (afterPromotion > 0) {
                         let remaining = afterPromotion;
-                        // Start at the £120k tier for Principal (so we're at the £100k-200k tier)
+                        // Start at the £120k tier for Principal (second tier: £100k-200k)
                         const inSecondTier = Math.min(remaining, 80000); // Up to £200k total
                         commission += inSecondTier * 0.30;
                         remaining -= inSecondTier;
@@ -2164,21 +2160,6 @@
             }
             
             return { commission, finalLevel };
-        }
-
-        function calculateWithPromotions(totalBillings, threshold, levelProgression) {
-            // Simplified calculation for promotions
-            const commissionable = totalBillings - threshold;
-            
-            if (levelProgression.includes('Principal Consultant')) {
-                // Promoted to Principal
-                return commissionable * 0.30; // Simplified rate
-            } else if (levelProgression.includes('Senior Consultant')) {
-                // Promoted to Senior
-                return commissionable * 0.25; // Simplified rate
-            }
-            
-            return commissionable * 0.20;
         }
 
         function updateCalculations() {
@@ -2368,15 +2349,15 @@
                 }
                 
                 // Show promotion indicator
-                html += `
-                    <div class="breakdown-promotion-divider">
-                        <div class="promotion-indicator">Early promotion at £120,000</div>
-                    </div>
-                `;
-                
-                // Principal rates after promotion
                 const afterPromotion = commissionable - 80000;
                 if (afterPromotion > 0) {
+                    html += `
+                        <div class="breakdown-promotion-divider">
+                            <div class="promotion-indicator">Early promotion at £120,000</div>
+                        </div>
+                    `;
+                    
+                    // Principal rates after promotion
                     let remaining = afterPromotion;
                     const inSecondTier = Math.min(remaining, 80000);
                     html += `
@@ -2419,7 +2400,7 @@
                     }
                 }
             } else if (startLevel === 'Consultant II' && earlyBillings >= 96000) {
-                // Early promotion to Senior
+                // Early promotion to Senior (or Principal)
                 const beforePromotion = Math.min(56000, commissionable);
                 html += `
                     <div class="breakdown-item">
@@ -2428,32 +2409,118 @@
                     </div>
                 `;
                 
-                html += `
-                    <div class="breakdown-promotion-divider">
-                        <div class="promotion-indicator">Early promotion at £96,000</div>
-                    </div>
-                `;
-                
-                const afterPromotion = commissionable - 56000;
-                if (afterPromotion > 0) {
-                    if (afterPromotion <= 60000) {
+                if (earlyBillings >= 120000) {
+                    // Double promotion
+                    const seniorPortion = 24000; // £120k - £96k
+                    
+                    if (seniorPortion > 0) {
                         html += `
-                            <div class="breakdown-item">
-                                <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(afterPromotion)}</span>
-                                <span class="breakdown-right">${formatCurrency(afterPromotion * 0.25)}</span>
+                            <div class="breakdown-promotion-divider">
+                                <div class="promotion-indicator">Early promotion at £96,000</div>
                             </div>
                         `;
-                    } else {
+                        
+                        const seniorFirstTier = Math.min(seniorPortion, 4000);
+                        const seniorSecondTier = Math.max(0, seniorPortion - 4000);
+                        
+                        if (seniorFirstTier > 0) {
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorFirstTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(seniorFirstTier * 0.25)}</span>
+                                </div>
+                            `;
+                        }
+                        
+                        if (seniorSecondTier > 0) {
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorSecondTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(seniorSecondTier * 0.30)}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                    
+                    const principalPortion = Math.max(0, commissionable - 80000);
+                    if (principalPortion > 0) {
                         html += `
-                            <div class="breakdown-item">
-                                <span class="breakdown-left">Senior Consultant (25%): £60,000</span>
-                                <span class="breakdown-right">£15,000</span>
-                            </div>
-                            <div class="breakdown-item">
-                                <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(afterPromotion - 60000)}</span>
-                                <span class="breakdown-right">${formatCurrency((afterPromotion - 60000) * 0.30)}</span>
+                            <div class="breakdown-promotion-divider">
+                                <div class="promotion-indicator">Early promotion at £120,000</div>
                             </div>
                         `;
+                        
+                        let remaining = principalPortion;
+                        const inSecondTier = Math.min(remaining, 80000);
+                        html += `
+                            <div class="breakdown-item">
+                                <span class="breakdown-left">Principal Consultant (30%): ${formatCurrency(inSecondTier)}</span>
+                                <span class="breakdown-right">${formatCurrency(inSecondTier * 0.30)}</span>
+                            </div>
+                        `;
+                        remaining -= inSecondTier;
+                        
+                        if (remaining > 0) {
+                            const inThirdTier = Math.min(remaining, 100000);
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Principal Consultant (35%): ${formatCurrency(inThirdTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(inThirdTier * 0.35)}</span>
+                                </div>
+                            `;
+                            remaining -= inThirdTier;
+                        }
+                        
+                        if (remaining > 0) {
+                            const inFourthTier = Math.min(remaining, 100000);
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Principal Consultant (40%): ${formatCurrency(inFourthTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(inFourthTier * 0.40)}</span>
+                                </div>
+                            `;
+                            remaining -= inFourthTier;
+                        }
+                        
+                        if (remaining > 0) {
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Principal Consultant (50%): ${formatCurrency(remaining)}</span>
+                                    <span class="breakdown-right">${formatCurrency(remaining * 0.50)}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                } else {
+                    // Single promotion to Senior only
+                    const afterPromotion = commissionable - 56000;
+                    if (afterPromotion > 0) {
+                        html += `
+                            <div class="breakdown-promotion-divider">
+                                <div class="promotion-indicator">Early promotion at £96,000</div>
+                            </div>
+                        `;
+                        
+                        const seniorFirstTier = Math.min(afterPromotion, 4000);
+                        const seniorSecondTier = Math.max(0, afterPromotion - 4000);
+                        
+                        if (seniorFirstTier > 0) {
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorFirstTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(seniorFirstTier * 0.25)}</span>
+                                </div>
+                            `;
+                        }
+                        
+                        if (seniorSecondTier > 0) {
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorSecondTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(seniorSecondTier * 0.30)}</span>
+                                </div>
+                            `;
+                        }
                     }
                 }
             } else {
@@ -2581,35 +2648,35 @@
                             </div>
                         `;
                         
-                        // Senior portion breakdown
-                        if (seniorPortion <= 4000) {
+                        // Senior portion breakdown - fixed calculation
+                        const seniorFirstTier = Math.min(seniorPortion, 4000); // £96k to £100k is 4k
+                        const seniorSecondTier = Math.max(0, seniorPortion - 4000); // Rest in second tier
+                        
+                        if (seniorFirstTier > 0) {
                             html += `
                                 <div class="breakdown-item">
-                                    <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorPortion)}</span>
-                                    <span class="breakdown-right">${formatCurrency(seniorPortion * 0.25)}</span>
-                                </div>
-                            `;
-                        } else {
-                            html += `
-                                <div class="breakdown-item">
-                                    <span class="breakdown-left">Senior Consultant (25%): £4,000</span>
-                                    <span class="breakdown-right">£1,000</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorPortion - 4000)}</span>
-                                    <span class="breakdown-right">${formatCurrency((seniorPortion - 4000) * 0.30)}</span>
+                                    <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorFirstTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(seniorFirstTier * 0.25)}</span>
                                 </div>
                             `;
                         }
                         
-                        html += `
-                            <div class="breakdown-promotion-divider">
-                                <div class="promotion-indicator">Early promotion at £120,000</div>
-                            </div>
-                        `;
+                        if (seniorSecondTier > 0) {
+                            html += `
+                                <div class="breakdown-item">
+                                    <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorSecondTier)}</span>
+                                    <span class="breakdown-right">${formatCurrency(seniorSecondTier * 0.30)}</span>
+                                </div>
+                            `;
+                        }
                         
-                        // Principal portion
                         if (principalPortion > 0) {
+                            html += `
+                                <div class="breakdown-promotion-divider">
+                                    <div class="promotion-indicator">Early promotion at £120,000</div>
+                                </div>
+                            `;
+                            
                             let remaining = principalPortion;
                             const inSecondTier = Math.min(remaining, 80000);
                             if (inSecondTier > 0) {
@@ -2665,29 +2732,30 @@
                             </div>
                         `;
                         
-                        html += `
-                            <div class="breakdown-promotion-divider">
-                                <div class="promotion-indicator">Early promotion at £96,000</div>
-                            </div>
-                        `;
-                        
                         if (seniorPortion > 0) {
-                            if (seniorPortion <= 4000) {
+                            html += `
+                                <div class="breakdown-promotion-divider">
+                                    <div class="promotion-indicator">Early promotion at £96,000</div>
+                                </div>
+                            `;
+                            
+                            const seniorFirstTier = Math.min(seniorPortion, 4000); // £96k to £100k
+                            const seniorSecondTier = Math.max(0, seniorPortion - 4000); // Above £100k
+                            
+                            if (seniorFirstTier > 0) {
                                 html += `
                                     <div class="breakdown-item">
-                                        <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorPortion)}</span>
-                                        <span class="breakdown-right">${formatCurrency(seniorPortion * 0.25)}</span>
+                                        <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorFirstTier)}</span>
+                                        <span class="breakdown-right">${formatCurrency(seniorFirstTier * 0.25)}</span>
                                     </div>
                                 `;
-                            } else {
+                            }
+                            
+                            if (seniorSecondTier > 0) {
                                 html += `
                                     <div class="breakdown-item">
-                                        <span class="breakdown-left">Senior Consultant (25%): £4,000</span>
-                                        <span class="breakdown-right">£1,000</span>
-                                    </div>
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorPortion - 4000)}</span>
-                                        <span class="breakdown-right">${formatCurrency((seniorPortion - 4000) * 0.30)}</span>
+                                        <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorSecondTier)}</span>
+                                        <span class="breakdown-right">${formatCurrency(seniorSecondTier * 0.30)}</span>
                                     </div>
                                 `;
                             }
@@ -2700,146 +2768,16 @@
                             </div>
                         `;
                     }
-                } else if (startLevel === 'Consultant II') {
-                    if (earlyBillings >= 120000) {
-                        // Double early promotion: Consultant II → Senior → Principal
-                        const consultantIIPortion = 56000; // £96k - £40k threshold
-                        const seniorPortion = 24000;       // £120k - £96k
-                        const principalPortion = Math.max(0, commissionable - 80000);
-                        
-                        html += `
-                            <div class="breakdown-item">
-                                <span class="breakdown-left">Consultant II (22.5%): ${formatCurrency(consultantIIPortion)}</span>
-                                <span class="breakdown-right">${formatCurrency(consultantIIPortion * 0.225)}</span>
-                            </div>
-                        `;
-                        
-                        html += `
-                            <div class="breakdown-promotion-divider">
-                                <div class="promotion-indicator">Early promotion at £96,000</div>
-                            </div>
-                        `;
-                        
-                        // Senior portion breakdown
-                        if (seniorPortion <= 4000) {
-                            html += `
-                                <div class="breakdown-item">
-                                    <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorPortion)}</span>
-                                    <span class="breakdown-right">${formatCurrency(seniorPortion * 0.25)}</span>
-                                </div>
-                            `;
-                        } else {
-                            html += `
-                                <div class="breakdown-item">
-                                    <span class="breakdown-left">Senior Consultant (25%): £4,000</span>
-                                    <span class="breakdown-right">£1,000</span>
-                                </div>
-                                <div class="breakdown-item">
-                                    <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorPortion - 4000)}</span>
-                                    <span class="breakdown-right">${formatCurrency((seniorPortion - 4000) * 0.30)}</span>
-                                </div>
-                            `;
-                        }
-                        
-                        html += `
-                            <div class="breakdown-promotion-divider">
-                                <div class="promotion-indicator">Early promotion at £120,000</div>
-                            </div>
-                        `;
-                        
-                        // Principal portion
-                        if (principalPortion > 0) {
-                            let remaining = principalPortion;
-                            const inSecondTier = Math.min(remaining, 80000);
-                            if (inSecondTier > 0) {
-                                html += `
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Principal Consultant (30%): ${formatCurrency(inSecondTier)}</span>
-                                        <span class="breakdown-right">${formatCurrency(inSecondTier * 0.30)}</span>
-                                    </div>
-                                `;
-                                remaining -= inSecondTier;
-                            }
-                            
-                            if (remaining > 0) {
-                                const inThirdTier = Math.min(remaining, 100000);
-                                html += `
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Principal Consultant (35%): ${formatCurrency(inThirdTier)}</span>
-                                        <span class="breakdown-right">${formatCurrency(inThirdTier * 0.35)}</span>
-                                    </div>
-                                `;
-                                remaining -= inThirdTier;
-                            }
-                            
-                            if (remaining > 0) {
-                                const inFourthTier = Math.min(remaining, 100000);
-                                html += `
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Principal Consultant (40%): ${formatCurrency(inFourthTier)}</span>
-                                        <span class="breakdown-right">${formatCurrency(inFourthTier * 0.40)}</span>
-                                    </div>
-                                `;
-                                remaining -= inFourthTier;
-                            }
-                            
-                            if (remaining > 0) {
-                                html += `
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Principal Consultant (50%): ${formatCurrency(remaining)}</span>
-                                        <span class="breakdown-right">${formatCurrency(remaining * 0.50)}</span>
-                                    </div>
-                                `;
-                            }
-                        }
-                    } else if (earlyBillings >= 96000) {
-                        // Single early promotion: Consultant II → Senior
-                        const consultantIIPortion = 56000; // £96k - £40k threshold
-                        const seniorPortion = Math.max(0, commissionable - 56000);
-                        
-                        html += `
-                            <div class="breakdown-item">
-                                <span class="breakdown-left">Consultant II (22.5%): ${formatCurrency(consultantIIPortion)}</span>
-                                <span class="breakdown-right">${formatCurrency(consultantIIPortion * 0.225)}</span>
-                            </div>
-                        `;
-                        
-                        html += `
-                            <div class="breakdown-promotion-divider">
-                                <div class="promotion-indicator">Early promotion at £96,000</div>
-                            </div>
-                        `;
-                        
-                        if (seniorPortion > 0) {
-                            if (seniorPortion <= 4000) {
-                                html += `
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Senior Consultant (25%): ${formatCurrency(seniorPortion)}</span>
-                                        <span class="breakdown-right">${formatCurrency(seniorPortion * 0.25)}</span>
-                                    </div>
-                                `;
-                            } else {
-                                html += `
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Senior Consultant (25%): £4,000</span>
-                                        <span class="breakdown-right">£1,000</span>
-                                    </div>
-                                    <div class="breakdown-item">
-                                        <span class="breakdown-left">Senior Consultant (30%): ${formatCurrency(seniorPortion - 4000)}</span>
-                                        <span class="breakdown-right">${formatCurrency((seniorPortion - 4000) * 0.30)}</span>
-                                    </div>
-                                `;
-                            }
-                        }
-                    } else {
-                        html += `
-                            <div class="breakdown-item">
-                                <span class="breakdown-left">Consultant II (22.5%): ${formatCurrency(commissionable)}</span>
-                                <span class="breakdown-right">${formatCurrency(commissionable * 0.225)}</span>
-                            </div>
-                        `;
-                    }
-                } else if (startLevel === 'Senior Consultant') {
+                } else if (startLevel === 'Consultant II' && earlyBillings < 96000) {
+                    // No promotion for Consultant II
+                    html += `
+                        <div class="breakdown-item">
+                            <span class="breakdown-left">Consultant II (22.5%): ${formatCurrency(commissionable)}</span>
+                            <span class="breakdown-right">${formatCurrency(commissionable * 0.225)}</span>
+                        </div>
+                    `;
+                } else if (startLevel === 'Senior Consultant' && earlyBillings < 120000) {
+                    // Standard Senior rates
                     if (commissionable <= 60000) {
                         html += `
                             <div class="breakdown-item">
@@ -2938,151 +2876,151 @@
             
             let html = '';
             
-                // Determine promotion targets based on starting level
-                if (fastTrack && startLevel === 'Consultant' && currentLevel === startLevel) {
-                    // Fast-track mode - only show if still at starting level
-                    let nextTarget, targetAmount;
-                    if (totalBillings < 100000) {
-                        nextTarget = 'Consultant II';
-                        targetAmount = 100000;
-                    } else if (totalBillings < 140000) {
-                        nextTarget = 'Senior Consultant';
-                        targetAmount = 140000;
-                    } else if (totalBillings < 180000) {
-                        nextTarget = 'Principal Consultant';
-                        targetAmount = 180000;
-                    }
+            // Determine promotion targets based on starting level
+            if (fastTrack && startLevel === 'Consultant' && currentLevel === startLevel) {
+                // Fast-track mode - only show if still at starting level
+                let nextTarget, targetAmount;
+                if (totalBillings < 100000) {
+                    nextTarget = 'Consultant II';
+                    targetAmount = 100000;
+                } else if (totalBillings < 140000) {
+                    nextTarget = 'Senior Consultant';
+                    targetAmount = 140000;
+                } else if (totalBillings < 180000) {
+                    nextTarget = 'Principal Consultant';
+                    targetAmount = 180000;
+                }
+                
+                if (nextTarget) {
+                    const progress = (totalBillings / targetAmount) * 100;
+                    const remaining = targetAmount - totalBillings;
                     
-                    if (nextTarget) {
-                        const progress = (totalBillings / targetAmount) * 100;
-                        const remaining = targetAmount - totalBillings;
-                        
-                        html = `
+                    html = `
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">Fast-Track to ${nextTarget}</span>
+                                <span class="progress-type">${Math.round(progress)}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                            </div>
+                            <div class="progress-stats">
+                                <span>Current: ${formatCurrency(totalBillings)}</span>
+                                <span>Target: ${formatCurrency(targetAmount)}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // Standard mode OR fast-track after promotion - show regular promotion paths
+                let standardTarget, standardAmount, earlyTarget, earlyAmount;
+                
+                if (currentLevel === 'Consultant') {
+                    standardTarget = 'Senior Consultant';
+                    standardAmount = 160000;
+                    
+                    // Show both promotion paths for Consultants
+                    if (earlyBillings < 96000) {
+                        earlyTarget = 'Senior Consultant';
+                        earlyAmount = 96000;
+                    } else if (earlyBillings < 120000) {
+                        earlyTarget = 'Principal Consultant';
+                        earlyAmount = 120000;
+                    }
+                } else if (currentLevel === 'Consultant II') {
+                    standardTarget = 'Senior Consultant';
+                    standardAmount = 160000;
+                    
+                    // Show both promotion paths for Consultant II
+                    if (earlyBillings < 96000) {
+                        earlyTarget = 'Senior Consultant';
+                        earlyAmount = 96000;
+                    } else if (earlyBillings < 120000) {
+                        earlyTarget = 'Principal Consultant';
+                        earlyAmount = 120000;
+                    }
+                } else if (currentLevel === 'Senior Consultant') {
+                    standardTarget = 'Principal Consultant';
+                    standardAmount = 200000;
+                    if (earlyBillings < 120000) {
+                        earlyTarget = 'Principal Consultant';
+                        earlyAmount = 120000;
+                    }
+                } else if (currentLevel === 'Principal Consultant') {
+                    // No more promotions available
+                    standardTarget = null;
+                }
+                
+                // Show progress based on current level, not starting level
+                if (earlyBillings > 0 && earlyTarget && earlyBillings < earlyAmount) {
+                    // Show early promotion progress
+                    const earlyProgress = (earlyBillings / earlyAmount) * 100;
+                    
+                    html = `
+                        <div style="display: grid; gap: 14px;">
+                            <!-- Early Promotion Path -->
                             <div class="progress-container">
                                 <div class="progress-header">
-                                    <span class="progress-label">Fast-Track to ${nextTarget}</span>
-                                    <span class="progress-type">${Math.round(progress)}%</span>
+                                    <span class="progress-label">
+                                        <span style="display: inline-block; background: #dcfce7; color: #166534; font-size: 9px; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 6px;">EARLY</span>
+                                        ${earlyTarget}
+                                    </span>
+                                    <span class="progress-type">${Math.round(earlyProgress)}%</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                                    <div class="progress-fill" style="width: ${Math.min(earlyProgress, 100)}%; background: #22c55e;"></div>
                                 </div>
                                 <div class="progress-stats">
-                                    <span>Current: ${formatCurrency(totalBillings)}</span>
-                                    <span>Target: ${formatCurrency(targetAmount)}</span>
+                                    <span>First 6mo: ${formatCurrency(earlyBillings)}</span>
+                                    <span>Target: ${formatCurrency(earlyAmount)}</span>
                                 </div>
                             </div>
-                        `;
-                    }
-                } else {
-                    // Standard mode OR fast-track after promotion - show regular promotion paths
-                    let standardTarget, standardAmount, earlyTarget, earlyAmount;
+                    `;
                     
-                    if (currentLevel === 'Consultant') {
-                        standardTarget = 'Senior Consultant';
-                        standardAmount = 160000;
-                        
-                        // Show both promotion paths for Consultants
-                        if (earlyBillings < 96000) {
-                            earlyTarget = 'Senior Consultant';
-                            earlyAmount = 96000;
-                        } else if (earlyBillings < 120000) {
-                            earlyTarget = 'Principal Consultant';
-                            earlyAmount = 120000;
-                        }
-                    } else if (currentLevel === 'Consultant II') {
-                        standardTarget = 'Senior Consultant';
-                        standardAmount = 160000;
-                        
-                        // Show both promotion paths for Consultant II
-                        if (earlyBillings < 96000) {
-                            earlyTarget = 'Senior Consultant';
-                            earlyAmount = 96000;
-                        } else if (earlyBillings < 120000) {
-                            earlyTarget = 'Principal Consultant';
-                            earlyAmount = 120000;
-                        }
-                    } else if (currentLevel === 'Senior Consultant') {
-                        standardTarget = 'Principal Consultant';
-                        standardAmount = 200000;
-                        if (earlyBillings < 120000) {
-                            earlyTarget = 'Principal Consultant';
-                            earlyAmount = 120000;
-                        }
-                    } else if (currentLevel === 'Principal Consultant') {
-                        // No more promotions available
-                        standardTarget = null;
-                    }
-                    
-                    // Show progress based on current level, not starting level
-                    if (earlyBillings > 0 && earlyTarget && earlyBillings < earlyAmount) {
-                        // Show early promotion progress
-                        const earlyProgress = (earlyBillings / earlyAmount) * 100;
-                        
-                        html = `
-                            <div style="display: grid; gap: 14px;">
-                                <!-- Early Promotion Path -->
-                                <div class="progress-container">
-                                    <div class="progress-header">
-                                        <span class="progress-label">
-                                            <span style="display: inline-block; background: #dcfce7; color: #166534; font-size: 9px; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-right: 6px;">EARLY</span>
-                                            ${earlyTarget}
-                                        </span>
-                                        <span class="progress-type">${Math.round(earlyProgress)}%</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: ${Math.min(earlyProgress, 100)}%; background: #22c55e;"></div>
-                                    </div>
-                                    <div class="progress-stats">
-                                        <span>First 6mo: ${formatCurrency(earlyBillings)}</span>
-                                        <span>Target: ${formatCurrency(earlyAmount)}</span>
-                                    </div>
-                                </div>
-                        `;
-                        
-                        // If there's also a standard target to show
-                        if (standardTarget) {
-                            const standardProgress = (totalBillings / standardAmount) * 100;
-                            html += `
-                                <!-- Standard Promotion Path -->
-                                <div class="progress-container" style="opacity: 0.6;">
-                                    <div class="progress-header">
-                                        <span class="progress-label">${standardTarget}</span>
-                                        <span class="progress-type">${Math.round(standardProgress)}%</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: ${Math.min(standardProgress, 100)}%;"></div>
-                                    </div>
-                                    <div class="progress-stats">
-                                        <span>Total: ${formatCurrency(totalBillings)}</span>
-                                        <span>Target: ${formatCurrency(standardAmount)}</span>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                        
-                        html += `</div>`;
-                    } else if (standardTarget) {
-                        // Show single standard progress if no early billings or early promotion achieved/missed
-                        const progress = (totalBillings / standardAmount) * 100;
-                        const remaining = standardAmount - totalBillings;
-                        
-                        html = `
-                            <div class="progress-container">
+                    // If there's also a standard target to show
+                    if (standardTarget) {
+                        const standardProgress = (totalBillings / standardAmount) * 100;
+                        html += `
+                            <!-- Standard Promotion Path -->
+                            <div class="progress-container" style="opacity: 0.6;">
                                 <div class="progress-header">
-                                    <span class="progress-label">Next: ${standardTarget}</span>
-                                    <span class="progress-type">${Math.round(progress)}%</span>
+                                    <span class="progress-label">${standardTarget}</span>
+                                    <span class="progress-type">${Math.round(standardProgress)}%</span>
                                 </div>
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                                    <div class="progress-fill" style="width: ${Math.min(standardProgress, 100)}%;"></div>
                                 </div>
                                 <div class="progress-stats">
-                                    <span>Current: ${formatCurrency(totalBillings)}</span>
+                                    <span>Total: ${formatCurrency(totalBillings)}</span>
                                     <span>Target: ${formatCurrency(standardAmount)}</span>
                                 </div>
                             </div>
                         `;
                     }
+                    
+                    html += `</div>`;
+                } else if (standardTarget) {
+                    // Show single standard progress if no early billings or early promotion achieved/missed
+                    const progress = (totalBillings / standardAmount) * 100;
+                    const remaining = standardAmount - totalBillings;
+                    
+                    html = `
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-label">Next: ${standardTarget}</span>
+                                <span class="progress-type">${Math.round(progress)}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                            </div>
+                            <div class="progress-stats">
+                                <span>Current: ${formatCurrency(totalBillings)}</span>
+                                <span>Target: ${formatCurrency(standardAmount)}</span>
+                            </div>
+                        </div>
+                    `;
                 }
+            }
             
             progressContent.innerHTML = html || '';
         }
