@@ -2290,7 +2290,7 @@
                         }
                     } else {
                         // No promotion
-                        commission = this.calculateSeniorTiers(commissionableBillings, breakdown, billings);
+                        commission = this.calculateSeniorTiers(commissionableBillings, breakdown, 40000);
                     }
                 } else if (level === 'Principal Consultant') {
                     // Already Principal
@@ -2418,48 +2418,66 @@
                 };
             }
 
-            calculateSeniorTiers(seniorBillings, breakdown, totalBillingsAtPromotion) {
+            calculateSeniorTiers(seniorBillings, breakdown, totalBillingsAtStart) {
                 let commission = 0;
                 let remaining = seniorBillings;
                 
-                // Handle case where totalBillingsAtPromotion might be undefined or wrong
-                if (!totalBillingsAtPromotion || totalBillingsAtPromotion < 40000) {
-                    totalBillingsAtPromotion = 96000; // Default to early promotion threshold
-                }
-                
-                // Senior tiers are based on TOTAL billings
-                // £40k-100k total: 25%, £100k+ total: 30%
-                // At promotion, we're at totalBillingsAtPromotion, need to reach £100k for tier change
-                
-                const tier1End = 100000; // £100k total billings
-                const tier1Remaining = Math.max(0, tier1End - totalBillingsAtPromotion);
-                
-                if (remaining <= tier1Remaining) {
-                    // All remaining billings are in the 25% tier
-                    commission = remaining * 0.25;
-                    breakdown.push({
-                        level: 'Senior Consultant (25%)',
-                        billings: remaining,
-                        commission: commission
-                    });
-                } else {
-                    // Split between 25% and 30% tiers
-                    if (tier1Remaining > 0) {
-                        commission += tier1Remaining * 0.25;
+                // For Senior Consultant starting at the level (not promoted)
+                // Tiers are: £40k-100k total: 25%, £100k+ total: 30%
+                if (!totalBillingsAtStart || totalBillingsAtStart <= 40000) {
+                    // Starting as Senior Consultant from beginning
+                    const tier1Amount = Math.min(remaining, 60000); // First £60k (£40k-100k range)
+                    if (tier1Amount > 0) {
+                        commission += tier1Amount * 0.25;
                         breakdown.push({
                             level: 'Senior Consultant (25%)',
-                            billings: tier1Remaining,
-                            commission: tier1Remaining * 0.25
+                            billings: tier1Amount,
+                            commission: tier1Amount * 0.25
                         });
+                        remaining -= tier1Amount;
                     }
                     
-                    const tier2Billings = remaining - tier1Remaining;
-                    commission += tier2Billings * 0.30;
-                    breakdown.push({
-                        level: 'Senior Consultant (30%)',
-                        billings: tier2Billings,
-                        commission: tier2Billings * 0.30
-                    });
+                    // Remaining billings at 30%
+                    if (remaining > 0) {
+                        commission += remaining * 0.30;
+                        breakdown.push({
+                            level: 'Senior Consultant (30%)',
+                            billings: remaining,
+                            commission: remaining * 0.30
+                        });
+                    }
+                } else {
+                    // Promoted to Senior Consultant
+                    const tier1End = 100000; // £100k total billings
+                    const tier1Remaining = Math.max(0, tier1End - totalBillingsAtStart);
+                    
+                    if (remaining <= tier1Remaining) {
+                        // All remaining billings are in the 25% tier
+                        commission = remaining * 0.25;
+                        breakdown.push({
+                            level: 'Senior Consultant (25%)',
+                            billings: remaining,
+                            commission: commission
+                        });
+                    } else {
+                        // Split between 25% and 30% tiers
+                        if (tier1Remaining > 0) {
+                            commission += tier1Remaining * 0.25;
+                            breakdown.push({
+                                level: 'Senior Consultant (25%)',
+                                billings: tier1Remaining,
+                                commission: tier1Remaining * 0.25
+                            });
+                        }
+                        
+                        const tier2Billings = remaining - tier1Remaining;
+                        commission += tier2Billings * 0.30;
+                        breakdown.push({
+                            level: 'Senior Consultant (30%)',
+                            billings: tier2Billings,
+                            commission: tier2Billings * 0.30
+                        });
+                    }
                 }
                 
                 return commission;
