@@ -2024,7 +2024,7 @@
                         
                         // Check for early promotion to Principal
                         if (h1Amount >= this.PROMOTION_THRESHOLDS.earlyH1.principal) {
-                            // Promotion to Principal - completely recalculate 
+                            // Early H1 promotion to Principal - completely recalculate 
                             commission = 0;
                             breakdown = [];
                             promotionPoints = [this.PROMOTION_THRESHOLDS.earlyH1.senior, this.PROMOTION_THRESHOLDS.earlyH1.principal];
@@ -2614,7 +2614,7 @@
                 
                 this.updateDependentSections(result.finalLevel);
                 this.updateThresholdStatus(totalBillings, currentLevel, result.belowThreshold);
-                this.updateBreakdown(result.breakdown, result.belowThreshold, result.promotionPoints);
+                this.updateBreakdown(result.breakdown, result.belowThreshold);
                 this.updateEarnings(result.commission, baseSalary, teamBillings, result.finalLevel);
                 this.updatePromotionProgress(totalBillings, h1Billings, result.finalLevel, isFirstYear);
             }
@@ -2638,7 +2638,7 @@
                 }
             }
 
-            updateBreakdown(breakdown, belowThreshold, promotionPoints = []) {
+            updateBreakdown(breakdown, belowThreshold) {
                 const breakdownDiv = document.getElementById('breakdown');
                 const breakdownItems = document.getElementById('breakdownItems');
                 
@@ -2651,7 +2651,8 @@
                 
                 let html = '';
                 let previousLevel = '';
-                let promotionIndex = 0;
+                let runningTotal = 0;
+                const threshold = this.THRESHOLDS[document.getElementById('currentLevel').value.toLowerCase().replace(/\s+/g, '')] || 40000;
                 
                 breakdown.forEach((item, index) => {
                     // Extract the base level name more carefully
@@ -2670,13 +2671,12 @@
                     const isPromotionBreak = previousLevel && previousLevel !== currentLevel;
                     
                     // Add promotion indicator if there's a level change
-                    if (isPromotionBreak && promotionIndex < promotionPoints.length) {
+                    if (isPromotionBreak) {
                         html += `
                             <div class="promotion-indicator">
-                                <span class="promotion-indicator-text">Promoted at ${this.formatCurrency(promotionPoints[promotionIndex])}</span>
+                                <span class="promotion-indicator-text">Promoted</span>
                             </div>
                         `;
-                        promotionIndex++;
                     }
                     
                     html += `
@@ -2686,6 +2686,7 @@
                         </div>
                     `;
                     
+                    runningTotal += item.billings;
                     previousLevel = currentLevel;
                 });
                 
