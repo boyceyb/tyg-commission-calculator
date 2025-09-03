@@ -180,46 +180,6 @@
             transition: all 0.2s ease;
         }
 
-        .header-fast-track {
-            display: inline-flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            position: relative;
-            padding: 0;
-            background: transparent;
-            border: none;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .fast-track-toggle[data-tooltip]:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-bottom: 8px;
-            padding: 10px 14px;
-            background: rgba(30, 41, 59, 0.95);
-            color: white;
-            font-size: 11px;
-            font-weight: 400;
-            line-height: 1.4;
-            border-radius: 6px;
-            white-space: normal;
-            min-width: 200px;
-            max-width: 280px;
-            text-align: left;
-            z-index: 1000;
-            opacity: 0;
-            animation: tooltipFadeIn 0.2s ease forwards;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(8px);
-            pointer-events: none;
-        }
-
         .fast-track-input {
             display: none;
         }
@@ -297,83 +257,6 @@
             display: none !important;
         }
 
-        .sticky-metrics {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-            justify-content: space-around;
-        }
-
-        .label-tooltip {
-            color: #94a3b8;
-            cursor: help;
-            font-size: 12px;
-            margin-left: 4px;
-            position: relative;
-            display: inline-block;
-        }
-
-        .label-tooltip:hover {
-            color: #3b82f6;
-        }
-
-        .label-tooltip[data-tooltip]:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            margin-bottom: 6px;
-            padding: 8px 12px;
-            background: rgba(30, 41, 59, 0.95);
-            color: white;
-            font-size: 11px;
-            font-weight: 400;
-            line-height: 1.3;
-            border-radius: 6px;
-            white-space: nowrap;
-            z-index: 1000;
-            opacity: 0;
-            animation: tooltipFadeIn 0.2s ease forwards;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(8px);
-            pointer-events: none;
-        }
-
-        @keyframes tooltipFadeIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-4px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        .sticky-metrics {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-            flex: 1;
-            justify-content: flex-end;
-        }
-
-        .sticky-metric {
-            text-align: center;
-            padding: 8px 16px;
-            background: #f8fafc;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            min-width: 120px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sticky-metric:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
-        }
-
         .sticky-metric-label {
             display: block;
             font-size: 10px;
@@ -396,16 +279,6 @@
             color: #8b5cf6;
             font-size: 13px;
             font-weight: 600;
-        }
-
-        .level-selector-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .level-selector-row select {
-            flex: 1;
         }
         
         .grid { 
@@ -560,12 +433,6 @@
             font-weight: 400;
             line-height: 1.4;
             text-align: left;
-        }
-
-        .info-dot {
-            color: #cbd5e1;
-            margin: 0 8px;
-            font-size: 8px;
         }
 
         .add-deal-section {
@@ -727,16 +594,6 @@
             color: #64748b;
         }
 
-        .deal-period-badge.h1 {
-            background: #f1f5f9;
-            color: #64748b;
-        }
-
-        .deal-period-badge.h2 {
-            background: #f8fafc;
-            color: #94a3b8;
-        }
-
         .deal-value {
             font-size: 14px;
             font-weight: 500;
@@ -763,50 +620,6 @@
         .deal-remove:hover {
             color: #dc2626;
             transform: scale(1.1);
-        }
-
-        .deals-summary {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 12px;
-        }
-
-        .summary-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-
-        .summary-stat {
-            text-align: center;
-        }
-
-        .summary-stat-label {
-            font-size: 11px;
-            color: #64748b;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        .summary-stat-value {
-            font-size: 15px;
-            font-weight: 700;
-            color: #0c4a6e;
-        }
-
-        .summary-stat-value.h1 {
-            color: #0c4a6e !important;
-        }
-
-        .summary-stat-value.h2 {
-            color: #0c4a6e !important;
-        }
-
-        .summary-stat-value.total {
-            color: #1d4ed8 !important;
         }
 
         .info-section {
@@ -856,16 +669,6 @@
         .info-section.expanded .info-content {
             max-height: 1000px;
             opacity: 1;
-        }
-
-        .info-section.expanded .info-header {
-            border-bottom: 1px solid #e2e8f0;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .info-section:not(.expanded) .info-header {
-            border-bottom: none;
-            border-radius: 12px;
         }
 
         /* Level Cards */
@@ -956,17 +759,6 @@
             letter-spacing: 0.3px;
         }
 
-        .level-content .fast-track-note {
-            position: absolute;
-            bottom: 14px;
-            left: 14px;
-            right: 14px;
-            padding-top: 10px;
-            border-top: 1px solid #f1f5f9;
-            font-size: 11px;
-            color: #94a3b8;
-        }
-
         .breakdown { 
             background: #f8fafc; 
             padding: 16px; 
@@ -995,12 +787,6 @@
         .breakdown-item:last-child { 
             border-bottom: none; 
             margin-bottom: 0; 
-        }
-
-        .breakdown-item.promotion-break {
-            border-bottom: 2px solid #e2e8f0;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
         }
 
         .promotion-indicator {
@@ -1138,85 +924,6 @@
             line-height: 1.4;
         }
         
-        .promotion-progress-card {
-            background: #fafbfc;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border: 1px solid #f1f5f9;
-        }
-
-        .promotion-progress-card.early {
-            border-left: 2px solid #64748b;
-            background: #f8fafc;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .progress-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #334155;
-        }
-
-        .progress-percentage {
-            font-size: 11px;
-            font-weight: 500;
-            color: #94a3b8;
-        }
-
-        .progress-bar-container {
-            margin-bottom: 10px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: #bfdbfe;
-            border-radius: 2px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-bar-fill.early {
-            background: #bfdbfe;
-        }
-
-        .progress-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-            font-size: 12px;
-        }
-
-        .progress-current {
-            color: #475569;
-            font-weight: 500;
-        }
-
-        .progress-target {
-            color: #94a3b8;
-            font-weight: 400;
-        }
-
-        .progress-remaining {
-            font-size: 11px;
-            color: #94a3b8;
-            text-align: center;
-        }
-        
         .status.info { 
             background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); 
             border: 1px solid #bfdbfe;
@@ -1292,10 +999,6 @@
             .card { 
                 padding: 16px; 
             }
-            .summary-stats {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
             .sticky-content {
                 flex-direction: column;
                 gap: 8px;
@@ -1310,14 +1013,6 @@
                 min-width: 80px;
                 padding: 4px 8px;
                 flex: 1;
-            }
-            .level-selector-row {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .fast-track-toggle {
-                width: 100%;
-                justify-content: center;
             }
             .add-deal-section {
                 flex-direction: column;
@@ -1383,7 +1078,6 @@
                         <span class="sticky-metric-value" id="stickySeniority">Consultant</span>
                     </div>
                 </div>
-                            </div>
             </div>
         </div>
 
@@ -1427,7 +1121,7 @@
 
                 <div id="teamSection" class="hidden">
                     <div class="input-group">
-                        <label>Team Annual Billings (£) <span class="label-tooltip" data-tooltip="10% commission applies to team billings for Principal level">ⓘ</span></label>
+                        <label>Team Annual Billings (£)</label>
                         <div class="input-with-clear">
                             <input type="number" id="teamBillings" placeholder="Team annual billings (£)" min="0" step="1000">
                             <button type="button" class="clear-btn" onclick="clearField('teamBillings')" title="Clear team billings">×</button>
@@ -1437,15 +1131,6 @@
                 </div>
 
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;">
-
-                <div class="input-group hidden">
-                    <label>Total Billings Estimate</label>
-                    <div class="input-with-clear">
-                        <input type="number" id="billings" placeholder="Optional: Enter total billings to date..." min="0" step="1000">
-                        <button type="button" class="clear-btn" onclick="clearField('billings')" title="Clear billings">×</button>
-                    </div>
-                    <small>You can either enter total billings here, or add individual deals above (or both)</small>
-                </div>
                 
                 <div class="input-group">
                     <label>Base Salary (£) - Optional</label>
@@ -1517,68 +1202,69 @@
             </div>
             <div class="info-content">
                 <div class="levels-grid">
-                <div class="level-card consultant">
-                    <div class="level-header">
-                        <h4>Consultant</h4>
-                        <div class="level-badge">Entry</div>
+                    <div class="level-card consultant">
+                        <div class="level-header">
+                            <h4>Consultant</h4>
+                            <div class="level-badge">Entry</div>
+                        </div>
+                        <div class="level-content">
+                            <strong>Threshold:</strong> £35,000<br>
+                            <strong>Commission:</strong> 20%<br><br>
+                            <strong>Standard Path:</strong><br>
+                            £96k → Senior (H1)<br>
+                            £160k → Senior<br><br>
+                            <strong>Fast-Track (Y1):</strong><br>
+                            £100k → Consultant II<br>
+                            £140k → Senior<br>
+                            £180k → Principal
+                        </div>
                     </div>
-                    <div class="level-content">
-                        <strong>Threshold:</strong> £35,000<br>
-                        <strong>Commission:</strong> 20%<br><br>
-                        <strong>Standard Path:</strong><br>
-                        £96k → Senior (H1)<br>
-                        £160k → Senior<br><br>
-                        <strong>Fast-Track (Y1):</strong><br>
-                        £100k → Consultant II<br>
-                        £140k → Senior<br>
-                        £180k → Principal
-                    </div>
-                </div>
 
-                <div class="level-card consultant-ii">
-                    <div class="level-header">
-                        <h4>Consultant II</h4>
-                        <div class="level-badge">Y1 Only</div>
+                    <div class="level-card consultant-ii">
+                        <div class="level-header">
+                            <h4>Consultant II</h4>
+                            <div class="level-badge">Y1 Only</div>
+                        </div>
+                        <div class="level-content">
+                            <strong>Threshold:</strong> £40,000<br>
+                            <strong>Commission:</strong> 22.5%<br><br>
+                            <strong>Promotion Path:</strong><br>
+                            £96k → Senior (H1)<br>
+                            £160k → Senior
+                        </div>
                     </div>
-                    <div class="level-content">
-                        <strong>Threshold:</strong> £40,000<br>
-                        <strong>Commission:</strong> 22.5%<br><br>
-                        <strong>Promotion Path:</strong><br>
-                        £96k → Senior (H1)<br>
-                        £160k → Senior
-                    </div>
-                </div>
 
-                <div class="level-card senior">
-                    <div class="level-header">
-                        <h4>Senior Consultant</h4>
-                        <div class="level-badge">Tiered</div>
+                    <div class="level-card senior">
+                        <div class="level-header">
+                            <h4>Senior Consultant</h4>
+                            <div class="level-badge">Tiered</div>
+                        </div>
+                        <div class="level-content">
+                            <strong>Threshold:</strong> £40,000<br><br>
+                            <strong>Commission Tiers:</strong><br>
+                            £40k-100k: 25%<br>
+                            £100k+: 30%<br><br>
+                            <strong>To Principal:</strong><br>
+                            £120k → Principal (H1)<br>
+                            £200k → Principal
+                        </div>
                     </div>
-                    <div class="level-content">
-                        <strong>Threshold:</strong> £40,000<br><br>
-                        <strong>Commission Tiers:</strong><br>
-                        £40k-100k: 25%<br>
-                        £100k-200k: 30%<br><br>
-                        <strong>To Principal:</strong><br>
-                        £120k → Principal (H1)<br>
-                        £200k → Principal
-                    </div>
-                </div>
 
-                <div class="level-card principal">
-                    <div class="level-header">
-                        <h4>Principal</h4>
-                        <div class="level-badge">Top</div>
-                    </div>
-                    <div class="level-content">
-                        <strong>Threshold:</strong> £40,000<br><br>
-                        <strong>Tiers:</strong><br>
-                        £40-100k: 25%<br>
-                        £100-200k: 30%<br>
-                        £200-300k: 35%<br>
-                        £300-400k: 40%<br>
-                        £400k+: 50%<br><br>
-                        <strong>Bonus:</strong> 10% team
+                    <div class="level-card principal">
+                        <div class="level-header">
+                            <h4>Principal</h4>
+                            <div class="level-badge">Top</div>
+                        </div>
+                        <div class="level-content">
+                            <strong>Threshold:</strong> £40,000<br><br>
+                            <strong>Tiers:</strong><br>
+                            £40-100k: 25%<br>
+                            £100-200k: 30%<br>
+                            £200-300k: 35%<br>
+                            £300-400k: 40%<br>
+                            £400k+: 50%<br><br>
+                            <strong>Bonus:</strong> 10% team
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1632,7 +1318,6 @@
                 return;
             }
             
-            // For fast track year, always use H1 since periods don't matter
             const startingLevel = document.getElementById('currentLevel').value;
             const fastTrackToggleHeader = document.getElementById('fastTrackToggleHeader');
             const isFastTrackEnabled = fastTrackToggleHeader && fastTrackToggleHeader.checked;
@@ -1642,7 +1327,6 @@
             
             window.calculator.addDeal(null, value, period);
             
-            // Clear the input field and update clear button visibility
             valueInput.value = '';
             const wrapper = valueInput.closest('.input-with-clear');
             if (wrapper) {
@@ -1708,7 +1392,7 @@
             }
 
             bindEvents() {
-                ['billings', 'baseSalary', 'teamBillings'].forEach(id => {
+                ['baseSalary', 'teamBillings'].forEach(id => {
                     const element = document.getElementById(id);
                     if (element) {
                         element.addEventListener('input', () => {
@@ -1735,13 +1419,12 @@
                     this.updateStickyHeaderFromCurrentData();
                 });
 
-                // Sync fast track toggles (header only now)
                 const fastTrackToggleHeader = document.getElementById('fastTrackToggleHeader');
                 
                 if (fastTrackToggleHeader) {
                     fastTrackToggleHeader.addEventListener('change', (e) => {
                         this.updatePeriodSelectorVisibility();
-                        this.updateDealsDisplay(); // Recalculate deal commissions
+                        this.updateDealsDisplay();
                         this.updateCalculation();
                         this.updateStickyHeaderFromCurrentData();
                     });
@@ -1820,26 +1503,19 @@
             }
 
             updateStickyHeaderFromCurrentData() {
-                const billings = this.safeParseFloat(document.getElementById('billings').value);
                 const h1Pipeline = this.getH1DealsValue();
                 const h2Pipeline = this.getH2DealsValue();
                 
-                const totalBillings = billings + h1Pipeline + h2Pipeline;
+                const totalBillings = h1Pipeline + h2Pipeline;
                 
                 document.getElementById('stickyBillings').textContent = this.formatCurrency(totalBillings);
                 
-                // Calculate commission
                 const currentLevel = document.getElementById('currentLevel').value;
-                const fastTrackEnabled = document.getElementById('fastTrackToggle')?.checked;
+                const fastTrackEnabled = document.getElementById('fastTrackToggleHeader')?.checked;
                 const isFirstYear = fastTrackEnabled && currentLevel === 'Consultant';
                 
-                // For H1 early promotion check, assume base billings split equally
-                const h1Total = billings * 0.5 + h1Pipeline;
-                const h2Total = billings * 0.5 + h2Pipeline;
+                const result = this.calculateCommission(totalBillings, currentLevel, isFirstYear, h1Pipeline, h2Pipeline);
                 
-                const result = this.calculateCommission(totalBillings, currentLevel, isFirstYear, h1Total, h2Total);
-                
-                const baseSalary = this.safeParseFloat(document.getElementById('baseSalary').value);
                 const teamBillings = this.safeParseFloat(document.getElementById('teamBillings').value);
                 const teamBonus = result.finalLevel === 'Principal Consultant' ? teamBillings * 0.10 : 0;
                 
@@ -1860,17 +1536,14 @@
             }
 
             calculateDealCommission(dealValue, period, dealIndex = null) {
-                const billings = this.safeParseFloat(document.getElementById('billings').value);
                 const currentLevel = document.getElementById('currentLevel').value;
                 
-                // Check all fast-track toggles safely
                 const fastTrackToggleHeader = document.getElementById('fastTrackToggleHeader');
                 const fastTrackEnabled = (fastTrackToggleHeader && fastTrackToggleHeader.checked);
                 const isFirstYear = fastTrackEnabled && currentLevel === 'Consultant';
 
-                // Calculate cumulative deals up to this point
-                let h1Cumulative = billings * 0.5; // Assume base billings split equally
-                let h2Cumulative = billings * 0.5;
+                let h1Cumulative = 0;
+                let h2Cumulative = 0;
                 
                 for (let i = 0; i < dealIndex; i++) {
                     if (this.deals[i]) {
@@ -1884,7 +1557,6 @@
 
                 const currentTotal = h1Cumulative + h2Cumulative;
                 
-                // Add new deal to appropriate period
                 if (period === 'H1') {
                     h1Cumulative += dealValue;
                 } else {
@@ -1922,11 +1594,9 @@
                 const periodHelperText = document.getElementById('periodHelperText');
                 
                 if (isFirstYear) {
-                    // Hide period selector for fast track year
                     if (periodSelector) periodSelector.style.display = 'none';
                     if (periodHelperText) periodHelperText.style.display = 'none';
                 } else {
-                    // Show period selector for normal progression
                     if (periodSelector) periodSelector.style.display = 'flex';
                     if (periodHelperText) periodHelperText.style.display = 'block';
                 }
@@ -1943,7 +1613,6 @@
                     teamSection.classList.add('hidden');
                 }
 
-                // Update fast-track availability for header toggle only
                 const fastTrackContainerHeader = document.getElementById('fastTrackContainerHeader');
                 const fastTrackToggleHeader = document.getElementById('fastTrackToggleHeader');
                 
@@ -1954,7 +1623,6 @@
                     if (fastTrackContainerHeader) fastTrackContainerHeader.classList.remove('hidden');
                 }
 
-                // Update period selector visibility
                 this.updatePeriodSelectorVisibility();
             }
 
@@ -2018,8 +1686,7 @@
                         // Calculate remaining commission as Senior
                         const seniorBillings = billings - this.PROMOTION_THRESHOLDS.earlyH1.senior;
                         if (seniorBillings > 0) {
-                            // At £96k promotion, we haven't earned any Senior billings yet
-                            commission += this.calculateSeniorTiers(seniorBillings, breakdown, 0);
+                            commission += this.calculateSeniorTiers(seniorBillings, breakdown, this.PROMOTION_THRESHOLDS.earlyH1.senior);
                         }
                         
                         // Check for early promotion to Principal
@@ -2029,7 +1696,7 @@
                             breakdown = [];
                             promotionPoints = [this.PROMOTION_THRESHOLDS.earlyH1.senior, this.PROMOTION_THRESHOLDS.earlyH1.principal];
                             
-                            // Consultant portion: £35k to £96k (£61k)
+                            // Consultant portion
                             const consultantBillings = this.PROMOTION_THRESHOLDS.earlyH1.senior - threshold;
                             commission += consultantBillings * 0.20;
                             breakdown.push({
@@ -2038,27 +1705,18 @@
                                 commission: consultantBillings * 0.20
                             });
                             
-                            const seniorPortion = this.PROMOTION_THRESHOLDS.earlyH1.principal - this.PROMOTION_THRESHOLDS.earlyH1.senior; // £24k
+                            const seniorPortion = this.PROMOTION_THRESHOLDS.earlyH1.principal - this.PROMOTION_THRESHOLDS.earlyH1.senior;
                             commission += this.calculateSeniorTiers(seniorPortion, breakdown, this.PROMOTION_THRESHOLDS.earlyH1.senior);
-                            
-                            // Principal portion: £120k to £500k (£380k)
-                            // But Principal tiers are based on TOTAL billings from £40k
-                            // At £120k promotion point, we're at £80k commissionable
-                            // Principal tiers: £0-60k(25%), £60k-160k(30%), £160k-260k(35%), etc.
-                            // So at £80k commissionable, we're already in the 30% tier!
                             
                             const principalBillings = billings - this.PROMOTION_THRESHOLDS.earlyH1.principal;
                             if (principalBillings > 0) {
-                                const commissionableAtPromotion = this.PROMOTION_THRESHOLDS.earlyH1.principal - 40000; // £80k
+                                const commissionableAtPromotion = this.PROMOTION_THRESHOLDS.earlyH1.principal - 40000;
                                 
-                                // Figure out which Principal tier we start in
                                 let remainingPrincipalBillings = principalBillings;
-                                let currentCommissionableLevel = commissionableAtPromotion; // £80k
+                                let currentCommissionableLevel = commissionableAtPromotion;
                                 
-                                // We're at £80k commissionable, so we're in the 30% tier (£60k-£160k)
-                                // First, complete the 30% tier
-                                const tier2End = 160000; // £60k + £100k
-                                const tier2Remaining = tier2End - currentCommissionableLevel; // £80k remaining in 30% tier
+                                const tier2End = 160000;
+                                const tier2Remaining = tier2End - currentCommissionableLevel;
                                 
                                 if (remainingPrincipalBillings > 0 && tier2Remaining > 0) {
                                     const tier2Amount = Math.min(remainingPrincipalBillings, tier2Remaining);
@@ -2072,7 +1730,6 @@
                                     currentCommissionableLevel += tier2Amount;
                                 }
                                 
-                                // Then 35% tier (£160k-£260k commissionable)
                                 if (remainingPrincipalBillings > 0) {
                                     const tier3Amount = Math.min(remainingPrincipalBillings, 100000);
                                     commission += tier3Amount * 0.35;
@@ -2084,7 +1741,6 @@
                                     remainingPrincipalBillings -= tier3Amount;
                                 }
                                 
-                                // Then 40% tier (£260k-£360k commissionable)
                                 if (remainingPrincipalBillings > 0) {
                                     const tier4Amount = Math.min(remainingPrincipalBillings, 100000);
                                     commission += tier4Amount * 0.40;
@@ -2096,7 +1752,6 @@
                                     remainingPrincipalBillings -= tier4Amount;
                                 }
                                 
-                                // Finally 50% tier (£360k+ commissionable)
                                 if (remainingPrincipalBillings > 0) {
                                     commission += remainingPrincipalBillings * 0.50;
                                     breakdown.push({
@@ -2126,8 +1781,7 @@
                         
                         const seniorBillings = billings - this.PROMOTION_THRESHOLDS.standard.senior;
                         if (seniorBillings > 0) {
-                            // At £160k promotion, we haven't earned any Senior billings yet
-                            commission += this.calculateSeniorTiers(seniorBillings, breakdown, 0);
+                            commission += this.calculateSeniorTiers(seniorBillings, breakdown, this.PROMOTION_THRESHOLDS.standard.senior);
                         }
                         
                         if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
@@ -2149,7 +1803,7 @@
                             
                             const principalBillings = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                             if (principalBillings > 0) {
-                                commission += this.calculatePrincipalTiers(principalBillings, breakdown, true);
+                                commission += this.calculatePrincipalTiers(principalBillings, breakdown);
                             }
                             
                             promotions.push('Principal Consultant');
@@ -2165,7 +1819,6 @@
                         });
                     }
                 } else if (level === 'Consultant II') {
-                    // Similar logic for Consultant II with 22.5% rate
                     if (isEligibleForEarlyPromotion && h1Amount >= this.PROMOTION_THRESHOLDS.earlyH1.senior) {
                         const consultantIIBillings = this.PROMOTION_THRESHOLDS.earlyH1.senior - threshold;
                         commission += consultantIIBillings * 0.225;
@@ -2181,7 +1834,6 @@
                         
                         const seniorBillingsAmount = billings - this.PROMOTION_THRESHOLDS.earlyH1.senior;
                         if (seniorBillingsAmount > 0) {
-                            // At £96k promotion, total billings at promotion is £96k
                             commission += this.calculateSeniorTiers(seniorBillingsAmount, breakdown, this.PROMOTION_THRESHOLDS.earlyH1.senior);
                         }
                         
@@ -2225,7 +1877,6 @@
                         
                         const seniorBillings = billings - this.PROMOTION_THRESHOLDS.standard.senior;
                         if (seniorBillings > 0) {
-                            // At £160k promotion, total commissionable is £160k
                             commission += this.calculateSeniorTiers(seniorBillings, breakdown, this.PROMOTION_THRESHOLDS.standard.senior);
                         }
                         
@@ -2243,7 +1894,7 @@
                             });
                             
                             const seniorPortion = this.PROMOTION_THRESHOLDS.standard.principal - this.PROMOTION_THRESHOLDS.standard.senior;
-                            commission += this.calculateSeniorTiers(seniorPortion, breakdown, 0);
+                            commission += this.calculateSeniorTiers(seniorPortion, breakdown, this.PROMOTION_THRESHOLDS.standard.senior);
                             
                             const principalBillings = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                             if (principalBillings > 0) {
@@ -2266,7 +1917,7 @@
                     // Check for early or standard promotion to Principal
                     if (isEligibleForEarlyPromotion && h1Amount >= this.PROMOTION_THRESHOLDS.earlyH1.principal) {
                         const seniorBillings = this.PROMOTION_THRESHOLDS.earlyH1.principal - threshold;
-                        commission += this.calculateSeniorTiers(seniorBillings, breakdown, threshold);
+                        commission += this.calculateSeniorTiers(seniorBillings, breakdown, 40000);
                         
                         promotions.push('Principal Consultant');
                         promotionPoints.push(this.PROMOTION_THRESHOLDS.earlyH1.principal);
@@ -2274,11 +1925,11 @@
                         
                         const principalBillings = billings - this.PROMOTION_THRESHOLDS.earlyH1.principal;
                         if (principalBillings > 0) {
-                            commission += this.calculatePrincipalTiers(principalBillings, breakdown, true);
+                            commission += this.calculatePrincipalTiers(principalBillings, breakdown);
                         }
                     } else if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
                         const seniorBillings = this.PROMOTION_THRESHOLDS.standard.principal - threshold;
-                        commission += this.calculateSeniorTiers(seniorBillings, breakdown, threshold);
+                        commission += this.calculateSeniorTiers(seniorBillings, breakdown, 40000);
                         
                         promotions.push('Principal Consultant');
                         promotionPoints.push(this.PROMOTION_THRESHOLDS.standard.principal);
@@ -2286,10 +1937,10 @@
                         
                         const principalBillings = billings - this.PROMOTION_THRESHOLDS.standard.principal;
                         if (principalBillings > 0) {
-                            commission += this.calculatePrincipalTiers(principalBillings, breakdown, true);
+                            commission += this.calculatePrincipalTiers(principalBillings, breakdown);
                         }
                     } else {
-                        // No promotion
+                        // No promotion - starting as Senior Consultant
                         commission = this.calculateSeniorTiers(commissionableBillings, breakdown, 40000);
                     }
                 } else if (level === 'Principal Consultant') {
@@ -2317,7 +1968,6 @@
                 const thresholds = this.PROMOTION_THRESHOLDS.fastTrack;
                 
                 if (billings < thresholds.consultantII) {
-                    // Still Consultant
                     const commissionableBillings = billings - threshold;
                     commission = commissionableBillings * 0.20;
                     breakdown.push({
@@ -2327,7 +1977,6 @@
                     });
                     currentLevel = 'Consultant';
                 } else if (billings < thresholds.senior) {
-                    // Promoted to Consultant II
                     const consultantBillings = thresholds.consultantII - threshold;
                     commission += consultantBillings * 0.20;
                     breakdown.push({
@@ -2348,7 +1997,6 @@
                     promotions.push('Consultant II');
                     promotionPoints.push(thresholds.consultantII);
                 } else if (billings < thresholds.principal) {
-                    // Promoted to Senior Consultant
                     const consultantBillings = thresholds.consultantII - threshold;
                     commission += consultantBillings * 0.20;
                     breakdown.push({
@@ -2372,7 +2020,6 @@
                     promotions.push('Consultant II', 'Senior Consultant');
                     promotionPoints.push(thresholds.consultantII, thresholds.senior);
                 } else {
-                    // Promoted to Principal Consultant
                     const consultantBillings = thresholds.consultantII - threshold;
                     commission += consultantBillings * 0.20;
                     breakdown.push({
@@ -2394,8 +2041,6 @@
                     
                     const principalBillings = billings - thresholds.principal;
                     if (principalBillings > 0) {
-                        // For fast-track promotion to Principal, continue at Senior rate (30%) 
-                        // but show as Principal Consultant since they've been promoted
                         commission += principalBillings * 0.30;
                         breakdown.push({
                             level: 'Principal Consultant (30%)',
@@ -2422,11 +2067,16 @@
                 let commission = 0;
                 let remaining = seniorBillings;
                 
-                // For Senior Consultant starting at the level (not promoted)
-                // Tiers are: £40k-100k total: 25%, £100k+ total: 30%
-                if (!totalBillingsAtStart || totalBillingsAtStart <= 40000) {
-                    // Starting as Senior Consultant from beginning
-                    const tier1Amount = Math.min(remaining, 60000); // First £60k (£40k-100k range)
+                // Senior Consultant tiers are based on TOTAL billings:
+                // £40k-100k total: 25%, £100k+ total: 30%
+                
+                const startingTotal = totalBillingsAtStart || 40000;
+                
+                // First tier: up to £100k total
+                if (startingTotal < 100000) {
+                    const tier1Limit = 100000 - startingTotal;
+                    const tier1Amount = Math.min(remaining, tier1Limit);
+                    
                     if (tier1Amount > 0) {
                         commission += tier1Amount * 0.25;
                         breakdown.push({
@@ -2436,54 +2086,21 @@
                         });
                         remaining -= tier1Amount;
                     }
-                    
-                    // Remaining billings at 30%
-                    if (remaining > 0) {
-                        commission += remaining * 0.30;
-                        breakdown.push({
-                            level: 'Senior Consultant (30%)',
-                            billings: remaining,
-                            commission: remaining * 0.30
-                        });
-                    }
-                } else {
-                    // Promoted to Senior Consultant
-                    const tier1End = 100000; // £100k total billings
-                    const tier1Remaining = Math.max(0, tier1End - totalBillingsAtStart);
-                    
-                    if (remaining <= tier1Remaining) {
-                        // All remaining billings are in the 25% tier
-                        commission = remaining * 0.25;
-                        breakdown.push({
-                            level: 'Senior Consultant (25%)',
-                            billings: remaining,
-                            commission: commission
-                        });
-                    } else {
-                        // Split between 25% and 30% tiers
-                        if (tier1Remaining > 0) {
-                            commission += tier1Remaining * 0.25;
-                            breakdown.push({
-                                level: 'Senior Consultant (25%)',
-                                billings: tier1Remaining,
-                                commission: tier1Remaining * 0.25
-                            });
-                        }
-                        
-                        const tier2Billings = remaining - tier1Remaining;
-                        commission += tier2Billings * 0.30;
-                        breakdown.push({
-                            level: 'Senior Consultant (30%)',
-                            billings: tier2Billings,
-                            commission: tier2Billings * 0.30
-                        });
-                    }
+                }
+                
+                // Second tier: £100k+ total (30%)
+                if (remaining > 0) {
+                    commission += remaining * 0.30;
+                    breakdown.push({
+                        level: 'Senior Consultant (30%)',
+                        billings: remaining,
+                        commission: remaining * 0.30
+                    });
                 }
                 
                 return commission;
             }
 
-            // Keep the original simple Principal calculation for starting as Principal
             calculatePrincipalTiers(billings, breakdown) {
                 let commission = 0;
                 let remaining = billings;
@@ -2550,24 +2167,19 @@
             }
 
             updateCalculation() {
-                const billings = this.safeParseFloat(document.getElementById('billings').value);
                 const baseSalary = this.safeParseFloat(document.getElementById('baseSalary').value);
                 const teamBillings = this.safeParseFloat(document.getElementById('teamBillings').value);
                 const currentLevel = document.getElementById('currentLevel').value;
                 
                 const h1Pipeline = this.getH1DealsValue();
                 const h2Pipeline = this.getH2DealsValue();
-                const totalBillings = billings + h1Pipeline + h2Pipeline;
+                const totalBillings = h1Pipeline + h2Pipeline;
                 
-                // Assume base billings split equally between H1 and H2
-                const h1Billings = billings * 0.5 + h1Pipeline;
-                const h2Billings = billings * 0.5 + h2Pipeline;
+                const h1Billings = h1Pipeline;
+                const h2Billings = h2Pipeline;
                 
-                // Check all toggles for current state
-                const fastTrackToggle = document.getElementById('fastTrackToggleMain');
                 const fastTrackToggleHeader = document.getElementById('fastTrackToggleHeader');
-                const fastTrackEnabled = (fastTrackToggle && fastTrackToggle.checked) || 
-                                       (fastTrackToggleHeader && fastTrackToggleHeader.checked);
+                const fastTrackEnabled = (fastTrackToggleHeader && fastTrackToggleHeader.checked);
                 const isFirstYear = fastTrackEnabled && currentLevel === 'Consultant';
                 
                 const hasTeamBonus = currentLevel === 'Principal Consultant' && teamBillings > 0;
@@ -2575,7 +2187,6 @@
                 const emptyState = document.getElementById('emptyState');
                 const calculationResults = document.getElementById('calculationResults');
                 
-                // Special case: if starting at Principal level and no billings, show top level message
                 if (currentLevel === 'Principal Consultant' && totalBillings === 0 && !hasTeamBonus) {
                     emptyState.innerHTML = `
                         <div class="status-title">Principal Consultant - Top Level</div>
@@ -2591,7 +2202,6 @@
                 }
                 
                 if (totalBillings === 0 && !hasTeamBonus) {
-                    // Reset to original empty state message for non-Principal levels
                     emptyState.innerHTML = `
                         <div class="status-title">Commission Thresholds & Rates</div>
                         <div class="status-text">
@@ -2651,11 +2261,8 @@
                 
                 let html = '';
                 let previousLevel = '';
-                let runningTotal = 0;
-                const threshold = this.THRESHOLDS[document.getElementById('currentLevel').value.toLowerCase().replace(/\s+/g, '')] || 40000;
                 
                 breakdown.forEach((item, index) => {
-                    // Extract the base level name more carefully
                     let currentLevel = '';
                     if (item.level.includes('Consultant II')) {
                         currentLevel = 'Consultant II';
@@ -2667,10 +2274,8 @@
                         currentLevel = 'Consultant';
                     }
                     
-                    // Check if this is a different level from the previous one
                     const isPromotionBreak = previousLevel && previousLevel !== currentLevel;
                     
-                    // Add promotion indicator if there's a level change
                     if (isPromotionBreak) {
                         html += `
                             <div class="promotion-indicator">
@@ -2686,7 +2291,6 @@
                         </div>
                     `;
                     
-                    runningTotal += item.billings;
                     previousLevel = currentLevel;
                 });
                 
@@ -2731,16 +2335,13 @@
                 const progressContent = document.getElementById('promotionContent');
                 const startingLevel = document.getElementById('currentLevel').value;
                 
-                // Show promotion progress even when at Principal if promoted from lower level
                 const wasPromoted = currentLevel !== startingLevel;
                 
-                // Always show something for Principal level
                 if (currentLevel === 'Principal Consultant') {
                     progressDiv.classList.remove('hidden');
                     
                     let html = '';
                     
-                    // If promoted, show promotion message
                     if (wasPromoted) {
                         const promotionPath = this.getPromotionPath(startingLevel, currentLevel);
                         html += `
@@ -2753,7 +2354,6 @@
                         `;
                     }
                     
-                    // Always show top level message for Principal
                     html += `
                         <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px;">
                             <div style="font-size: 13px; font-weight: 600; color: #1d4ed8; margin-bottom: 4px;">Principal Consultant - Top level reached within this tool.</div>
@@ -2771,7 +2371,6 @@
                 
                 let html = '';
                 
-                // Check if user was promoted and show promotion message
                 if (wasPromoted) {
                     const promotionPath = this.getPromotionPath(startingLevel, currentLevel);
                     html += `
@@ -2784,21 +2383,6 @@
                     `;
                 }
                 
-                // If at Principal, show top level message
-                if (currentLevel === 'Principal Consultant') {
-                    html += `
-                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px;">
-                            <div style="font-size: 13px; font-weight: 600; color: #1d4ed8; margin-bottom: 4px;">Principal Consultant - Top level reached within this tool.</div>
-                            <div style="font-size: 12px; color: #1e40af; line-height: 1.4;">
-                                This tool covers levels up to Principal - higher levels exist with different criteria.
-                            </div>
-                        </div>
-                    `;
-                    progressContent.innerHTML = html;
-                    return;
-                }
-                
-                // Determine next promotion target and progress
                 let nextTarget, nextThreshold, progressPercent, earlyThreshold, earlyProgressPercent;
                 
                 if (isFirstYear) {
@@ -2830,7 +2414,6 @@
                 if (nextTarget && nextThreshold) {
                     progressPercent = Math.min(100, (billings / nextThreshold) * 100);
                     
-                    // Next target box - show first with billings and deals info
                     html += `
                         <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 12px;">
                             <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 2px;">NEXT LEVEL</div>
@@ -2843,53 +2426,56 @@
                         </div>
                     `;
                     
-                    // Show promotion structure with progress bars underneath
-                    const earlyRemaining = Math.max(0, earlyThreshold - h1Billings);
-                    const standardRemaining = Math.max(0, nextThreshold - billings);
-                    
-                    // Determine which target is closer (smaller remaining amount)
-                    const earlyIsCloser = earlyRemaining <= standardRemaining;
-                    
-                    html += `
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-                            <div style="background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
-                                <div style="padding: 10px; text-align: center;">
-                                    <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 2px;">Early (H1)</div>
-                                    <div style="font-size: 16px; font-weight: 600; color: #475569;">${this.formatCurrency(earlyThreshold || 0)}</div>
-                                </div>`;
-                    
-                    // Early promotion progress bar
-                    if (earlyThreshold && !isFirstYear) {
-                        const progressColor = earlyIsCloser ? '#3b82f6' : '#94a3b8';
+                    if (!isFirstYear && earlyThreshold) {
+                        const earlyRemaining = Math.max(0, earlyThreshold - h1Billings);
+                        const standardRemaining = Math.max(0, nextThreshold - billings);
+                        const earlyIsCloser = earlyRemaining <= standardRemaining;
+                        
                         html += `
-                                <div style="padding: 8px 10px 10px 10px; border-top: 1px solid #e2e8f0;">
-                                    <div style="width: 100%; height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 4px;">
-                                        <div style="height: 100%; background: ${progressColor}; border-radius: 2px; transition: width 0.3s ease; width: ${earlyProgressPercent}%"></div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                <div style="background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                    <div style="padding: 10px; text-align: center;">
+                                        <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 2px;">Early (H1)</div>
+                                        <div style="font-size: 16px; font-weight: 600; color: #475569;">${this.formatCurrency(earlyThreshold || 0)}</div>
                                     </div>
-                                    <div style="font-size: 12px; color: #64748b; text-align: center;">
-                                        ${Math.round(earlyProgressPercent)}% • ${this.formatCurrency(earlyRemaining)} needed
+                                    <div style="padding: 8px 10px 10px 10px; border-top: 1px solid #e2e8f0;">
+                                        <div style="width: 100%; height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 4px;">
+                                            <div style="height: 100%; background: ${earlyIsCloser ? '#3b82f6' : '#94a3b8'}; border-radius: 2px; transition: width 0.3s ease; width: ${earlyProgressPercent}%"></div>
+                                        </div>
+                                        <div style="font-size: 12px; color: #64748b; text-align: center;">
+                                            ${Math.round(earlyProgressPercent)}% • ${this.formatCurrency(earlyRemaining)} needed
+                                        </div>
                                     </div>
-                                </div>`;
+                                </div>
+                                <div style="background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                    <div style="padding: 10px; text-align: center;">
+                                        <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 2px;">Year-End</div>
+                                        <div style="font-size: 16px; font-weight: 600; color: #475569;">${this.formatCurrency(nextThreshold)}</div>
+                                    </div>
+                                    <div style="padding: 8px 10px 10px 10px; border-top: 1px solid #e2e8f0;">
+                                        <div style="width: 100%; height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 4px;">
+                                            <div style="height: 100%; background: ${earlyIsCloser ? '#94a3b8' : '#3b82f6'}; border-radius: 2px; transition: width 0.3s ease; width: ${progressPercent}%"></div>
+                                        </div>
+                                        <div style="font-size: 12px; color: #64748b; text-align: center;">
+                                            ${Math.round(progressPercent)}% • ${this.formatCurrency(standardRemaining)} needed
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else if (isFirstYear) {
+                        const remaining = Math.max(0, nextThreshold - billings);
+                        html += `
+                            <div style="background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0; padding: 12px;">
+                                <div style="width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 8px;">
+                                    <div style="height: 100%; background: #3b82f6; border-radius: 2px; transition: width 0.3s ease; width: ${progressPercent}%"></div>
+                                </div>
+                                <div style="font-size: 12px; color: #64748b; text-align: center;">
+                                    ${Math.round(progressPercent)}% complete • ${this.formatCurrency(remaining)} needed
+                                </div>
+                            </div>
+                        `;
                     }
-                    
-                    html += `
-                            </div>
-                            <div style="background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0;">
-                                <div style="padding: 10px; text-align: center;">
-                                    <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 2px;">Year-End</div>
-                                    <div style="font-size: 16px; font-weight: 600; color: #475569;">${this.formatCurrency(nextThreshold)}</div>
-                                </div>
-                                <div style="padding: 8px 10px 10px 10px; border-top: 1px solid #e2e8f0;">
-                                    <div style="width: 100%; height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 4px;">
-                                        <div style="height: 100%; background: ${earlyIsCloser ? '#94a3b8' : '#3b82f6'}; border-radius: 2px; transition: width 0.3s ease; width: ${progressPercent}%"></div>
-                                    </div>
-                                    <div style="font-size: 12px; color: #64748b; text-align: center;">
-                                        ${Math.round(progressPercent)}% • ${this.formatCurrency(standardRemaining)} needed
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
                 } else {
                     html += '<div class="status-compact info"><div class="status-title">Principal Consultant - Top level reached</div></div>';
                 }
@@ -2918,31 +2504,6 @@
                     }
                 }
                 return currentLevel;
-            }
-
-            getNextPromotion(currentLevel, billings, h1Billings) {
-                if (currentLevel === 'Consultant' || currentLevel === 'Consultant II') {
-                    if (h1Billings >= this.PROMOTION_THRESHOLDS.earlyH1.senior) {
-                        return 'Promoted to Senior Consultant (H1 Early)';
-                    } else if (billings >= this.PROMOTION_THRESHOLDS.standard.senior) {
-                        return 'Promoted to Senior Consultant';
-                    } else {
-                        const h1Needed = this.PROMOTION_THRESHOLDS.earlyH1.senior - h1Billings;
-                        const standardNeeded = this.PROMOTION_THRESHOLDS.standard.senior - billings;
-                        return `Next: Senior - Need ${this.formatCurrency(h1Needed)} more in H1 or ${this.formatCurrency(standardNeeded)} total`;
-                    }
-                } else if (currentLevel === 'Senior Consultant') {
-                    if (h1Billings >= this.PROMOTION_THRESHOLDS.earlyH1.principal) {
-                        return 'Promoted to Principal Consultant (H1 Early)';
-                    } else if (billings >= this.PROMOTION_THRESHOLDS.standard.principal) {
-                        return 'Promoted to Principal Consultant';
-                    } else {
-                        const h1Needed = this.PROMOTION_THRESHOLDS.earlyH1.principal - h1Billings;
-                        const standardNeeded = this.PROMOTION_THRESHOLDS.standard.principal - billings;
-                        return `Next: Principal - Need ${this.formatCurrency(h1Needed)} more in H1 or ${this.formatCurrency(standardNeeded)} total`;
-                    }
-                }
-                return null;
             }
         }
     </script>
