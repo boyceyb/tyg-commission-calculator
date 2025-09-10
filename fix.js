@@ -271,45 +271,60 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
             
+            // Fix the empty state display text for Principal rates
+            const origUpdateCalculation = window.calculator.updateCalculation.bind(window.calculator);
+            window.calculator.updateCalculation = function() {
+                // Call original
+                origUpdateCalculation();
+                
+                // Fix the info text if it's showing
+                const emptyState = document.getElementById('emptyState');
+                if (emptyState && !emptyState.classList.contains('hidden')) {
+                    const statusText = emptyState.querySelector('.status-text');
+                    if (statusText && statusText.innerHTML.includes('30-50% tiered rates')) {
+                        statusText.innerHTML = statusText.innerHTML.replace('Principal Consultant:</strong> £40,000 minimum • 30-50% tiered rates', 
+                                                                           'Principal Consultant:</strong> £40,000 minimum • 25-50% tiered rates');
+                    }
+                }
+            };
+            
             // Override deal display to show commission percentage
             const origUpdateDealsDisplay = window.calculator.updateDealsDisplay.bind(window.calculator);
             window.calculator.updateDealsDisplay = function() {
-                // First call the original
-                origUpdateDealsDisplay();
+                const dealsList = document.getElementById('dealsList');
                 
-                // Then enhance with percentage display
-                const dealItems = document.querySelectorAll('.deal-item');
-                if (dealItems.length > 0 && this.deals.length > 0) {
-                    dealItems.forEach((dealItem, index) => {
-                        if (this.deals[index]) {
-                            const deal = this.deals[index];
-                            const dealCommission = this.calculateDealCommission(deal.value, deal.period, index);
-                            const percentage = ((dealCommission / deal.value) * 100).toFixed(1);
-                            
-                            // Find the deal-info div
-                            const dealInfo = dealItem.querySelector('.deal-info');
-                            if (dealInfo) {
-                                // Check if percentage span already exists
-                                let percentSpan = dealInfo.querySelector('.deal-percentage');
-                                if (!percentSpan) {
-                                    // Create percentage element
-                                    percentSpan = document.createElement('span');
-                                    percentSpan.className = 'deal-percentage';
-                                    percentSpan.style.cssText = 'background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin: 0 8px;';
-                                    
-                                    // Insert after the deal-value, before deal-commission
-                                    const dealValue = dealInfo.querySelector('.deal-value');
-                                    const dealCommissionSpan = dealInfo.querySelector('.deal-commission');
-                                    if (dealValue && dealCommissionSpan) {
-                                        dealInfo.insertBefore(percentSpan, dealCommissionSpan);
-                                    }
-                                }
-                                percentSpan.textContent = percentage + '%';
-                            }
-                        }
-                    });
+                if (this.deals.length === 0) {
+                    dealsList.innerHTML = '';
+                    this.updateStickyHeaderFromCurrentData();
+                    return;
                 }
+
+                // Rebuild the deals display with percentage
+                dealsList.innerHTML = this.deals.map((deal, index) => {
+                    const commission = this.calculateDealCommission(deal.value, deal.period, index);
+                    const percentage = ((commission / deal.value) * 100).toFixed(1);
+                    
+                    return `
+                        <div class="deal-item ${deal.period.toLowerCase()}">
+                            <div class="deal-info">
+                                <span class="deal-number">Deal ${index + 1}</span>
+                                <span class="deal-period-badge ${deal.period.toLowerCase()}">${deal.period}</span>
+                                <span class="deal-value">${this.formatCurrency(deal.value)}</span>
+                                <span class="deal-percentage" style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${percentage}%</span>
+                                <span class="deal-commission">+${this.formatCurrency(commission)}</span>
+                            </div>
+                            <button class="deal-remove" onclick="window.calculator.removeDeal(${deal.id})" title="Remove deal">×</button>
+                        </div>
+                    `;
+                }).join('');
+
+                this.updateStickyHeaderFromCurrentData();
             };
+            
+            // Force immediate update
+            if (window.calculator.deals && window.calculator.deals.length > 0) {
+                window.calculator.updateDealsDisplay();
+            }
             
             // Override the breakdown display to show promotion amounts
             const origUpdateBreakdown = window.calculator.updateBreakdown.bind(window.calculator);
