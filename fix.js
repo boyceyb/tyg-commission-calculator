@@ -273,27 +273,23 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Fix the empty state display text for Principal rates - more aggressive approach
             setInterval(function() {
-                const emptyState = document.getElementById('emptyState');
-                if (emptyState && !emptyState.classList.contains('hidden')) {
-                    const statusText = emptyState.querySelector('.status-text');
-                    if (statusText && statusText.innerHTML.includes('30-50% tiered rates')) {
-                        statusText.innerHTML = statusText.innerHTML.replace(
-                            'Principal Consultant:</strong> £40,000 minimum • 30-50% tiered rates',
-                            'Principal Consultant:</strong> £40,000 minimum • 25-50% tiered rates'
-                        );
-                    }
-                }
-                
-                // Also check for the specific Principal info when selected
-                const statusTexts = document.querySelectorAll('.status-text');
-                statusTexts.forEach(text => {
-                    if (text.innerHTML && text.innerHTML.includes('Principal rates:</strong> 25% (£40k-100k), 30%')) {
-                        // This one is already correct
-                    } else if (text.innerHTML && text.innerHTML.includes('30-50% tiered rates')) {
-                        text.innerHTML = text.innerHTML.replace('30-50% tiered rates', '25-50% tiered rates');
+                // Find all elements that might contain the wrong text
+                const allElements = document.querySelectorAll('*');
+                allElements.forEach(element => {
+                    if (element.innerHTML && typeof element.innerHTML === 'string') {
+                        // Check if this element contains the wrong text
+                        if (element.innerHTML.includes('Principal Consultant:') && 
+                            element.innerHTML.includes('30-50% tiered rates')) {
+                            element.innerHTML = element.innerHTML.replace('30-50% tiered rates', '25-50% tiered rates');
+                            console.log('Fixed Principal text from 30-50% to 25-50%');
+                        }
+                        // Also fix if it's in a different format
+                        if (element.innerHTML.includes('Principal Consultant:</strong> £40,000 minimum • 30-50%')) {
+                            element.innerHTML = element.innerHTML.replace('30-50%', '25-50%');
+                        }
                     }
                 });
-            }, 500); // Check every 500ms
+            }, 200); // Check every 200ms
             
             // Fix random 0 appearing in deal value input
             const dealValueInput = document.getElementById('dealValue');
@@ -338,9 +334,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const percentage = ((commission / deal.value) * 100).toFixed(1);
                     
                     return `
-                        <div class="deal-item ${deal.period.toLowerCase()}" style="display: grid; grid-template-columns: 80px 50px 120px 70px 100px 30px; align-items: center; gap: 12px; padding: 12px 16px;">
+                        <div class="deal-item ${deal.period.toLowerCase()}" style="display: grid !important; grid-template-columns: 80px 50px 120px 70px 100px 30px !important; align-items: center !important; gap: 12px !important; padding: 12px 16px;">
                             <span class="deal-number" style="font-size: 11px; font-weight: 500; color: #94a3b8;">Deal ${index + 1}</span>
-                            <span class="deal-period-badge ${deal.period.toLowerCase()}" style="text-align: center;">${deal.period}</span>
+                            <span class="deal-period-badge ${deal.period.toLowerCase()}" style="text-align: center; justify-self: center;">${deal.period}</span>
                             <span class="deal-value" style="font-weight: 500; color: #1e293b; text-align: right;">${this.formatCurrency(deal.value)}</span>
                             <span class="deal-percentage" style="background: #1e40af; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; justify-self: center;">${percentage}%</span>
                             <span class="deal-commission" style="color: #059669; font-weight: 500; text-align: right;">+${this.formatCurrency(commission)}</span>
@@ -350,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).join('');
 
                 this.updateStickyHeaderFromCurrentData();
+                console.log('Deal display updated with alignment');
             };
             
             // Force immediate update
