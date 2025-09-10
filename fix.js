@@ -271,24 +271,57 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
             
-            // Fix the empty state display text for Principal rates
-            const origUpdateCalculation = window.calculator.updateCalculation.bind(window.calculator);
-            window.calculator.updateCalculation = function() {
-                // Call original
-                origUpdateCalculation();
-                
-                // Fix the info text if it's showing
+            // Fix the empty state display text for Principal rates - more aggressive approach
+            setInterval(function() {
                 const emptyState = document.getElementById('emptyState');
                 if (emptyState && !emptyState.classList.contains('hidden')) {
                     const statusText = emptyState.querySelector('.status-text');
                     if (statusText && statusText.innerHTML.includes('30-50% tiered rates')) {
-                        statusText.innerHTML = statusText.innerHTML.replace('Principal Consultant:</strong> £40,000 minimum • 30-50% tiered rates', 
-                                                                           'Principal Consultant:</strong> £40,000 minimum • 25-50% tiered rates');
+                        statusText.innerHTML = statusText.innerHTML.replace(
+                            'Principal Consultant:</strong> £40,000 minimum • 30-50% tiered rates',
+                            'Principal Consultant:</strong> £40,000 minimum • 25-50% tiered rates'
+                        );
                     }
                 }
-            };
+                
+                // Also check for the specific Principal info when selected
+                const statusTexts = document.querySelectorAll('.status-text');
+                statusTexts.forEach(text => {
+                    if (text.innerHTML && text.innerHTML.includes('Principal rates:</strong> 25% (£40k-100k), 30%')) {
+                        // This one is already correct
+                    } else if (text.innerHTML && text.innerHTML.includes('30-50% tiered rates')) {
+                        text.innerHTML = text.innerHTML.replace('30-50% tiered rates', '25-50% tiered rates');
+                    }
+                });
+            }, 500); // Check every 500ms
             
-            // Override deal display to show commission percentage
+            // Fix random 0 appearing in deal value input
+            const dealValueInput = document.getElementById('dealValue');
+            if (dealValueInput) {
+                // Clear any default value
+                if (dealValueInput.value === '0') {
+                    dealValueInput.value = '';
+                }
+                
+                // Prevent 0 from being set as default
+                const origSetAttribute = dealValueInput.setAttribute.bind(dealValueInput);
+                dealValueInput.setAttribute = function(name, value) {
+                    if (name === 'value' && value === '0') {
+                        return; // Don't set if it's 0
+                    }
+                    return origSetAttribute(name, value);
+                };
+                
+                // Monitor for unwanted changes
+                const observer = new MutationObserver(function() {
+                    if (dealValueInput.value === '0' && document.activeElement !== dealValueInput) {
+                        dealValueInput.value = '';
+                    }
+                });
+                observer.observe(dealValueInput, { attributes: true, attributeFilter: ['value'] });
+            }
+            
+            // Override deal display to show commission percentage with better alignment
             const origUpdateDealsDisplay = window.calculator.updateDealsDisplay.bind(window.calculator);
             window.calculator.updateDealsDisplay = function() {
                 const dealsList = document.getElementById('dealsList');
@@ -299,21 +332,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                // Rebuild the deals display with percentage
+                // Rebuild the deals display with percentage and better alignment
                 dealsList.innerHTML = this.deals.map((deal, index) => {
                     const commission = this.calculateDealCommission(deal.value, deal.period, index);
                     const percentage = ((commission / deal.value) * 100).toFixed(1);
                     
                     return `
-                        <div class="deal-item ${deal.period.toLowerCase()}">
-                            <div class="deal-info">
-                                <span class="deal-number">Deal ${index + 1}</span>
-                                <span class="deal-period-badge ${deal.period.toLowerCase()}">${deal.period}</span>
-                                <span class="deal-value">${this.formatCurrency(deal.value)}</span>
-                                <span class="deal-percentage" style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${percentage}%</span>
-                                <span class="deal-commission">+${this.formatCurrency(commission)}</span>
-                            </div>
-                            <button class="deal-remove" onclick="window.calculator.removeDeal(${deal.id})" title="Remove deal">×</button>
+                        <div class="deal-item ${deal.period.toLowerCase()}" style="display: grid; grid-template-columns: 80px 50px 120px 70px 100px 30px; align-items: center; gap: 12px; padding: 12px 16px;">
+                            <span class="deal-number" style="font-size: 11px; font-weight: 500; color: #94a3b8;">Deal ${index + 1}</span>
+                            <span class="deal-period-badge ${deal.period.toLowerCase()}" style="text-align: center;">${deal.period}</span>
+                            <span class="deal-value" style="font-weight: 500; color: #1e293b; text-align: right;">${this.formatCurrency(deal.value)}</span>
+                            <span class="deal-percentage" style="background: #1e40af; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; justify-self: center;">${percentage}%</span>
+                            <span class="deal-commission" style="color: #059669; font-weight: 500; text-align: right;">+${this.formatCurrency(commission)}</span>
+                            <button class="deal-remove" onclick="window.calculator.removeDeal(${deal.id})" title="Remove deal" style="background: transparent; border: none; color: #94a3b8; padding: 4px; cursor: pointer; font-size: 18px; line-height: 1; justify-self: end;">×</button>
                         </div>
                     `;
                 }).join('');
