@@ -271,6 +271,154 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
             
+            // Add save/load functionality
+            setTimeout(function() {
+                // Add save/load buttons to the UI
+                const stickyHeader = document.getElementById('stickyHeader');
+                if (stickyHeader && !document.getElementById('saveLoadButtons')) {
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.id = 'saveLoadButtons';
+                    buttonContainer.style.cssText = 'position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;';
+                    buttonContainer.innerHTML = `
+                        <button onclick="window.saveCalculatorState()" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">Save</button>
+                        <button onclick="window.loadCalculatorState()" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">Load</button>
+                        <button onclick="window.clearSavedStates()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">Clear</button>
+                    `;
+                    stickyHeader.appendChild(buttonContainer);
+                }
+                
+                // Save calculator state function
+                window.saveCalculatorState = function() {
+                    const state = {
+                        level: document.getElementById('currentLevel').value,
+                        deals: window.calculator.deals,
+                        baseSalary: document.getElementById('baseSalary').value,
+                        teamBillings: document.getElementById('teamBillings').value,
+                        fastTrack: document.getElementById('fastTrackToggleHeader')?.checked || false,
+                        savedAt: new Date().toISOString()
+                    };
+                    
+                    // Get existing saves or create new array
+                    let saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
+                    
+                    // Create save name with date
+                    const saveName = prompt('Enter a name for this save:', 'Save ' + (saves.length + 1) + ' - ' + new Date().toLocaleDateString());
+                    if (!saveName) return;
+                    
+                    state.name = saveName;
+                    saves.push(state);
+                    
+                    // Keep only last 10 saves
+                    if (saves.length > 10) {
+                        saves = saves.slice(-10);
+                    }
+                    
+                    localStorage.setItem('tygCalculatorSaves', JSON.stringify(saves));
+                    alert('Saved successfully as: ' + saveName);
+                };
+                
+                // Load calculator state function
+                window.loadCalculatorState = function() {
+                    const saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
+                    
+                    if (saves.length === 0) {
+                        alert('No saved states found');
+                        return;
+                    }
+                    
+                    // Show list of saves to choose from
+                    let savesList = 'Select a save to load:\n\n';
+                    saves.forEach((save, index) => {
+                        savesList += `${index + 1}. ${save.name} (${new Date(save.savedAt).toLocaleString()})\n`;
+                    });
+                    
+                    const choice = prompt(savesList + '\nEnter the number of the save to load:');
+                    if (!choice) return;
+                    
+                    const saveIndex = parseInt(choice) - 1;
+                    if (saveIndex < 0 || saveIndex >= saves.length) {
+                        alert('Invalid selection');
+                        return;
+                    }
+                    
+                    const state = saves[saveIndex];
+                    
+                    // Restore the state
+                    document.getElementById('currentLevel').value = state.level;
+                    document.getElementById('baseSalary').value = state.baseSalary || '';
+                    document.getElementById('teamBillings').value = state.teamBillings || '';
+                    
+                    const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
+                    if (fastTrackToggle) {
+                        fastTrackToggle.checked = state.fastTrack || false;
+                    }
+                    
+                    // Clear and restore deals
+                    window.calculator.deals = [];
+                    if (state.deals && state.deals.length > 0) {
+                        state.deals.forEach(deal => {
+                            window.calculator.deals.push(deal);
+                        });
+                    }
+                    
+                    // Update display
+                    window.calculator.updateDealsDisplay();
+                    window.calculator.updateCalculation();
+                    
+                    alert('Loaded: ' + state.name);
+                };
+                
+                // Clear saved states function
+                window.clearSavedStates = function() {
+                    if (confirm('Are you sure you want to clear all saved states?')) {
+                        localStorage.removeItem('tygCalculatorSaves');
+                        alert('All saved states have been cleared');
+                    }
+                };
+                
+                // Auto-save current state periodically (every 30 seconds if there are deals)
+                setInterval(function() {
+                    if (window.calculator && window.calculator.deals && window.calculator.deals.length > 0) {
+                        const autoSave = {
+                            level: document.getElementById('currentLevel').value,
+                            deals: window.calculator.deals,
+                            baseSalary: document.getElementById('baseSalary').value,
+                            teamBillings: document.getElementById('teamBillings').value,
+                            fastTrack: document.getElementById('fastTrackToggleHeader')?.checked || false,
+                            savedAt: new Date().toISOString(),
+                            name: 'Auto-save'
+                        };
+                        localStorage.setItem('tygCalculatorAutoSave', JSON.stringify(autoSave));
+                    }
+                }, 30000);
+                
+                // Load auto-save on page load if exists
+                const autoSave = localStorage.getItem('tygCalculatorAutoSave');
+                if (autoSave && window.calculator.deals.length === 0) {
+                    if (confirm('Found auto-saved data. Would you like to restore it?')) {
+                        const state = JSON.parse(autoSave);
+                        document.getElementById('currentLevel').value = state.level;
+                        document.getElementById('baseSalary').value = state.baseSalary || '';
+                        document.getElementById('teamBillings').value = state.teamBillings || '';
+                        
+                        const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
+                        if (fastTrackToggle) {
+                            fastTrackToggle.checked = state.fastTrack || false;
+                        }
+                        
+                        if (state.deals && state.deals.length > 0) {
+                            state.deals.forEach(deal => {
+                                window.calculator.deals.push(deal);
+                            });
+                        }
+                        
+                        window.calculator.updateDealsDisplay();
+                        window.calculator.updateCalculation();
+                    }
+                }
+                
+            }, 1000);
+            
             // Fix the empty state display text for Principal rates - more aggressive approach
             setInterval(function() {
                 // Find all elements that might contain the wrong text
