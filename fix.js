@@ -341,8 +341,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     stickyMetrics.insertAdjacentHTML('beforeend', saveLoadHTML);
                 }
                 
-                // Quick save function - no popup
-                window.quickSave = function() {
+                // Quick save function - with custom name option
+                window.quickSave = function(customName) {
                     const state = {
                         level: document.getElementById('currentLevel').value,
                         deals: window.calculator.deals,
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         teamBillings: document.getElementById('teamBillings').value,
                         fastTrack: document.getElementById('fastTrackToggleHeader')?.checked || false,
                         savedAt: new Date().toISOString(),
-                        name: 'Save ' + new Date().toLocaleString('en-GB', { 
+                        name: customName || 'Save ' + new Date().toLocaleString('en-GB', { 
                             day: '2-digit', 
                             month: 'short', 
                             hour: '2-digit', 
@@ -362,9 +362,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     let saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
                     saves.push(state);
                     
-                    // Keep only last 10 saves
-                    if (saves.length > 10) {
-                        saves = saves.slice(-10);
+                    // Keep only last 20 saves
+                    if (saves.length > 20) {
+                        saves = saves.slice(-20);
                     }
                     
                     localStorage.setItem('tygCalculatorSaves', JSON.stringify(saves));
@@ -385,6 +385,96 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Update dropdown if open
                     window.updateLoadDropdown();
                 };
+                
+                // Toggle save menu (new)
+                window.toggleSaveMenu = function() {
+                    const existingInput = document.getElementById('saveNameInput');
+                    if (existingInput) {
+                        existingInput.remove();
+                        return;
+                    }
+                    
+                    const saveBtn = document.getElementById('quickSaveBtn');
+                    const inputDiv = document.createElement('div');
+                    inputDiv.id = 'saveNameInput';
+                    inputDiv.style.cssText = 'position: absolute; top: 100%; left: 0; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000;';
+                    inputDiv.innerHTML = `
+                        <input type="text" id="saveNameField" placeholder="Save name..." style="
+                            padding: 4px 8px;
+                            border: 1px solid #cbd5e1;
+                            border-radius: 4px;
+                            font-size: 11px;
+                            width: 150px;
+                            margin-right: 4px;
+                        ">
+                        <button onclick="window.saveWithName()" style="
+                            padding: 4px 8px;
+                            background: #10b981;
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            font-size: 11px;
+                            cursor: pointer;
+                        ">Save</button>
+                    `;
+                    
+                    saveBtn.parentElement.style.position = 'relative';
+                    saveBtn.parentElement.appendChild(inputDiv);
+                    
+                    // Focus the input
+                    setTimeout(function() {
+                        const field = document.getElementById('saveNameField');
+                        if (field) {
+                            field.focus();
+                            field.onkeydown = function(e) {
+                                if (e.key === 'Enter') {
+                                    window.saveWithName();
+                                } else if (e.key === 'Escape') {
+                                    inputDiv.remove();
+                                }
+                            };
+                        }
+                    }, 10);
+                    
+                    // Close when clicking outside
+                    setTimeout(function() {
+                        document.addEventListener('click', function closeInput(e) {
+                            if (!inputDiv.contains(e.target) && e.target.id !== 'quickSaveBtn') {
+                                inputDiv.remove();
+                                document.removeEventListener('click', closeInput);
+                            }
+                        });
+                    }, 10);
+                };
+                
+                // Save with custom name
+                window.saveWithName = function() {
+                    const nameField = document.getElementById('saveNameField');
+                    const name = nameField ? nameField.value.trim() : '';
+                    
+                    if (name) {
+                        window.quickSave(name);
+                        document.getElementById('saveNameInput').remove();
+                    }
+                };
+                
+                // Update save button to handle click better
+                setTimeout(function() {
+                    const saveBtn = document.getElementById('quickSaveBtn');
+                    if (saveBtn) {
+                        saveBtn.onclick = function(e) {
+                            e.stopPropagation();
+                            if (e.shiftKey || e.ctrlKey) {
+                                // Quick save with auto name
+                                window.quickSave();
+                            } else {
+                                // Show name input
+                                window.toggleSaveMenu();
+                            }
+                        };
+                        saveBtn.title = 'Click to save with name, Shift+Click for quick save';
+                    }
+                }, 100);
                 
                 // Toggle load dropdown
                 window.toggleLoadMenu = function() {
@@ -407,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 };
                 
-                // Update load dropdown content
+                // Update load dropdown content with delete buttons
                 window.updateLoadDropdown = function() {
                     const saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
                     const content = document.getElementById('loadDropdownContent');
@@ -419,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                     
-                    // Build dropdown items
+                    // Build dropdown items with delete buttons
                     let html = '';
                     saves.reverse().forEach((save, index) => {
                         const realIndex = saves.length - 1 - index;
@@ -427,35 +517,63 @@ document.addEventListener('DOMContentLoaded', function() {
                         const timeAgo = getTimeAgo(date);
                         
                         html += `
-                            <div onclick="window.loadState(${realIndex})" style="
-                                padding: 8px 12px;
-                                cursor: pointer;
+                            <div style="
+                                display: flex;
+                                align-items: center;
                                 border-bottom: 1px solid #f8fafc;
                                 transition: background 0.2s;
-                                font-size: 11px;
                             " onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                <div style="font-weight: 500; color: #334155; margin-bottom: 2px;">${save.name}</div>
-                                <div style="color: #94a3b8; font-size: 10px;">${timeAgo} • ${save.deals ? save.deals.length : 0} deals</div>
+                                <div onclick="window.loadState(${realIndex})" style="
+                                    flex: 1;
+                                    padding: 8px 12px;
+                                    cursor: pointer;
+                                    font-size: 11px;
+                                ">
+                                    <div style="font-weight: 500; color: #334155; margin-bottom: 2px;">${save.name}</div>
+                                    <div style="color: #94a3b8; font-size: 10px;">${timeAgo} • ${save.deals ? save.deals.length : 0} deals</div>
+                                </div>
+                                <button onclick="window.deleteSave(${realIndex}); event.stopPropagation();" style="
+                                    background: transparent;
+                                    border: none;
+                                    color: #ef4444;
+                                    padding: 4px 8px;
+                                    cursor: pointer;
+                                    font-size: 14px;
+                                    opacity: 0.5;
+                                    transition: opacity 0.2s;
+                                " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">×</button>
                             </div>
                         `;
                     });
                     
-                    // Add clear all at bottom
-                    html += `
-                        <div onclick="if(confirm('Clear all saves?')) { localStorage.removeItem('tygCalculatorSaves'); window.updateLoadDropdown(); }" style="
-                            padding: 6px 12px;
-                            cursor: pointer;
-                            border-top: 1px solid #e2e8f0;
-                            color: #ef4444;
-                            font-size: 10px;
-                            text-align: center;
-                            transition: background 0.2s;
-                        " onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
-                            Clear All
-                        </div>
-                    `;
+                    // Add clear all at bottom if there are saves
+                    if (saves.length > 0) {
+                        html += `
+                            <div onclick="if(confirm('Clear all saves?')) { localStorage.removeItem('tygCalculatorSaves'); window.updateLoadDropdown(); }" style="
+                                padding: 6px 12px;
+                                cursor: pointer;
+                                border-top: 1px solid #e2e8f0;
+                                color: #ef4444;
+                                font-size: 10px;
+                                text-align: center;
+                                transition: background 0.2s;
+                            " onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                                Clear All
+                            </div>
+                        `;
+                    }
                     
                     content.innerHTML = html;
+                };
+                
+                // Delete individual save
+                window.deleteSave = function(index) {
+                    let saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
+                    if (index >= 0 && index < saves.length) {
+                        saves.splice(index, 1);
+                        localStorage.setItem('tygCalculatorSaves', JSON.stringify(saves));
+                        window.updateLoadDropdown();
+                    }
                 };
                 
                 // Load specific state
