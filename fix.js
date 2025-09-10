@@ -270,6 +270,80 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ H1/H2 promotions fixed');
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
+            
+            // Override deal display to show commission percentage
+            const origUpdateDealsDisplay = window.calculator.updateDealsDisplay.bind(window.calculator);
+            window.calculator.updateDealsDisplay = function() {
+                // First call the original
+                origUpdateDealsDisplay();
+                
+                // Then enhance with percentage display
+                const dealItems = document.querySelectorAll('.deal-item');
+                if (dealItems.length > 0 && this.deals.length > 0) {
+                    dealItems.forEach((dealItem, index) => {
+                        if (this.deals[index]) {
+                            const deal = this.deals[index];
+                            const dealCommission = this.calculateDealCommission(deal.value, deal.period, index);
+                            const percentage = ((dealCommission / deal.value) * 100).toFixed(1);
+                            
+                            // Find the deal-info div
+                            const dealInfo = dealItem.querySelector('.deal-info');
+                            if (dealInfo) {
+                                // Check if percentage span already exists
+                                let percentSpan = dealInfo.querySelector('.deal-percentage');
+                                if (!percentSpan) {
+                                    // Create percentage element
+                                    percentSpan = document.createElement('span');
+                                    percentSpan.className = 'deal-percentage';
+                                    percentSpan.style.cssText = 'background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin: 0 8px;';
+                                    
+                                    // Insert after the deal-value, before deal-commission
+                                    const dealValue = dealInfo.querySelector('.deal-value');
+                                    const dealCommissionSpan = dealInfo.querySelector('.deal-commission');
+                                    if (dealValue && dealCommissionSpan) {
+                                        dealInfo.insertBefore(percentSpan, dealCommissionSpan);
+                                    }
+                                }
+                                percentSpan.textContent = percentage + '%';
+                            }
+                        }
+                    });
+                }
+            };
+            
+            // Override the breakdown display to show promotion amounts
+            const origUpdateBreakdown = window.calculator.updateBreakdown.bind(window.calculator);
+            window.calculator.updateBreakdown = function(breakdown, belowThreshold) {
+                // First call the original
+                origUpdateBreakdown(breakdown, belowThreshold);
+                
+                // Then update promotion indicators with amounts
+                const breakdownDiv = document.getElementById('breakdown');
+                if (breakdownDiv && !breakdownDiv.classList.contains('hidden')) {
+                    const promotionIndicators = breakdownDiv.querySelectorAll('.promotion-indicator-text');
+                    const result = this.lastCalculationResult;
+                    
+                    if (result && result.promotionPoints && promotionIndicators.length > 0) {
+                        let promotionIndex = 0;
+                        promotionIndicators.forEach(indicator => {
+                            if (promotionIndex < result.promotionPoints.length) {
+                                const amount = result.promotionPoints[promotionIndex];
+                                const formattedAmount = '£' + (amount / 1000).toFixed(0) + 'k';
+                                indicator.textContent = 'Promoted @ ' + formattedAmount;
+                                promotionIndex++;
+                            }
+                        });
+                    }
+                }
+            };
+            
+            // Store the result for reference
+            const origCalcMethod = window.calculator.calculateCommission;
+            window.calculator.calculateCommission = function(billings, level, isFirstYear, h1Billings, h2Billings) {
+                const result = origCalcMethod.call(this, billings, level, isFirstYear, h1Billings, h2Billings);
+                this.lastCalculationResult = result; // Store for the breakdown update
+                return result;
+            };
         }
         
         if (attempts > 50) {
