@@ -271,41 +271,95 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
             
-            // Add save/load functionality
+            // Add save/load functionality with better UI
             setTimeout(function() {
-                // Add save/load buttons to the UI
-                const stickyHeader = document.getElementById('stickyHeader');
-                if (stickyHeader && !document.getElementById('saveLoadButtons')) {
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.id = 'saveLoadButtons';
-                    buttonContainer.style.cssText = 'position: absolute; top: 10px; right: 10px; display: flex; gap: 8px;';
-                    buttonContainer.innerHTML = `
-                        <button onclick="window.saveCalculatorState()" style="padding: 6px 12px; background: #10b981; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">Save</button>
-                        <button onclick="window.loadCalculatorState()" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">Load</button>
-                        <button onclick="window.clearSavedStates()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 500;">Clear</button>
+                // Add save/load UI to the sticky header
+                const stickyMetrics = document.querySelector('.sticky-metrics');
+                if (stickyMetrics && !document.getElementById('saveLoadContainer')) {
+                    const saveLoadHTML = `
+                        <div id="saveLoadContainer" style="display: flex; align-items: center; gap: 8px; margin-left: 20px; padding-left: 20px; border-left: 1px solid #e2e8f0;">
+                            <button id="quickSaveBtn" onclick="window.quickSave()" style="
+                                background: transparent;
+                                border: 1px solid #cbd5e1;
+                                color: #64748b;
+                                padding: 4px 10px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                font-weight: 500;
+                                cursor: pointer;
+                                transition: all 0.2s;
+                            " onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                                Save
+                            </button>
+                            <div style="position: relative;">
+                                <button id="loadMenuBtn" onclick="window.toggleLoadMenu()" style="
+                                    background: transparent;
+                                    border: 1px solid #cbd5e1;
+                                    color: #64748b;
+                                    padding: 4px 10px;
+                                    border-radius: 4px;
+                                    font-size: 11px;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                    transition: all 0.2s;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 4px;
+                                " onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+                                    Load <span style="font-size: 8px;">▼</span>
+                                </button>
+                                <div id="loadDropdown" style="
+                                    display: none;
+                                    position: absolute;
+                                    top: 100%;
+                                    right: 0;
+                                    margin-top: 4px;
+                                    background: white;
+                                    border: 1px solid #e2e8f0;
+                                    border-radius: 6px;
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                                    min-width: 200px;
+                                    max-height: 300px;
+                                    overflow-y: auto;
+                                    z-index: 1000;
+                                ">
+                                    <div id="loadDropdownContent" style="padding: 4px;">
+                                        <div style="padding: 8px 12px; color: #94a3b8; font-size: 11px; border-bottom: 1px solid #f1f5f9;">No saved states</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="saveIndicator" style="
+                                display: none;
+                                font-size: 10px;
+                                color: #10b981;
+                                font-weight: 500;
+                                opacity: 0;
+                                transition: opacity 0.3s;
+                            ">✓ Saved</span>
+                        </div>
                     `;
-                    stickyHeader.appendChild(buttonContainer);
+                    stickyMetrics.insertAdjacentHTML('beforeend', saveLoadHTML);
                 }
                 
-                // Save calculator state function
-                window.saveCalculatorState = function() {
+                // Quick save function - no popup
+                window.quickSave = function() {
                     const state = {
                         level: document.getElementById('currentLevel').value,
                         deals: window.calculator.deals,
                         baseSalary: document.getElementById('baseSalary').value,
                         teamBillings: document.getElementById('teamBillings').value,
                         fastTrack: document.getElementById('fastTrackToggleHeader')?.checked || false,
-                        savedAt: new Date().toISOString()
+                        savedAt: new Date().toISOString(),
+                        name: 'Save ' + new Date().toLocaleString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        })
                     };
                     
-                    // Get existing saves or create new array
+                    // Get existing saves
                     let saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
-                    
-                    // Create save name with date
-                    const saveName = prompt('Enter a name for this save:', 'Save ' + (saves.length + 1) + ' - ' + new Date().toLocaleDateString());
-                    if (!saveName) return;
-                    
-                    state.name = saveName;
                     saves.push(state);
                     
                     // Keep only last 10 saves
@@ -314,34 +368,102 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     localStorage.setItem('tygCalculatorSaves', JSON.stringify(saves));
-                    alert('Saved successfully as: ' + saveName);
+                    
+                    // Show save indicator
+                    const indicator = document.getElementById('saveIndicator');
+                    if (indicator) {
+                        indicator.style.display = 'inline';
+                        indicator.style.opacity = '1';
+                        setTimeout(function() {
+                            indicator.style.opacity = '0';
+                            setTimeout(function() {
+                                indicator.style.display = 'none';
+                            }, 300);
+                        }, 2000);
+                    }
+                    
+                    // Update dropdown if open
+                    window.updateLoadDropdown();
                 };
                 
-                // Load calculator state function
-                window.loadCalculatorState = function() {
+                // Toggle load dropdown
+                window.toggleLoadMenu = function() {
+                    const dropdown = document.getElementById('loadDropdown');
+                    if (dropdown.style.display === 'none') {
+                        window.updateLoadDropdown();
+                        dropdown.style.display = 'block';
+                        
+                        // Close when clicking outside
+                        setTimeout(function() {
+                            document.addEventListener('click', function closeDropdown(e) {
+                                if (!dropdown.contains(e.target) && e.target.id !== 'loadMenuBtn') {
+                                    dropdown.style.display = 'none';
+                                    document.removeEventListener('click', closeDropdown);
+                                }
+                            });
+                        }, 10);
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
+                };
+                
+                // Update load dropdown content
+                window.updateLoadDropdown = function() {
                     const saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
+                    const content = document.getElementById('loadDropdownContent');
+                    
+                    if (!content) return;
                     
                     if (saves.length === 0) {
-                        alert('No saved states found');
+                        content.innerHTML = '<div style="padding: 8px 12px; color: #94a3b8; font-size: 11px;">No saved states</div>';
                         return;
                     }
                     
-                    // Show list of saves to choose from
-                    let savesList = 'Select a save to load:\n\n';
-                    saves.forEach((save, index) => {
-                        savesList += `${index + 1}. ${save.name} (${new Date(save.savedAt).toLocaleString()})\n`;
+                    // Build dropdown items
+                    let html = '';
+                    saves.reverse().forEach((save, index) => {
+                        const realIndex = saves.length - 1 - index;
+                        const date = new Date(save.savedAt);
+                        const timeAgo = getTimeAgo(date);
+                        
+                        html += `
+                            <div onclick="window.loadState(${realIndex})" style="
+                                padding: 8px 12px;
+                                cursor: pointer;
+                                border-bottom: 1px solid #f8fafc;
+                                transition: background 0.2s;
+                                font-size: 11px;
+                            " onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                <div style="font-weight: 500; color: #334155; margin-bottom: 2px;">${save.name}</div>
+                                <div style="color: #94a3b8; font-size: 10px;">${timeAgo} • ${save.deals ? save.deals.length : 0} deals</div>
+                            </div>
+                        `;
                     });
                     
-                    const choice = prompt(savesList + '\nEnter the number of the save to load:');
-                    if (!choice) return;
+                    // Add clear all at bottom
+                    html += `
+                        <div onclick="if(confirm('Clear all saves?')) { localStorage.removeItem('tygCalculatorSaves'); window.updateLoadDropdown(); }" style="
+                            padding: 6px 12px;
+                            cursor: pointer;
+                            border-top: 1px solid #e2e8f0;
+                            color: #ef4444;
+                            font-size: 10px;
+                            text-align: center;
+                            transition: background 0.2s;
+                        " onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                            Clear All
+                        </div>
+                    `;
                     
-                    const saveIndex = parseInt(choice) - 1;
-                    if (saveIndex < 0 || saveIndex >= saves.length) {
-                        alert('Invalid selection');
-                        return;
-                    }
+                    content.innerHTML = html;
+                };
+                
+                // Load specific state
+                window.loadState = function(index) {
+                    const saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
+                    if (index < 0 || index >= saves.length) return;
                     
-                    const state = saves[saveIndex];
+                    const state = saves[index];
                     
                     // Restore the state
                     document.getElementById('currentLevel').value = state.level;
@@ -365,57 +487,45 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.calculator.updateDealsDisplay();
                     window.calculator.updateCalculation();
                     
-                    alert('Loaded: ' + state.name);
-                };
-                
-                // Clear saved states function
-                window.clearSavedStates = function() {
-                    if (confirm('Are you sure you want to clear all saved states?')) {
-                        localStorage.removeItem('tygCalculatorSaves');
-                        alert('All saved states have been cleared');
+                    // Close dropdown
+                    document.getElementById('loadDropdown').style.display = 'none';
+                    
+                    // Show loaded indicator
+                    const indicator = document.getElementById('saveIndicator');
+                    if (indicator) {
+                        indicator.textContent = '✓ Loaded';
+                        indicator.style.color = '#3b82f6';
+                        indicator.style.display = 'inline';
+                        indicator.style.opacity = '1';
+                        setTimeout(function() {
+                            indicator.style.opacity = '0';
+                            setTimeout(function() {
+                                indicator.style.display = 'none';
+                                indicator.textContent = '✓ Saved';
+                                indicator.style.color = '#10b981';
+                            }, 300);
+                        }, 2000);
                     }
                 };
                 
-                // Auto-save current state periodically (every 30 seconds if there are deals)
+                // Helper function for time ago
+                function getTimeAgo(date) {
+                    const seconds = Math.floor((new Date() - date) / 1000);
+                    if (seconds < 60) return 'just now';
+                    const minutes = Math.floor(seconds / 60);
+                    if (minutes < 60) return minutes + ' min ago';
+                    const hours = Math.floor(minutes / 60);
+                    if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
+                    const days = Math.floor(hours / 24);
+                    return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+                }
+                
+                // Auto-save every 30 seconds
                 setInterval(function() {
                     if (window.calculator && window.calculator.deals && window.calculator.deals.length > 0) {
-                        const autoSave = {
-                            level: document.getElementById('currentLevel').value,
-                            deals: window.calculator.deals,
-                            baseSalary: document.getElementById('baseSalary').value,
-                            teamBillings: document.getElementById('teamBillings').value,
-                            fastTrack: document.getElementById('fastTrackToggleHeader')?.checked || false,
-                            savedAt: new Date().toISOString(),
-                            name: 'Auto-save'
-                        };
-                        localStorage.setItem('tygCalculatorAutoSave', JSON.stringify(autoSave));
+                        window.quickSave();
                     }
                 }, 30000);
-                
-                // Load auto-save on page load if exists
-                const autoSave = localStorage.getItem('tygCalculatorAutoSave');
-                if (autoSave && window.calculator.deals.length === 0) {
-                    if (confirm('Found auto-saved data. Would you like to restore it?')) {
-                        const state = JSON.parse(autoSave);
-                        document.getElementById('currentLevel').value = state.level;
-                        document.getElementById('baseSalary').value = state.baseSalary || '';
-                        document.getElementById('teamBillings').value = state.teamBillings || '';
-                        
-                        const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
-                        if (fastTrackToggle) {
-                            fastTrackToggle.checked = state.fastTrack || false;
-                        }
-                        
-                        if (state.deals && state.deals.length > 0) {
-                            state.deals.forEach(deal => {
-                                window.calculator.deals.push(deal);
-                            });
-                        }
-                        
-                        window.calculator.updateDealsDisplay();
-                        window.calculator.updateCalculation();
-                    }
-                }
                 
             }, 1000);
             
