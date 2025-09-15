@@ -1,5 +1,5 @@
 // Complete fix for TYG Commission Calculator
-// Fixes: H1/H2 promotions, Senior tiers, Principal tiers
+// Fixes: H1/H2 promotions, Senior tiers, Principal tiers, Fast-Track UI, Enter key
 
 document.addEventListener('DOMContentLoaded', function() {
     let attempts = 0;
@@ -319,535 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return result;
             };
             
-            // Recalculate
-            window.calculator.updateCalculation();
-            
-            console.log('✓ Complete fix applied!');
-            console.log('✓ H1/H2 promotions fixed');
-            console.log('✓ Senior tiers fixed (25% then 30%)');
-            console.log('✓ Principal tiers fixed (continues from promotion point)');
-            
-            // Add Fast-Track toggle behavior fixes
-            setTimeout(function() {
-                const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
-                const currentLevelSelect = document.getElementById('currentLevel');
-                const periodSelector = document.getElementById('periodSelector');
-                const periodHelperText = document.getElementById('periodHelperText');
-                
-                if (fastTrackToggle) {
-                    // Function to update UI based on Fast-Track state
-                    const updateFastTrackUI = function() {
-                        const isChecked = fastTrackToggle.checked;
-                        const currentLevel = currentLevelSelect.value;
-                        
-                        if (isChecked) {
-                            // Fast-Track ON
-                            if (currentLevel !== 'Consultant') {
-                                // Not consultant - disable Fast-Track
-                                fastTrackToggle.checked = false;
-                                fastTrackToggle.disabled = true;
-                                fastTrackToggle.parentElement.style.opacity = '0.5';
-                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
-                            } else {
-                                // Is consultant - lock to Consultant and hide H1/H2
-                                currentLevelSelect.disabled = true;
-                                currentLevelSelect.style.opacity = '0.7';
-                                currentLevelSelect.title = 'Fast-Track locked to Consultant level';
-                                
-                                // Hide period selector
-                                if (periodSelector) periodSelector.style.display = 'none';
-                                if (periodHelperText) periodHelperText.style.display = 'none';
-                            }
-                        } else {
-                            // Fast-Track OFF
-                            currentLevelSelect.disabled = false;
-                            currentLevelSelect.style.opacity = '1';
-                            currentLevelSelect.title = '';
-                            
-                            // Show period selector (unless it should be hidden for other reasons)
-                            if (periodSelector && currentLevel !== 'Consultant') {
-                                periodSelector.style.display = 'flex';
-                            }
-                            if (periodHelperText && currentLevel !== 'Consultant') {
-                                periodHelperText.style.display = 'block';
-                            }
-                            
-                            // Enable/disable Fast-Track based on level
-                            if (currentLevel === 'Consultant') {
-                                fastTrackToggle.disabled = false;
-                                fastTrackToggle.parentElement.style.opacity = '1';
-                                fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
-                            } else {
-                                fastTrackToggle.disabled = true;
-                                fastTrackToggle.parentElement.style.opacity = '0.5';
-                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
-                            }
-                        }
-                        
-                        // Trigger recalculation
-                        if (window.calculator) {
-                            window.calculator.updateCalculation();
-                            window.calculator.updateStickyHeaderFromCurrentData();
-                        }
-                    };
-                    
-                    // Add event listeners
-                    fastTrackToggle.addEventListener('change', function() {
-                        updateFastTrackUI();
-                        // Also update deals display to show FT instead of H1/H2
-                        if (window.calculator && window.calculator.updateDealsDisplay) {
-                            window.calculator.updateDealsDisplay();
-                        }
-                    });
-                    currentLevelSelect.addEventListener('change', function() {
-                        // When level changes, update Fast-Track availability
-                        const newLevel = currentLevelSelect.value;
-                        
-                        if (newLevel !== 'Consultant') {
-                            // Turn off and disable Fast-Track
-                            fastTrackToggle.checked = false;
-                            fastTrackToggle.disabled = true;
-                            fastTrackToggle.parentElement.style.opacity = '0.5';
-                            fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
-                        } else {
-                            // Enable Fast-Track option
-                            fastTrackToggle.disabled = false;
-                            fastTrackToggle.parentElement.style.opacity = '1';
-                            fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
-                        }
-                        
-                        updateFastTrackUI();
-                    });
-                    
-                    // Initial setup
-                    updateFastTrackUI();
-                    
-                    console.log('✓ Fast-Track UI behavior fixed');
-                }
-            }, 1500);
-            
-            // Add save/load functionality with better UI
-            setTimeout(function() {
-                // Add save/load UI to the sticky header
-                const stickyMetrics = document.querySelector('.sticky-metrics');
-                if (stickyMetrics && !document.getElementById('saveLoadContainer')) {
-                    const saveLoadHTML = `
-                        <div id="saveLoadContainer" style="display: flex; align-items: center; gap: 8px; margin-left: 20px; padding-left: 20px; border-left: 1px solid #e2e8f0;">
-                            <button id="quickSaveBtn" onclick="window.quickSave()" style="
-                                background: transparent;
-                                border: 1px solid #cbd5e1;
-                                color: #64748b;
-                                padding: 4px 10px;
-                                border-radius: 4px;
-                                font-size: 11px;
-                                font-weight: 500;
-                                cursor: pointer;
-                                transition: all 0.2s;
-                            " onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-                                Save
-                            </button>
-                            <div style="position: relative;">
-                                <button id="loadMenuBtn" onclick="window.toggleLoadMenu()" style="
-                                    background: transparent;
-                                    border: 1px solid #cbd5e1;
-                                    color: #64748b;
-                                    padding: 4px 10px;
-                                    border-radius: 4px;
-                                    font-size: 11px;
-                                    font-weight: 500;
-                                    cursor: pointer;
-                                    transition: all 0.2s;
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 4px;
-                                " onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
-                                    Load <span style="font-size: 8px;">▼</span>
-                                </button>
-                                <div id="loadDropdown" style="
-                                    display: none;
-                                    position: absolute;
-                                    top: 100%;
-                                    right: 0;
-                                    margin-top: 4px;
-                                    background: white;
-                                    border: 1px solid #e2e8f0;
-                                    border-radius: 6px;
-                                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                                    min-width: 200px;
-                                    max-height: 300px;
-                                    overflow-y: auto;
-                                    z-index: 1000;
-                                ">
-                                    <div id="loadDropdownContent" style="padding: 4px;">
-                                        <div style="padding: 8px 12px; color: #94a3b8; font-size: 11px; border-bottom: 1px solid #f1f5f9;">No saved states</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <span id="saveIndicator" style="
-                                display: none;
-                                font-size: 10px;
-                                color: #10b981;
-                                font-weight: 500;
-                                opacity: 0;
-                                transition: opacity 0.3s;
-                            ">✓ Saved</span>
-                        </div>
-                    `;
-                    stickyMetrics.insertAdjacentHTML('beforeend', saveLoadHTML);
-                }
-                
-                // Quick save function - with custom name option
-                window.quickSave = function(customName) {
-                    const state = {
-                        level: document.getElementById('currentLevel').value,
-                        deals: window.calculator.deals,
-                        baseSalary: document.getElementById('baseSalary').value,
-                        teamBillings: document.getElementById('teamBillings').value,
-                        fastTrack: document.getElementById('fastTrackToggleHeader')?.checked || false,
-                        savedAt: new Date().toISOString(),
-                        name: customName || 'Save ' + new Date().toLocaleString('en-GB', { 
-                            day: '2-digit', 
-                            month: 'short', 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                        })
-                    };
-                    
-                    // Get existing saves
-                    let saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
-                    saves.push(state);
-                    
-                    // Keep only last 20 saves
-                    if (saves.length > 20) {
-                        saves = saves.slice(-20);
-                    }
-                    
-                    localStorage.setItem('tygCalculatorSaves', JSON.stringify(saves));
-                    
-                    // Show save indicator
-                    const indicator = document.getElementById('saveIndicator');
-                    if (indicator) {
-                        indicator.style.display = 'inline';
-                        indicator.style.opacity = '1';
-                        setTimeout(function() {
-                            indicator.style.opacity = '0';
-                            setTimeout(function() {
-                                indicator.style.display = 'none';
-                            }, 300);
-                        }, 2000);
-                    }
-                    
-                    // Update dropdown if open
-                    window.updateLoadDropdown();
-                };
-                
-                // Toggle save menu (new)
-                window.toggleSaveMenu = function() {
-                    const existingInput = document.getElementById('saveNameInput');
-                    if (existingInput) {
-                        existingInput.remove();
-                        return;
-                    }
-                    
-                    const saveBtn = document.getElementById('quickSaveBtn');
-                    const inputDiv = document.createElement('div');
-                    inputDiv.id = 'saveNameInput';
-                    inputDiv.style.cssText = 'position: absolute; top: 100%; left: 0; margin-top: 4px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000;';
-                    inputDiv.innerHTML = `
-                        <input type="text" id="saveNameField" placeholder="Save name..." style="
-                            padding: 4px 8px;
-                            border: 1px solid #cbd5e1;
-                            border-radius: 4px;
-                            font-size: 11px;
-                            width: 150px;
-                            margin-right: 4px;
-                        ">
-                        <button onclick="window.saveWithName()" style="
-                            padding: 4px 8px;
-                            background: #10b981;
-                            color: white;
-                            border: none;
-                            border-radius: 4px;
-                            font-size: 11px;
-                            cursor: pointer;
-                        ">Save</button>
-                    `;
-                    
-                    saveBtn.parentElement.style.position = 'relative';
-                    saveBtn.parentElement.appendChild(inputDiv);
-                    
-                    // Focus the input
-                    setTimeout(function() {
-                        const field = document.getElementById('saveNameField');
-                        if (field) {
-                            field.focus();
-                            field.onkeydown = function(e) {
-                                if (e.key === 'Enter') {
-                                    window.saveWithName();
-                                } else if (e.key === 'Escape') {
-                                    inputDiv.remove();
-                                }
-                            };
-                        }
-                    }, 10);
-                    
-                    // Close when clicking outside
-                    setTimeout(function() {
-                        document.addEventListener('click', function closeInput(e) {
-                            if (!inputDiv.contains(e.target) && e.target.id !== 'quickSaveBtn') {
-                                inputDiv.remove();
-                                document.removeEventListener('click', closeInput);
-                            }
-                        });
-                    }, 10);
-                };
-                
-                // Save with custom name
-                window.saveWithName = function() {
-                    const nameField = document.getElementById('saveNameField');
-                    const name = nameField ? nameField.value.trim() : '';
-                    
-                    if (name) {
-                        window.quickSave(name);
-                        document.getElementById('saveNameInput').remove();
-                    }
-                };
-                
-                // Update save button to handle click better
-                setTimeout(function() {
-                    const saveBtn = document.getElementById('quickSaveBtn');
-                    if (saveBtn) {
-                        saveBtn.onclick = function(e) {
-                            e.stopPropagation();
-                            if (e.shiftKey || e.ctrlKey) {
-                                // Quick save with auto name
-                                window.quickSave();
-                            } else {
-                                // Show name input
-                                window.toggleSaveMenu();
-                            }
-                        };
-                        saveBtn.title = 'Click to save with name, Shift+Click for quick save';
-                    }
-                }, 100);
-                
-                // Toggle load dropdown
-                window.toggleLoadMenu = function() {
-                    const dropdown = document.getElementById('loadDropdown');
-                    if (dropdown.style.display === 'none') {
-                        window.updateLoadDropdown();
-                        dropdown.style.display = 'block';
-                        
-                        // Close when clicking outside
-                        setTimeout(function() {
-                            document.addEventListener('click', function closeDropdown(e) {
-                                if (!dropdown.contains(e.target) && e.target.id !== 'loadMenuBtn') {
-                                    dropdown.style.display = 'none';
-                                    document.removeEventListener('click', closeDropdown);
-                                }
-                            });
-                        }, 10);
-                    } else {
-                        dropdown.style.display = 'none';
-                    }
-                };
-                
-                // Update load dropdown content with delete buttons
-                window.updateLoadDropdown = function() {
-                    const saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
-                    const content = document.getElementById('loadDropdownContent');
-                    
-                    if (!content) return;
-                    
-                    if (saves.length === 0) {
-                        content.innerHTML = '<div style="padding: 8px 12px; color: #94a3b8; font-size: 11px;">No saved states</div>';
-                        return;
-                    }
-                    
-                    // Build dropdown items with delete buttons
-                    let html = '';
-                    saves.reverse().forEach((save, index) => {
-                        const realIndex = saves.length - 1 - index;
-                        const date = new Date(save.savedAt);
-                        const timeAgo = getTimeAgo(date);
-                        
-                        html += `
-                            <div style="
-                                display: flex;
-                                align-items: center;
-                                border-bottom: 1px solid #f8fafc;
-                                transition: background 0.2s;
-                            " onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                <div onclick="window.loadState(${realIndex})" style="
-                                    flex: 1;
-                                    padding: 8px 12px;
-                                    cursor: pointer;
-                                    font-size: 11px;
-                                ">
-                                    <div style="font-weight: 500; color: #334155; margin-bottom: 2px;">${save.name}</div>
-                                    <div style="color: #94a3b8; font-size: 10px;">${timeAgo} • ${save.deals ? save.deals.length : 0} deals</div>
-                                </div>
-                                <button onclick="window.deleteSave(${realIndex}); event.stopPropagation();" style="
-                                    background: transparent;
-                                    border: none;
-                                    color: #ef4444;
-                                    padding: 4px 8px;
-                                    cursor: pointer;
-                                    font-size: 14px;
-                                    opacity: 0.5;
-                                    transition: opacity 0.2s;
-                                " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">×</button>
-                            </div>
-                        `;
-                    });
-                    
-                    // Add clear all at bottom if there are saves
-                    if (saves.length > 0) {
-                        html += `
-                            <div onclick="if(confirm('Clear all saves?')) { localStorage.removeItem('tygCalculatorSaves'); window.updateLoadDropdown(); }" style="
-                                padding: 6px 12px;
-                                cursor: pointer;
-                                border-top: 1px solid #e2e8f0;
-                                color: #ef4444;
-                                font-size: 10px;
-                                text-align: center;
-                                transition: background 0.2s;
-                            " onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
-                                Clear All
-                            </div>
-                        `;
-                    }
-                    
-                    content.innerHTML = html;
-                };
-                
-                // Delete individual save
-                window.deleteSave = function(index) {
-                    let saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
-                    if (index >= 0 && index < saves.length) {
-                        saves.splice(index, 1);
-                        localStorage.setItem('tygCalculatorSaves', JSON.stringify(saves));
-                        window.updateLoadDropdown();
-                    }
-                };
-                
-                // Load specific state
-                window.loadState = function(index) {
-                    const saves = JSON.parse(localStorage.getItem('tygCalculatorSaves') || '[]');
-                    if (index < 0 || index >= saves.length) return;
-                    
-                    const state = saves[index];
-                    
-                    // Restore the state
-                    document.getElementById('currentLevel').value = state.level;
-                    document.getElementById('baseSalary').value = state.baseSalary || '';
-                    document.getElementById('teamBillings').value = state.teamBillings || '';
-                    
-                    const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
-                    if (fastTrackToggle) {
-                        fastTrackToggle.checked = state.fastTrack || false;
-                    }
-                    
-                    // Clear and restore deals
-                    window.calculator.deals = [];
-                    if (state.deals && state.deals.length > 0) {
-                        state.deals.forEach(deal => {
-                            window.calculator.deals.push(deal);
-                        });
-                    }
-                    
-                    // Update display
-                    window.calculator.updateDealsDisplay();
-                    window.calculator.updateCalculation();
-                    
-                    // Close dropdown
-                    document.getElementById('loadDropdown').style.display = 'none';
-                    
-                    // Show loaded indicator
-                    const indicator = document.getElementById('saveIndicator');
-                    if (indicator) {
-                        indicator.textContent = '✓ Loaded';
-                        indicator.style.color = '#3b82f6';
-                        indicator.style.display = 'inline';
-                        indicator.style.opacity = '1';
-                        setTimeout(function() {
-                            indicator.style.opacity = '0';
-                            setTimeout(function() {
-                                indicator.style.display = 'none';
-                                indicator.textContent = '✓ Saved';
-                                indicator.style.color = '#10b981';
-                            }, 300);
-                        }, 2000);
-                    }
-                };
-                
-                // Helper function for time ago
-                function getTimeAgo(date) {
-                    const seconds = Math.floor((new Date() - date) / 1000);
-                    if (seconds < 60) return 'just now';
-                    const minutes = Math.floor(seconds / 60);
-                    if (minutes < 60) return minutes + ' min ago';
-                    const hours = Math.floor(minutes / 60);
-                    if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
-                    const days = Math.floor(hours / 24);
-                    return days + ' day' + (days > 1 ? 's' : '') + ' ago';
-                }
-                
-                // Auto-save every 30 seconds
-                setInterval(function() {
-                    if (window.calculator && window.calculator.deals && window.calculator.deals.length > 0) {
-                        window.quickSave();
-                    }
-                }, 30000);
-                
-            }, 1000);
-            
-            // Fix the empty state display text for Principal rates - more aggressive approach
-            setInterval(function() {
-                // Find all elements that might contain the wrong text
-                const allElements = document.querySelectorAll('*');
-                allElements.forEach(element => {
-                    if (element.innerHTML && typeof element.innerHTML === 'string') {
-                        // Check if this element contains the wrong text
-                        if (element.innerHTML.includes('Principal Consultant:') && 
-                            element.innerHTML.includes('30-50% tiered rates')) {
-                            element.innerHTML = element.innerHTML.replace('30-50% tiered rates', '25-50% tiered rates');
-                            console.log('Fixed Principal text from 30-50% to 25-50%');
-                        }
-                        // Also fix if it's in a different format
-                        if (element.innerHTML.includes('Principal Consultant:</strong> £40,000 minimum • 30-50%')) {
-                            element.innerHTML = element.innerHTML.replace('30-50%', '25-50%');
-                        }
-                    }
-                });
-            }, 200); // Check every 200ms
-            
-            // Fix random 0 appearing in deal value input
-            const dealValueInput = document.getElementById('dealValue');
-            if (dealValueInput) {
-                // Clear any default value
-                if (dealValueInput.value === '0') {
-                    dealValueInput.value = '';
-                }
-                
-                // Prevent 0 from being set as default
-                const origSetAttribute = dealValueInput.setAttribute.bind(dealValueInput);
-                dealValueInput.setAttribute = function(name, value) {
-                    if (name === 'value' && value === '0') {
-                        return; // Don't set if it's 0
-                    }
-                    return origSetAttribute(name, value);
-                };
-                
-                // Monitor for unwanted changes
-                const observer = new MutationObserver(function() {
-                    if (dealValueInput.value === '0' && document.activeElement !== dealValueInput) {
-                        dealValueInput.value = '';
-                    }
-                });
-                observer.observe(dealValueInput, { attributes: true, attributeFilter: ['value'] });
-            }
-            
             // Override deal display to show commission percentage with better alignment
             const origUpdateDealsDisplay = window.calculator.updateDealsDisplay.bind(window.calculator);
             window.calculator.updateDealsDisplay = function() {
@@ -927,6 +398,128 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.lastCalculationResult = result; // Store for the breakdown update
                 return result;
             };
+            
+            // Recalculate
+            window.calculator.updateCalculation();
+            
+            console.log('✓ Complete fix applied!');
+            console.log('✓ H1/H2 promotions fixed');
+            console.log('✓ Senior tiers fixed (25% then 30%)');
+            console.log('✓ Principal tiers fixed (continues from promotion point)');
+            
+            // Add Fast-Track toggle behavior fixes
+            setTimeout(function() {
+                const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
+                const currentLevelSelect = document.getElementById('currentLevel');
+                const periodSelector = document.getElementById('periodSelector');
+                const periodHelperText = document.getElementById('periodHelperText');
+                
+                if (fastTrackToggle) {
+                    // Function to update UI based on Fast-Track state
+                    const updateFastTrackUI = function() {
+                        const isChecked = fastTrackToggle.checked;
+                        const currentLevel = currentLevelSelect.value;
+                        
+                        if (isChecked) {
+                            // Fast-Track ON
+                            if (currentLevel !== 'Consultant') {
+                                // Not consultant - disable Fast-Track
+                                fastTrackToggle.checked = false;
+                                fastTrackToggle.disabled = true;
+                                fastTrackToggle.parentElement.style.opacity = '0.5';
+                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                            } else {
+                                // Is consultant - lock to Consultant and hide H1/H2
+                                currentLevelSelect.disabled = true;
+                                currentLevelSelect.style.opacity = '0.7';
+                                currentLevelSelect.title = 'Fast-Track locked to Consultant level';
+                                
+                                // Hide period selector
+                                if (periodSelector) periodSelector.style.display = 'none';
+                                if (periodHelperText) periodHelperText.style.display = 'none';
+                            }
+                        } else {
+                            // Fast-Track OFF
+                            currentLevelSelect.disabled = false;
+                            currentLevelSelect.style.opacity = '1';
+                            currentLevelSelect.title = '';
+                            
+                            // Show period selector (unless it should be hidden for other reasons)
+                            if (periodSelector && currentLevel !== 'Consultant') {
+                                periodSelector.style.display = 'flex';
+                            }
+                            if (periodHelperText && currentLevel !== 'Consultant') {
+                                periodHelperText.style.display = 'block';
+                            }
+                            
+                            // Enable/disable Fast-Track based on level
+                            if (currentLevel === 'Consultant') {
+                                fastTrackToggle.disabled = false;
+                                fastTrackToggle.parentElement.style.opacity = '1';
+                                fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
+                            } else {
+                                fastTrackToggle.disabled = true;
+                                fastTrackToggle.parentElement.style.opacity = '0.5';
+                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                            }
+                        }
+                        
+                        // Update deals display immediately
+                        if (window.calculator) {
+                            window.calculator.updateDealsDisplay();
+                            window.calculator.updateCalculation();
+                            window.calculator.updateStickyHeaderFromCurrentData();
+                        }
+                    };
+                    
+                    // Add event listeners
+                    fastTrackToggle.addEventListener('change', updateFastTrackUI);
+                    currentLevelSelect.addEventListener('change', function() {
+                        // When level changes, update Fast-Track availability
+                        const newLevel = currentLevelSelect.value;
+                        
+                        if (newLevel !== 'Consultant') {
+                            // Turn off and disable Fast-Track
+                            fastTrackToggle.checked = false;
+                            fastTrackToggle.disabled = true;
+                            fastTrackToggle.parentElement.style.opacity = '0.5';
+                            fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                        } else {
+                            // Enable Fast-Track option
+                            fastTrackToggle.disabled = false;
+                            fastTrackToggle.parentElement.style.opacity = '1';
+                            fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
+                        }
+                        
+                        updateFastTrackUI();
+                    });
+                    
+                    // Initial setup
+                    updateFastTrackUI();
+                    
+                    console.log('✓ Fast-Track UI behavior fixed');
+                }
+            }, 1500);
+            
+            // Fix the empty state display text for Principal rates - more aggressive approach
+            setInterval(function() {
+                // Find all elements that might contain the wrong text
+                const allElements = document.querySelectorAll('*');
+                allElements.forEach(element => {
+                    if (element.innerHTML && typeof element.innerHTML === 'string') {
+                        // Check if this element contains the wrong text
+                        if (element.innerHTML.includes('Principal Consultant:') && 
+                            element.innerHTML.includes('30-50% tiered rates')) {
+                            element.innerHTML = element.innerHTML.replace('30-50% tiered rates', '25-50% tiered rates');
+                            console.log('Fixed Principal text from 30-50% to 25-50%');
+                        }
+                        // Also fix if it's in a different format
+                        if (element.innerHTML.includes('Principal Consultant:</strong> £40,000 minimum • 30-50%')) {
+                            element.innerHTML = element.innerHTML.replace('30-50%', '25-50%');
+                        }
+                    }
+                });
+            }, 200); // Check every 200ms
         }
         
         if (attempts > 50) {
