@@ -11,6 +11,62 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Applying complete fix (attempt ' + attempts + ')...');
             
+            // Fix random 0 appearing in deal value input and Enter key - with longer delay
+            // Wait 3.5 seconds for the page to fully initialize
+            setTimeout(function() {
+                console.log('Starting Enter key fix...');
+                
+                // Attach Enter key handler with retry logic
+                let attempts = 0;
+                const attachEnterKey = setInterval(function() {
+                    attempts++;
+                    const dealValueInput = document.getElementById('dealValue');
+                    
+                    if (dealValueInput && !dealValueInput.hasEnterKeyFixed) {
+                        // Clear any default value
+                        if (dealValueInput.value === '0' || dealValueInput.value === 0) {
+                            dealValueInput.value = '';
+                        }
+                        
+                        // Mark as fixed
+                        dealValueInput.hasEnterKeyFixed = true;
+                        
+                        // Add Enter key handler
+                        dealValueInput.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter' || e.keyCode === 13 || e.which === 13) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('Enter key pressed - adding deal');
+                                if (window.addDeal) {
+                                    window.addDeal();
+                                } else {
+                                    console.error('addDeal function not found');
+                                }
+                                return false;
+                            }
+                        });
+                        
+                        console.log('✓ Enter key handler attached successfully!');
+                        clearInterval(attachEnterKey);
+                    }
+                    
+                    // Stop trying after 30 attempts (6 seconds)
+                    if (attempts > 30) {
+                        console.error('Could not attach Enter key handler - input not found');
+                        clearInterval(attachEnterKey);
+                    }
+                }, 200); // Check every 200ms
+                
+                // Also clear any 0 values periodically
+                setInterval(function() {
+                    const input = document.getElementById('dealValue');
+                    if (input && input.value === '0' && document.activeElement !== input) {
+                        input.value = '';
+                    }
+                }, 500);
+                
+            }, 3500); // Wait 3.5 seconds for page to fully load
+            
             // Save original function
             const origCalc = window.calculator.calculateCommission.bind(window.calculator);
             
@@ -270,6 +326,105 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ H1/H2 promotions fixed');
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
+            
+            // Add Fast-Track toggle behavior fixes
+            setTimeout(function() {
+                const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
+                const currentLevelSelect = document.getElementById('currentLevel');
+                const periodSelector = document.getElementById('periodSelector');
+                const periodHelperText = document.getElementById('periodHelperText');
+                
+                if (fastTrackToggle) {
+                    // Function to update UI based on Fast-Track state
+                    const updateFastTrackUI = function() {
+                        const isChecked = fastTrackToggle.checked;
+                        const currentLevel = currentLevelSelect.value;
+                        
+                        if (isChecked) {
+                            // Fast-Track ON
+                            if (currentLevel !== 'Consultant') {
+                                // Not consultant - disable Fast-Track
+                                fastTrackToggle.checked = false;
+                                fastTrackToggle.disabled = true;
+                                fastTrackToggle.parentElement.style.opacity = '0.5';
+                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                            } else {
+                                // Is consultant - lock to Consultant and hide H1/H2
+                                currentLevelSelect.disabled = true;
+                                currentLevelSelect.style.opacity = '0.7';
+                                currentLevelSelect.title = 'Fast-Track locked to Consultant level';
+                                
+                                // Hide period selector
+                                if (periodSelector) periodSelector.style.display = 'none';
+                                if (periodHelperText) periodHelperText.style.display = 'none';
+                            }
+                        } else {
+                            // Fast-Track OFF
+                            currentLevelSelect.disabled = false;
+                            currentLevelSelect.style.opacity = '1';
+                            currentLevelSelect.title = '';
+                            
+                            // Show period selector (unless it should be hidden for other reasons)
+                            if (periodSelector && currentLevel !== 'Consultant') {
+                                periodSelector.style.display = 'flex';
+                            }
+                            if (periodHelperText && currentLevel !== 'Consultant') {
+                                periodHelperText.style.display = 'block';
+                            }
+                            
+                            // Enable/disable Fast-Track based on level
+                            if (currentLevel === 'Consultant') {
+                                fastTrackToggle.disabled = false;
+                                fastTrackToggle.parentElement.style.opacity = '1';
+                                fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
+                            } else {
+                                fastTrackToggle.disabled = true;
+                                fastTrackToggle.parentElement.style.opacity = '0.5';
+                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                            }
+                        }
+                        
+                        // Trigger recalculation
+                        if (window.calculator) {
+                            window.calculator.updateCalculation();
+                            window.calculator.updateStickyHeaderFromCurrentData();
+                        }
+                    };
+                    
+                    // Add event listeners
+                    fastTrackToggle.addEventListener('change', function() {
+                        updateFastTrackUI();
+                        // Also update deals display to show FT instead of H1/H2
+                        if (window.calculator && window.calculator.updateDealsDisplay) {
+                            window.calculator.updateDealsDisplay();
+                        }
+                    });
+                    currentLevelSelect.addEventListener('change', function() {
+                        // When level changes, update Fast-Track availability
+                        const newLevel = currentLevelSelect.value;
+                        
+                        if (newLevel !== 'Consultant') {
+                            // Turn off and disable Fast-Track
+                            fastTrackToggle.checked = false;
+                            fastTrackToggle.disabled = true;
+                            fastTrackToggle.parentElement.style.opacity = '0.5';
+                            fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                        } else {
+                            // Enable Fast-Track option
+                            fastTrackToggle.disabled = false;
+                            fastTrackToggle.parentElement.style.opacity = '1';
+                            fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
+                        }
+                        
+                        updateFastTrackUI();
+                    });
+                    
+                    // Initial setup
+                    updateFastTrackUI();
+                    
+                    console.log('✓ Fast-Track UI behavior fixed');
+                }
+            }, 1500);
             
             // Add save/load functionality with better UI
             setTimeout(function() {
@@ -703,19 +858,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.updateStickyHeaderFromCurrentData();
                     return;
                 }
+                
+                // Check if Fast-Track is enabled
+                const fastTrackEnabled = document.getElementById('fastTrackToggleHeader')?.checked;
+                const currentLevel = document.getElementById('currentLevel').value;
+                const isInFastTrack = fastTrackEnabled && currentLevel === 'Consultant';
 
                 // Rebuild the deals display with percentage and better alignment
                 dealsList.innerHTML = this.deals.map((deal, index) => {
                     const commission = this.calculateDealCommission(deal.value, deal.period, index);
                     const percentage = ((commission / deal.value) * 100).toFixed(1);
                     
+                    // Show "FT" for Fast-Track mode, otherwise show H1/H2
+                    const periodDisplay = isInFastTrack ? 'FT' : deal.period;
+                    const periodClass = isInFastTrack ? 'ft' : deal.period.toLowerCase();
+                    
                     return `
-                        <div class="deal-item ${deal.period.toLowerCase()}" style="display: grid !important; grid-template-columns: 80px 50px 120px 70px 100px 30px !important; align-items: center !important; gap: 12px !important; padding: 12px 16px;">
+                        <div class="deal-item ${periodClass}" style="display: grid !important; grid-template-columns: 80px 50px 120px 70px 100px 30px !important; align-items: center !important; gap: 12px !important; padding: 12px 16px; ${isInFastTrack ? 'background: #fef3c7; border-color: #fbbf24;' : ''}">
                             <span class="deal-number" style="font-size: 11px; font-weight: 500; color: #94a3b8;">Deal ${index + 1}</span>
-                            <span class="deal-period-badge ${deal.period.toLowerCase()}" style="text-align: center; justify-self: center;">${deal.period}</span>
+                            <span class="deal-period-badge" style="text-align: center; justify-self: center; ${isInFastTrack ? 'background: #fbbf24; color: #78350f; font-weight: 600;' : ''}">${periodDisplay}</span>
                             <span class="deal-value" style="font-weight: 500; color: #1e293b; text-align: right;">${this.formatCurrency(deal.value)}</span>
-                            <span class="deal-percentage" style="background: #1e40af; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; justify-self: center;">${percentage}%</span>
-                            <span class="deal-commission" style="color: #059669; font-weight: 500; text-align: right;">+${this.formatCurrency(commission)}</span>
+                            <span class="deal-percentage" style="background: ${isInFastTrack ? '#f59e0b' : '#1e40af'}; color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-align: center; justify-self: center;">${percentage}%</span>
+                            <span class="deal-commission" style="color: ${isInFastTrack ? '#d97706' : '#059669'}; font-weight: 500; text-align: right;">+${this.formatCurrency(commission)}</span>
                             <button class="deal-remove" onclick="window.calculator.removeDeal(${deal.id})" title="Remove deal" style="background: transparent; border: none; color: #94a3b8; padding: 4px; cursor: pointer; font-size: 18px; line-height: 1; justify-self: end;">×</button>
                         </div>
                     `;
