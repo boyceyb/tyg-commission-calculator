@@ -512,3 +512,154 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 100);
 });
+
+// Add URL sharing functionality - Add this to the end of your fix.js file
+
+// Function to generate shareable URL
+window.generateShareableURL = function() {
+    const state = {
+        level: document.getElementById('currentLevel').value,
+        deals: window.calculator.deals,
+        salary: document.getElementById('baseSalary').value || '',
+        team: document.getElementById('teamBillings').value || '',
+        ft: document.getElementById('fastTrackToggleHeader')?.checked ? '1' : '0'
+    };
+    
+    const params = new URLSearchParams();
+    params.set('level', state.level);
+    if (state.salary) params.set('salary', state.salary);
+    if (state.team) params.set('team', state.team);
+    params.set('ft', state.ft);
+    
+    // Encode deals as compact string: value1,period1|value2,period2
+    if (state.deals && state.deals.length > 0) {
+        const dealsStr = state.deals.map(d => `${d.value},${d.period}`).join('|');
+        params.set('deals', dealsStr);
+    }
+    
+    const url = window.location.origin + window.location.pathname + '?' + params.toString();
+    return url;
+};
+
+// Function to copy URL to clipboard
+window.shareCalculator = function() {
+    const url = window.generateShareableURL();
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(url).then(function() {
+        // Show success message
+        const indicator = document.createElement('div');
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        `;
+        indicator.textContent = '✓ Link copied to clipboard!';
+        document.body.appendChild(indicator);
+        
+        setTimeout(function() {
+            indicator.style.opacity = '0';
+            indicator.style.transition = 'opacity 0.3s ease';
+            setTimeout(function() {
+                document.body.removeChild(indicator);
+            }, 300);
+        }, 3000);
+    }).catch(function(err) {
+        console.error('Failed to copy URL:', err);
+        prompt('Copy this URL to share:', url);
+    });
+};
+
+// Function to load state from URL
+window.loadFromURL = function() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.has('level') || params.has('deals')) {
+        console.log('Loading state from URL...');
+        
+        // Set level
+        if (params.has('level')) {
+            document.getElementById('currentLevel').value = params.get('level');
+        }
+        
+        // Set Fast-Track
+        if (params.has('ft')) {
+            const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
+            if (fastTrackToggle) {
+                fastTrackToggle.checked = params.get('ft') === '1';
+            }
+        }
+        
+        // Set salary and team billings
+        if (params.has('salary')) {
+            document.getElementById('baseSalary').value = params.get('salary');
+        }
+        if (params.has('team')) {
+            document.getElementById('teamBillings').value = params.get('team');
+        }
+        
+        // Load deals
+        if (params.has('deals') && window.calculator) {
+            window.calculator.deals = [];
+            const dealsStr = params.get('deals');
+            const dealPairs = dealsStr.split('|');
+            
+            dealPairs.forEach(pair => {
+                const [value, period] = pair.split(',');
+                if (value && period) {
+                    window.calculator.addDeal(null, parseFloat(value), period);
+                }
+            });
+        }
+        
+        // Update display
+        if (window.calculator) {
+            window.calculator.updateDealsDisplay();
+            window.calculator.updateCalculation();
+        }
+        
+        console.log('✓ State loaded from URL');
+    }
+};
+
+// Add share button to the UI
+setTimeout(function() {
+    const stickyMetrics = document.querySelector('.sticky-metrics');
+    if (stickyMetrics && !document.getElementById('shareButton')) {
+        const shareBtn = document.createElement('button');
+        shareBtn.id = 'shareButton';
+        shareBtn.onclick = window.shareCalculator;
+        shareBtn.style.cssText = `
+            margin-left: 20px;
+            padding: 6px 14px;
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        `;
+        shareBtn.onmouseover = function() { this.style.background = '#f1f5f9'; };
+        shareBtn.onmouseout = function() { this.style.background = 'transparent'; };
+        shareBtn.innerHTML = '🔗 Share';
+        shareBtn.title = 'Copy shareable link';
+        
+        stickyMetrics.appendChild(shareBtn);
+    }
+}, 2000);
+
+// Auto-load from URL on page load
+setTimeout(function() {
+    window.loadFromURL();
+}, 4000); // Wait for calculator to initialize first
