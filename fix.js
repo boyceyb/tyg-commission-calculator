@@ -407,99 +407,83 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('✓ Senior tiers fixed (25% then 30%)');
             console.log('✓ Principal tiers fixed (continues from promotion point)');
             
-            // Add Fast-Track toggle behavior fixes
-            setTimeout(function() {
+            // Add Fast-Track toggle behavior fixes - MORE AGGRESSIVE
+            setInterval(function() {
                 const fastTrackToggle = document.getElementById('fastTrackToggleHeader');
                 const currentLevelSelect = document.getElementById('currentLevel');
                 const periodSelector = document.getElementById('periodSelector');
                 const periodHelperText = document.getElementById('periodHelperText');
+                const fastTrackContainer = document.getElementById('fastTrackContainerHeader');
                 
-                if (fastTrackToggle) {
-                    // Function to update UI based on Fast-Track state
-                    const updateFastTrackUI = function() {
-                        const isChecked = fastTrackToggle.checked;
-                        const currentLevel = currentLevelSelect.value;
-                        
+                if (fastTrackToggle && currentLevelSelect) {
+                    const currentLevel = currentLevelSelect.value;
+                    const isChecked = fastTrackToggle.checked;
+                    
+                    // RULE 1: If not Consultant, Fast-Track must be OFF and HIDDEN
+                    if (currentLevel !== 'Consultant') {
+                        // Force Fast-Track OFF
                         if (isChecked) {
-                            // Fast-Track ON
-                            if (currentLevel !== 'Consultant') {
-                                // Not consultant - disable Fast-Track
-                                fastTrackToggle.checked = false;
-                                fastTrackToggle.disabled = true;
-                                fastTrackToggle.parentElement.style.opacity = '0.5';
-                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
-                            } else {
-                                // Is consultant - lock to Consultant and hide H1/H2
-                                currentLevelSelect.disabled = true;
-                                currentLevelSelect.style.opacity = '0.7';
-                                currentLevelSelect.title = 'Fast-Track locked to Consultant level';
-                                
-                                // Hide period selector
-                                if (periodSelector) periodSelector.style.display = 'none';
-                                if (periodHelperText) periodHelperText.style.display = 'none';
+                            fastTrackToggle.checked = false;
+                            console.log('Forced Fast-Track OFF - not Consultant');
+                        }
+                        // Hide the entire Fast-Track toggle
+                        if (fastTrackContainer) {
+                            fastTrackContainer.style.display = 'none';
+                        }
+                        // Make sure period selector is visible
+                        if (periodSelector) periodSelector.style.display = 'flex';
+                        if (periodHelperText) periodHelperText.style.display = 'block';
+                        // Ensure level selector is enabled
+                        currentLevelSelect.disabled = false;
+                        currentLevelSelect.style.opacity = '1';
+                    } else {
+                        // RULE 2: If Consultant, show Fast-Track option
+                        if (fastTrackContainer) {
+                            fastTrackContainer.style.display = 'inline-flex';
+                        }
+                        
+                        // RULE 3: If Fast-Track is ON, lock everything
+                        if (isChecked) {
+                            // Force level to stay Consultant
+                            if (currentLevelSelect.value !== 'Consultant') {
+                                currentLevelSelect.value = 'Consultant';
+                                console.log('Forced level back to Consultant');
                             }
+                            // Disable level selector
+                            currentLevelSelect.disabled = true;
+                            currentLevelSelect.style.opacity = '0.5';
+                            currentLevelSelect.style.cursor = 'not-allowed';
+                            // Hide period selector
+                            if (periodSelector) periodSelector.style.display = 'none';
+                            if (periodHelperText) periodHelperText.style.display = 'none';
                         } else {
-                            // Fast-Track OFF
+                            // Fast-Track OFF - enable everything
                             currentLevelSelect.disabled = false;
                             currentLevelSelect.style.opacity = '1';
-                            currentLevelSelect.title = '';
-                            
-                            // Show period selector (unless it should be hidden for other reasons)
-                            if (periodSelector && currentLevel !== 'Consultant') {
-                                periodSelector.style.display = 'flex';
-                            }
-                            if (periodHelperText && currentLevel !== 'Consultant') {
-                                periodHelperText.style.display = 'block';
-                            }
-                            
-                            // Enable/disable Fast-Track based on level
-                            if (currentLevel === 'Consultant') {
-                                fastTrackToggle.disabled = false;
-                                fastTrackToggle.parentElement.style.opacity = '1';
-                                fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
-                            } else {
-                                fastTrackToggle.disabled = true;
-                                fastTrackToggle.parentElement.style.opacity = '0.5';
-                                fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
+                            currentLevelSelect.style.cursor = 'pointer';
+                            // Show period selector
+                            if (periodSelector) periodSelector.style.display = 'flex';
+                            if (periodHelperText) periodHelperText.style.display = 'block';
+                        }
+                    }
+                    
+                    // Update deals display if needed
+                    if (window.calculator && window.calculator.deals && window.calculator.deals.length > 0) {
+                        // Check if deals need updating
+                        const firstDeal = document.querySelector('.deal-period-badge');
+                        if (firstDeal) {
+                            const showsFT = firstDeal.textContent === 'FT';
+                            const shouldShowFT = isChecked && currentLevel === 'Consultant';
+                            if (showsFT !== shouldShowFT) {
+                                window.calculator.updateDealsDisplay();
+                                console.log('Updated deals display for Fast-Track');
                             }
                         }
-                        
-                        // Update deals display immediately
-                        if (window.calculator) {
-                            window.calculator.updateDealsDisplay();
-                            window.calculator.updateCalculation();
-                            window.calculator.updateStickyHeaderFromCurrentData();
-                        }
-                    };
-                    
-                    // Add event listeners
-                    fastTrackToggle.addEventListener('change', updateFastTrackUI);
-                    currentLevelSelect.addEventListener('change', function() {
-                        // When level changes, update Fast-Track availability
-                        const newLevel = currentLevelSelect.value;
-                        
-                        if (newLevel !== 'Consultant') {
-                            // Turn off and disable Fast-Track
-                            fastTrackToggle.checked = false;
-                            fastTrackToggle.disabled = true;
-                            fastTrackToggle.parentElement.style.opacity = '0.5';
-                            fastTrackToggle.parentElement.title = 'Fast-Track only available for Consultant level';
-                        } else {
-                            // Enable Fast-Track option
-                            fastTrackToggle.disabled = false;
-                            fastTrackToggle.parentElement.style.opacity = '1';
-                            fastTrackToggle.parentElement.title = 'Year 1 Fast-Track for Consultants';
-                        }
-                        
-                        updateFastTrackUI();
-                    });
-                    
-                    // Initial setup
-                    updateFastTrackUI();
-                    
-                    console.log('✓ Fast-Track UI behavior fixed');
+                    }
                 }
-            }, 1500);
+            }, 100); // Check every 100ms - aggressive enforcement
+            
+            console.log('✓ Fast-Track aggressive enforcement started');
             
             // Fix the empty state display text for Principal rates - more aggressive approach
             setInterval(function() {
